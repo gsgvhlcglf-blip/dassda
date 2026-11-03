@@ -1261,7 +1261,7 @@
             return;
           }
           if (section === "content") {
-            view.innerHTML = `<div class="grid">${state.content.map((r) => `<section class="content-card"><p class="eyebrow">${esc(r.key)}</p><h3>${esc(r.title.tr)}</h3><p>${esc(r.body.tr.slice(0, 160))}${r.body.tr.length > 160 ? "…" : ""}</p>${action("Metni düzenle ↗", "edit", r.id, "ghost")}</section>`).join("")}</div>`;
+            view.innerHTML = `<div class="actions">${action("Blog yazısı ekle", "new-blog")}</div><div class="grid">${state.content.filter(r=>r.key!=="shipping-tracking").map((r) => `<section class="content-card"><p class="eyebrow">${esc(r.key)}</p><h3>${esc(r.title.tr)}</h3><p>${esc(r.body.tr.slice(0, 160))}${r.body.tr.length > 160 ? "…" : ""}</p>${action("Metni düzenle ↗", "edit", r.id, "ghost")}</section>`).join("")}</div>`;
             return;
           }
           if (section === "preview") {
@@ -1270,7 +1270,7 @@
             updatePreviewModels();
             return;
           }
-          view.innerHTML = `<div class="welcome"><section class="box"><p class="eyebrow">YEDEĞİNİZ ELİNİZDE</p><h2>Taslağınızı yanınıza alın.</h2><p class="muted">Taslağı JSON dosyası olarak indirip başka bir tarayıcıya aktarabilirsiniz. Tarayıcı verilerini temizlemeden önce yedek alın.</p><div class="actions">${action("Taslağı indir ↗", "export")}${action("Taslak yükle", "import", "", "button secondary")}</div></section><section class="box"><p class="eyebrow">ÇALIŞMA ALANI</p>${[
+          view.innerHTML = shippingSettingsHTML() + `<div class="welcome"><section class="box"><p class="eyebrow">YEDEĞİNİZ ELİNİZDE</p><h2>Taslağınızı yanınıza alın.</h2><p class="muted">Taslağı JSON dosyası olarak indirip başka bir tarayıcıya aktarabilirsiniz. Tarayıcı verilerini temizlemeden önce yedek alın.</p><div class="actions">${action("Taslağı indir ↗", "export")}${action("Taslak yükle", "import", "", "button secondary")}</div></section><section class="box"><p class="eyebrow">ÇALIŞMA ALANI</p>${[
             ["Kayıt yeri", "Bu tarayıcı"],
             ["Canlı mağaza bağlantısı", "Bağlı değil"],
             ["Müşteri / ödeme verisi", "Bu panelde bulunmaz"],
@@ -1285,6 +1285,18 @@
               "",
             )}<p class="page-note">Bu ekran parola veya sunucu kurulumu gerektirmeyen bir katalog çalışma alanıdır. Buradaki düzenlemeler canlı mağazada yayınlanmaz.</p></section></div>`;
         }
+        function shippingSettingsHTML() {
+          const row=state.content.find(row=>row.key==="shipping-tracking");
+          return `<section class="box"><p class="eyebrow">KARGO TAKİP AYARLARI</p><h2>Firma belli olduğunda buradan açın.</h2><form id="shipping-settings"><label>Kargo firması<input name="carrier" value="${esc(row?.title.tr || "")}" maxlength="120"></label><label>HTTPS takip bağlantısı<input type="url" name="template" value="${esc(row?.body.tr || "")}" maxlength="2000"></label><p class="muted">Firmanın resmi HTTPS takip bağlantısını ekleyin. Numaranın yerine {tracking} yazılabilir. Bağlantı boşsa takip hizmeti kapalı kalır. API anahtarı eklemeyin.</p><button class="button" type="submit">Kargo ayarlarını kaydet</button></form><p id="shipping-feedback" role="status"></p></section>`;
+        }
+        document.addEventListener("submit", event=>{
+          if(event.target.id!=="shipping-settings") return;
+          event.preventDefault();const form=new FormData(event.target), carrier=String(form.get("carrier") || "").trim(), template=String(form.get("template") || "").trim();
+          try {
+            if(template){const url=new URL(template.replaceAll("{tracking}","DEMO"));if(url.protocol!=="https:" || url.username || url.password || !carrier || new URL(template).host.includes("{") || new URL(template).host.includes("%7B")) throw Error("Firma adı ve geçerli bir HTTPS takip bağlantısı girin.");}
+            const next=clone(state),old=next.content.find(row=>row.key==="shipping-tracking");const row={id:old?.id || uid(),key:"shipping-tracking",title:loc(carrier),body:loc(template)};if(old)Object.assign(old,row);else next.content.push(row);commit(next);toast("Kargo takip ayarları kaydedildi.");
+          }catch(error){$("#shipping-feedback").textContent=error.message;}
+        });
         function renderRows() {
           const rows = rowsFor();
           $("#result-count").textContent = rows.length + " kayıt";
@@ -1361,7 +1373,7 @@
           $("#form-error").classList.add("hidden");
           $("#delete-record").classList.toggle(
             "hidden",
-            !record || table === "content",
+            !record || (table === "content" && !record.key.startsWith("blog-")),
           );
           $("#editor-title").textContent = record
             ? name(record)
@@ -1524,15 +1536,15 @@
                 "slug",
                 record?.slug || "",
                 "text",
-                'required pattern="[a-z0-9-]+"',
+                'required pattern="(?:[a-z0-9]|-)+"',
               );
           if (table === "content")
             html =
-              `<p class="help span-2">${esc(record.key)} sayfasını düzenliyorsunuz. Buradaki metinler taslak olarak saklanır.</p>` +
+              `<p class="help span-2">${record ? esc(record.key) : "Yeni blog yazısı"}. Kaydedilen blog yazısı önizlemede görünür.</p>${!record ? field("Yazı URL adı", "blog_slug", "", "text", 'required pattern="(?:[a-z0-9]|-)+" maxlength="100"') : ""}` +
               ["tr", "en", "ru"]
                 .map(
                   (l) =>
-                    `<label class="span-2">Başlık / ${l.toUpperCase()}<input name="title_${l}" value="${esc(record.title[l])}" maxlength="200"></label>${area("İçerik / " + l.toUpperCase(), "body_" + l, record.body[l])}`,
+                    `<label class="span-2">Başlık / ${l.toUpperCase()}<input name="title_${l}" value="${esc(record?.title[l] || "")}" maxlength="200"></label>${area("İçerik / " + l.toUpperCase(), "body_" + l, record?.body[l] || "")}`,
                 )
                 .join("");
           $("#fields").innerHTML = html;
@@ -1741,12 +1753,14 @@
               };
             }
             if (table === "content") {
-              r = { ...current, title: {}, body: {} };
+              r = { ...current, id: editing.id, key: current?.key || "blog-"+str("blog_slug"), title: {}, body: {} };
               for (const l of ["tr", "en", "ru"]) {
                 r.title[l] = str("title_" + l);
                 r.body[l] = str("body_" + l);
               }
             }
+            if(table === "content" && r.key.startsWith("blog-") && (!r.title.tr.trim() || !r.body.tr.trim())) throw Error("Blog yazısının Türkçe başlığını ve içeriğini girin.");
+            if(table === "content" && isNew && next.content.some(row=>row.key===r.key)) throw Error("Bu blog adresi kullanılıyor. Farklı bir URL adı seçin.");
             if (isNew) next[table].push(r);
             else Object.assign(current, r);
             commit(next);
@@ -1947,6 +1961,7 @@
           }
           if (a === "close") $("#editor").close();
           if (a === "delete") deleteRecord();
+          if (a === "new-blog") openEditor(null,"content");
           if (a === "export") exportData();
           if (a === "import") $("#import-file").click();
         });

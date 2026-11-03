@@ -37,6 +37,23 @@ test("customer journey, persistence, language switching and a real demo order re
   await page
     .getByRole("link", { name: "Sipariş talebi oluştur", exact: true })
     .click();
+  await expect(page).toHaveURL(/giris/);
+  await page
+    .locator(".member-form")
+    .getByRole("link", { name: "Üye ol", exact: true })
+    .click();
+  await page
+    .locator('.member-form input[name="email"]')
+    .fill(`member-${stamp}@example.test`);
+  await page
+    .locator('.member-form input[name="password"]')
+    .fill("Customer-test-123456");
+  await page.locator('.member-form input[name="consent"]').check();
+  await page
+    .locator(".member-form")
+    .getByRole("button", { name: "Üye ol", exact: true })
+    .click();
+  await expect(page).toHaveURL(/odeme/);
   await page.getByLabel("Ad soyad", { exact: true }).fill("Demo Customer");
   await page
     .getByLabel("E-posta", { exact: true })
@@ -88,7 +105,7 @@ test("anonymous users cannot administer, upload or forge orders", async ({
         },
       })
     ).status(),
-  ).toBe(400);
+  ).toBe(401);
   expect(
     (
       await request.post("/api/auth", {

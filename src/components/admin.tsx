@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { TrackingSettings } from "./tracking-settings";
+import type { Content } from "@/lib/types";
 import {
   Plus,
   Search,
@@ -233,6 +235,18 @@ export function Admin({
       setSaving(false);
     }
   }
+  function newBlog() {
+    setSection("content");
+    setEditing({
+      id: crypto.randomUUID(),
+      key: "blog-yeni-yazi-" + Date.now().toString(36),
+      title: { tr: "", en: "", ru: "" },
+      body: { tr: "", en: "", ru: "" },
+    });
+    setIsNew(true);
+    setDeletePending(false);
+    setError("");
+  }
   function openNew() {
     const record: Row = { id: crypto.randomUUID() };
     for (const f of fields[section])
@@ -417,6 +431,11 @@ export function Admin({
             </button>
           )}
         </div>
+        {section === "content" && (
+          <button className="button" onClick={newBlog}>
+            Blog yazısı ekle
+          </button>
+        )}
         {message && (
           <p className="admin-success" role="status">
             <Check size={16} />
@@ -437,6 +456,37 @@ export function Admin({
           </div>
         ) : section === "settings" ? (
           <div className="settings-grid">
+            <TrackingSettings
+              record={
+                data.content?.find((row) => row.key === "shipping-tracking") as
+                  Content | undefined
+              }
+              onSave={async (record, isNew) => {
+                const response = await fetch("/api/admin", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    table: "content",
+                    action: isNew ? "insert" : "update",
+                    record,
+                  }),
+                });
+                if (!response.ok) throw Error();
+                await load();
+              }}
+            />
+            <section className="admin-guide">
+              <p className="eyebrow">BLOG</p>
+              <h2>Yeni yazınızı hazırlayın.</h2>
+              <p className="muted">
+                Başlık ve içeriği üç dilde ekleyin. Sayfa anahtarı blog- ile
+                başlar; devamı yazının adresi olur. Kaydettiğiniz yazı blogda
+                görünür.
+              </p>
+              <button className="button" onClick={newBlog}>
+                Blog yazısı ekle
+              </button>
+            </section>
             <section className="admin-guide">
               <p className="eyebrow">MAĞAZA İÇERİĞİ</p>
               <h2>Değiştirmek istediğiniz detayı seçin.</h2>

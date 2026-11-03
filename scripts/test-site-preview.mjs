@@ -68,6 +68,7 @@ try {
       () => document.getElementById("site-loading")?.textContent === "Hazır",
     );
   }
+  await page.evaluate(()=>sessionStorage.setItem("kz-preview-member","true"));
   for (const [id, selector] of Object.entries(cases)) {
     await choose(id);
     await frame().locator(selector).first().waitFor();

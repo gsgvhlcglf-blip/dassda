@@ -11,6 +11,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/urunler",
     "/hakkimizda",
     "/iletisim",
+    "/blog",
+    "/kargo-takip",
+    ...c.content
+      .filter((row) => row.key.startsWith("blog-"))
+      .map((row) => "/blog/" + row.key.slice(5)),
     "/sss",
     "/teslimat-iade",
     "/gizlilik",

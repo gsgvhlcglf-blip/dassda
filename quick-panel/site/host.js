@@ -9,6 +9,11 @@ const sitePages = {
   cart: ["Sepet", "/sepet"],
   checkout: ["Sipariş talebi", "/odeme"],
   about: ["Hakkımızda", "/hakkimizda"],
+  blog: ["Blog", "/blog"],
+  tracking: ["Kargo takip", "/kargo-takip"],
+  login: ["Üye girişi", "/giris"],
+  signup: ["Üye ol", "/uye-ol"],
+  account: ["Hesabım", "/hesabim"],
   contact: ["İletişim", "/iletisim"],
   faq: ["Sık sorulan sorular", "/sss"],
   shipping: ["Teslimat ve iade", "/teslimat-iade"],
@@ -182,7 +187,7 @@ function renderSitePreview(view) {
     )
     .join(
       "",
-    )}</div></div><p class="site-preview-hint ${siteInspect ? "" : "hidden"}">Sayfa seçin, masaüstü/mobil görünümü değiştirin. Düzenleme modunda metne tıklayıp yazın veya sağdaki alandan değiştirin. Fotoğrafa tıklayıp yenisini yükleyin.</p><div class="site-preview-grid ${siteInspect ? "has-inspector" : ""}"><div class="site-frame-box"><div class="site-frame-toolbar"><label><input type="checkbox" id="site-inspect" ${siteInspect ? "checked" : ""}>Düzenleme modu</label><span class="site-route" id="site-route">${esc(sitePath)} · ${siteWidths[siteDevice]} px</span><span id="site-loading">Yükleniyor…</span><span id="site-update-status" title="Tasarım sürümü ${PREVIEW.version}">Otomatik güncelleme açık</span><button data-action="site-customer">Müşteri önizlemesi ↗</button><button data-action="site-expand">${siteExpanded ? "Paneli göster" : "Genişlet"}</button><button data-action="site-dashboard">Veri paneli</button><button data-action="site-refresh">Güncel tasarımı yükle</button></div><div class="site-viewport" id="site-viewport"><div class="site-scale" id="site-scale"><iframe class="site-frame" id="site-frame" title="Mağaza sayfası tasarım önizlemesi" sandbox="allow-scripts allow-same-origin"></iframe></div></div><div class="site-small-note">Tasarım önizlemesi · Tarayıcıdaki taslak veriler gösterilir; canlı mağaza güncellenmez. Sipariş gönderimi kapalıdır.</div></div><aside class="site-inspector ${siteInspect ? "" : "hidden"}" id="site-inspector"></aside></div></section>`;
+    )}</div></div><p class="site-preview-hint ${siteInspect ? "" : "hidden"}">Sayfa seçin, masaüstü/mobil görünümü değiştirin. Düzenleme modunda metne tıklayıp yazın veya sağdaki alandan değiştirin. Fotoğrafa tıklayıp yenisini yükleyin.</p><div class="site-preview-grid ${siteInspect ? "has-inspector" : ""}"><div class="site-frame-box"><div class="site-frame-toolbar"><label><input type="checkbox" id="site-inspect" ${siteInspect ? "checked" : ""}>Düzenleme modu</label><span class="site-route" id="site-route">${esc(sitePath)} · ${siteWidths[siteDevice]} px</span><span id="site-loading">Yükleniyor…</span><span id="site-update-status" title="Tasarım sürümü ${PREVIEW.version}">Otomatik güncelleme açık</span><button data-action="site-customer">Müşteri önizlemesi ↗</button><button data-action="site-expand">${siteExpanded ? "Paneli göster" : "Genişlet"}</button><button data-action="site-dashboard">Veri paneli</button><button data-action="site-refresh">Güncel tasarımı yükle</button></div><div class="site-viewport" id="site-viewport"><div class="site-scale" id="site-scale"><iframe class="site-frame" id="site-frame" title="Mağaza sayfası tasarım önizlemesi" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div></div><div class="site-small-note">Tasarım önizlemesi · Tarayıcıdaki taslak veriler gösterilir; canlı mağaza güncellenmez. Sipariş gönderimi kapalıdır.</div></div><aside class="site-inspector ${siteInspect ? "" : "hidden"}" id="site-inspector"></aside></div></section>`;
   paintSiteInspector();
   loadSiteFrame();
   siteObserver?.disconnect();

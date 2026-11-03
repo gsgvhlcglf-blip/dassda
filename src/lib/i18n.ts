@@ -1,6 +1,126 @@
 import { storeSettings } from "./settings";
 import type { Lang } from "./types";
 const messages = {
+  orderPending: ["Talep alındı", "Request received", "Заявка получена"],
+  orderReviewing: ["İnceleniyor", "Under review", "На рассмотрении"],
+  orderConfirmed: ["Onaylandı", "Confirmed", "Подтверждён"],
+  orderShipped: ["Kargoya verildi", "Shipped", "Отправлен"],
+  orderCancelled: ["İptal", "Cancelled", "Отменён"],
+  orderDemo: ["Örnek talep", "Sample request", "Демо-заявка"],
+  blog: ["Blog", "Journal", "Блог"],
+  blogIntro: [
+    "Karbon, tasarım ve motosiklet kültürü.",
+    "Carbon, design and motorcycle culture.",
+    "Карбон, дизайн и культура мотоциклов.",
+  ],
+  blogEmpty: [
+    "İlk yazılar yakında burada.",
+    "Our first stories will appear here soon.",
+    "Первые статьи скоро появятся здесь.",
+  ],
+  readStory: ["Yazıyı oku", "Read story", "Читать статью"],
+  tracking: ["Kargo takip", "Track shipment", "Отследить посылку"],
+  trackingIntro: [
+    "Takip numaranızla kargo firmasının sayfasından gönderinizi takip edin.",
+    "Use your tracking number to follow your shipment on the carrier’s website.",
+    "Отследите посылку по трек-номеру на сайте перевозчика.",
+  ],
+  trackingNumber: ["Kargo takip numarası", "Tracking number", "Трек-номер"],
+  trackAction: ["Kargomu takip et", "Track my shipment", "Отследить посылку"],
+  trackingUnconfigured: [
+    "Kargo firması henüz belirlenmedi. Takip hizmeti firma bilgileri eklendiğinde açılacak.",
+    "The carrier has not been selected yet. Tracking will be available once its details are configured.",
+    "Перевозчик пока не выбран. Отслеживание станет доступно после настройки.",
+  ],
+  trackingInvalid: [
+    "Geçerli bir takip numarası girin.",
+    "Enter a valid tracking number.",
+    "Введите действительный трек-номер.",
+  ],
+  trackingExternal: [
+    "Kargo firmasının takip sayfası yeni sekmede açılır. Durum bilgisi firma tarafından sağlanır.",
+    "The carrier’s tracking page opens in a new tab. Status information is provided by the carrier.",
+    "Страница перевозчика откроется в новой вкладке. Статус сообщает перевозчик.",
+  ],
+  trackingManual: [
+    "Bu firmanın sayfasında takip numaranızı ayrıca yapıştırmanız gerekebilir.",
+    "You may need to paste your tracking number on the carrier’s page.",
+    "Возможно, на сайте перевозчика потребуется вставить трек-номер.",
+  ],
+  signup: ["Üye ol", "Sign up", "Регистрация"],
+  login: ["Üye girişi", "Sign in", "Войти"],
+  account: ["Hesabım", "My account", "Мой аккаунт"],
+  logout: ["Çıkış yap", "Sign out", "Выйти"],
+  membershipRequired: [
+    "Devam etmek için üye girişi yapın.",
+    "Sign in to continue.",
+    "Войдите, чтобы продолжить.",
+  ],
+  membershipIntro: [
+    "Ürünleri serbestçe keşfedebilirsiniz. Sipariş oluşturmak için üye olmanız veya hesabınıza giriş yapmanız gerekir.",
+    "Explore the collection freely. Create an account or sign in before placing an order.",
+    "Каталог доступен всем. Для оформления заказа зарегистрируйтесь или войдите.",
+  ],
+  accountIntro: [
+    "Koleksiyonuna bir adım daha yakın.",
+    "One step closer to your collection.",
+    "На шаг ближе к вашей коллекции.",
+  ],
+  accountEmail: ["E-posta", "Email", "Электронная почта"],
+  accountPassword: ["Şifre", "Password", "Пароль"],
+  accountPasswordHint: [
+    "12–128 karakter.",
+    "12–128 characters.",
+    "12–128 символов.",
+  ],
+  accountConsent: [
+    "Gizlilik politikasını okudum; üyelik koşullarını kabul ediyorum.",
+    "I have read the privacy policy and accept the membership terms.",
+    "Я прочитал(а) политику конфиденциальности и принимаю условия регистрации.",
+  ],
+  accountVerify: [
+    "Kaydınızı tamamlamak için e-postanıza gelen doğrulama bağlantısını açın. Zaten hesabınız varsa giriş yapın.",
+    "Open the verification link in your email to complete registration. If you already have an account, sign in.",
+    "Для завершения регистрации откройте ссылку в письме. Если аккаунт уже есть, войдите.",
+  ],
+  accountError: [
+    "İşlem tamamlanamadı. Bilgilerinizi kontrol edip tekrar deneyin.",
+    "We could not complete the request. Check your details and try again.",
+    "Не удалось завершить запрос. Проверьте данные и повторите попытку.",
+  ],
+  accountInvalidLogin: [
+    "E-posta veya şifre hatalı ya da e-posta henüz doğrulanmadı.",
+    "Incorrect email or password, or your email is not verified yet.",
+    "Неверный адрес или пароль, либо почта ещё не подтверждена.",
+  ],
+  accountRateLimit: [
+    "Çok fazla deneme. Bir dakika sonra tekrar deneyin.",
+    "Too many attempts. Try again in a minute.",
+    "Слишком много попыток. Повторите через минуту.",
+  ],
+  accountBusy: ["İşleniyor…", "Please wait…", "Подождите…"],
+  accountDemo: [
+    "Önizleme · Gerçek hesap oluşturulmaz. E-posta veya şifre girmeden örnek üyelik akışını deneyebilirsiniz.",
+    "Preview · No real account is created. Try the sample member journey without entering an email or password.",
+    "Предпросмотр · Настоящий аккаунт не создаётся. Проверьте сценарий без ввода почты и пароля.",
+  ],
+  accountLocal: [
+    "Yerel demo hesabı · E-posta doğrulaması ve e-posta gönderimi bu ortamda çalışmaz.",
+    "Local demo account · Email verification and delivery are unavailable in this environment.",
+    "Локальный демо-аккаунт · Подтверждение и отправка писем недоступны.",
+  ],
+  demoMember: [
+    "Örnek üye ile devam et",
+    "Continue as a sample member",
+    "Продолжить как демо-пользователь",
+  ],
+  myOrders: ["Siparişlerim", "My orders", "Мои заказы"],
+  noOrders: [
+    "Henüz siparişiniz bulunmuyor.",
+    "You have no orders yet.",
+    "У вас пока нет заказов.",
+  ],
+
   home: ["Ana sayfa", "Home", "Главная"],
   motorcycles: ["Motosikletler", "Motorcycles", "Мотоциклы"],
   catalog: ["Koleksiyon", "Collection", "Коллекция"],

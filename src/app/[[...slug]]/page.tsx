@@ -3,13 +3,14 @@ import { isLive } from "@/lib/database";
 import { Storefront } from "@/components/storefront";
 import { Admin } from "@/components/admin";
 import { getRole } from "@/lib/auth";
-import { notFound } from "next/navigation";
+import { getCustomer } from "@/lib/customer";
+import { notFound, redirect } from "next/navigation";
 import type { Lang } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 type Props = {
   params: Promise<{ slug?: string[] }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; next?: string }>;
 };
 export async function generateMetadata({ params, searchParams }: Props) {
   const { slug = [] } = await params,
@@ -61,7 +62,9 @@ export async function generateMetadata({ params, searchParams }: Props) {
         : slug[0] === "admin"
           ? "Yönetim"
           : "KUZMIN — Karbon. Karakter.",
-    robots: ["admin", "sepet", "odeme"].includes(slug[0])
+    robots: ["admin", "sepet", "odeme", "giris", "uye-ol", "hesabim"].includes(
+      slug[0],
+    )
       ? { index: false, follow: false }
       : undefined,
   };
@@ -105,9 +108,29 @@ export default async function Page({ params, searchParams }: Props) {
     "teslimat-iade",
     "gizlilik",
     "kosullar",
+    "blog",
+    "kargo-takip",
+    "giris",
+    "uye-ol",
+    "hesabim",
   ];
   if (slug.length && !valid.includes(slug[0])) notFound();
+  const customer = await getCustomer();
+  if (["odeme", "hesabim"].includes(slug[0]) && !customer)
+    redirect(
+      "/giris?next=" +
+        encodeURIComponent(
+          "/" + slug[0] + (lang === "tr" ? "" : "?lang=" + lang),
+        ) +
+        (lang === "tr" ? "" : "&lang=" + lang),
+    );
   const catalog = await getCatalog();
+  if (
+    slug[0] === "blog" &&
+    slug[1] &&
+    !catalog.content.some((row) => row.key === "blog-" + slug[1])
+  )
+    notFound();
   if (
     slug[0] === "urunler" &&
     slug[1] &&
@@ -133,10 +156,21 @@ export default async function Page({ params, searchParams }: Props) {
   }
   if (
     slug.length >
-    (slug[0] === "motosikletler" ? 4 : slug[0] === "urunler" ? 2 : 1)
+    (slug[0] === "motosikletler"
+      ? 4
+      : ["urunler", "blog"].includes(slug[0])
+        ? 2
+        : 1)
   )
     notFound();
   return (
-    <Storefront catalog={catalog} segments={slug} lang={lang} live={isLive} />
+    <Storefront
+      catalog={catalog}
+      segments={slug}
+      lang={lang}
+      live={isLive}
+      customer={customer}
+      previewQuery={"?" + new URLSearchParams(await searchParams).toString()}
+    />
   );
 }

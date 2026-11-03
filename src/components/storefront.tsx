@@ -26,6 +26,13 @@ import {
   useVisualCopy,
 } from "@/lib/visual";
 import { useCart } from "@/lib/cart-store";
+import {
+  CustomerPage,
+  MemberGate,
+  TrackingPage,
+  BlogPage,
+  type CustomerView,
+} from "./customer-pages";
 import { compatibleProducts } from "@/lib/commerce";
 function Art({
   src,
@@ -82,7 +89,9 @@ export function Storefront({
   preview = false,
   previewQuery,
   onNavigate,
+  customer = null,
 }: {
+  customer?: CustomerView | null;
   preview?: boolean;
   previewQuery?: string;
   onNavigate?: (url: string) => void;
@@ -93,9 +102,26 @@ export function Storefront({
 }) {
   const copy = useVisualCopy(lang);
   const t = useVisualTranslate(lang),
-    href = (path: string) =>
-      `${path}${lang === "tr" ? "" : `${path.includes("?") ? "&" : "?"}lang=${lang}`}`;
+    href = (path: string) => {
+      const [pathname, search] = path.split("?");
+      const query = new URLSearchParams(search || "");
+      if (lang === "tr") query.delete("lang");
+      else query.set("lang", lang);
+      return pathname + (query.size ? "?" + query.toString() : "");
+    };
   const [cart, setCart] = useCart();
+  const [previewMember, setPreviewMember] = useState<CustomerView | null>(null);
+  const member = preview ? previewMember : customer;
+  useEffect(() => {
+    if (preview && sessionStorage.getItem("kz-preview-member") === "true")
+      setPreviewMember({ id: "preview-member", email: "" });
+  }, [preview]);
+  function togglePreviewMember() {
+    const enabled = !previewMember;
+    sessionStorage.setItem("kz-preview-member", String(enabled));
+    setPreviewMember(enabled ? { id: "preview-member", email: "" } : null);
+  }
+
   const [menu, setMenu] = useState(false),
     [toast, setToast] = useState(""),
     [savedBike, setSavedBike] = useState("");
@@ -467,7 +493,10 @@ export function Storefront({
               <strong>{money(total, lang)}</strong>
             </div>
             <p className="muted">{t("shippingNote")}</p>
-            <Link className="button wide" href={href("/odeme")}>
+            <Link
+              className="button wide"
+              href={href(member ? "/odeme" : "/giris?next=%2Fodeme")}
+            >
               {t("checkout")}
               <ArrowUpRight size={16} />
             </Link>
@@ -540,7 +569,9 @@ export function Storefront({
               ["/motosikletler", "motorcycles"],
               ["/urunler", "catalog"],
               ["/hakkimizda", "about"],
+              ["/blog", "blog"],
               ["/iletisim", "contact"],
+              ["/kargo-takip", "tracking"],
             ] as [string, MessageKey][]
           ).map(([url, label]) => (
             <Link
@@ -554,6 +585,16 @@ export function Storefront({
           ))}
         </nav>
         <div className="nav-actions">
+          <div className="member-links">
+            {member ? (
+              <Link href={href("/hesabim")}>{t("account")}</Link>
+            ) : (
+              <>
+                <Link href={href("/uye-ol")}>{t("signup")}</Link>
+                <Link href={href("/giris")}>{t("login")}</Link>
+              </>
+            )}
+          </div>
           <div className="language-control">
             <label className="sr-only" htmlFor="language">
               Language / Dil / Язык
@@ -562,7 +603,12 @@ export function Storefront({
               id="language"
               value={lang}
               onChange={(e) => {
-                const nextUrl = `/${s.join("/")}${e.target.value === "tr" ? "" : "?lang=" + e.target.value}`;
+                const query = new URLSearchParams(
+                  previewQuery ?? window.location.search,
+                );
+                if (e.target.value === "tr") query.delete("lang");
+                else query.set("lang", e.target.value);
+                const nextUrl = `/${s.join("/")}${query.size ? "?" + query.toString() : ""}`;
                 if (onNavigate) onNavigate(nextUrl);
                 else window.location.href = nextUrl;
               }}
@@ -762,15 +808,41 @@ export function Storefront({
           )
         ) : s[0] === "sepet" ? (
           cartPage()
-        ) : s[0] === "odeme" ? (
-          <Checkout
+        ) : ["giris", "uye-ol", "hesabim"].includes(s[0]) ? (
+          <CustomerPage
             lang={lang}
-            cart={cart}
-            total={total}
             href={href}
-            clear={() => setCart([])}
+            mode={
+              s[0] === "uye-ol"
+                ? "signup"
+                : s[0] === "giris"
+                  ? "login"
+                  : "account"
+            }
             preview={preview}
+            live={live}
+            user={member}
+            onDemo={togglePreviewMember}
+            onNavigate={onNavigate}
+            query={previewQuery}
           />
+        ) : s[0] === "blog" ? (
+          <BlogPage c={c} lang={lang} href={href} slug={s[1]} />
+        ) : s[0] === "kargo-takip" ? (
+          <TrackingPage c={c} lang={lang} />
+        ) : s[0] === "odeme" ? (
+          member ? (
+            <Checkout
+              lang={lang}
+              cart={cart}
+              total={total}
+              href={href}
+              clear={() => setCart([])}
+              preview={preview}
+            />
+          ) : (
+            <MemberGate lang={lang} href={href} />
+          )
         ) : (
           renderContent()
         )}

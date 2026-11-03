@@ -20,6 +20,14 @@ This remains a **public draft workspace**, separate from the authenticated produ
 
 For developer validation, serve the repository with `python3 -m http.server 4173 --bind 127.0.0.1`. `node scripts/test-quick-panel.mjs` covers catalog CRUD/photos/backup/import; `node scripts/test-site-preview.mjs` covers all storefront screens, responsive devices, languages, section inspection, copy and draft editing; `node scripts/test-preview-updates.mjs` simulates the provider's transport to verify automatic design refresh, protected unsaved forms and one-time copy updates. Tests do not establish the external provider's availability. The public HTMLPreview script transformation is compatible with the generated single inline script and runtime-created iframe.
 
+## Membership, journal and shipment tracking
+
+The header includes Blog before Contact and Track Shipment last, plus Sign Up / Sign In. Browsing/cart are public; checkout, the order API and Supabase order RPC require a verified customer. Customers see only their own order history under My Account. Customer authentication is separate from staff authorization. Configure Supabase Email confirmation, Site URL, callback allowlist (`/auth/callback`) and production SMTP before using real accounts. The local demo uses hashed customer passwords and signed HttpOnly sessions without email verification; the install-free preview uses an explicit sample member without collecting credentials.
+
+Blog articles use existing content rows with `blog-<slug>` keys. Both panels offer Blog yazısı ekle. Shipment tracking is a configurable redirect to an official carrier URL, with optional `{tracking}` substitution; it shows an unconfigured state until a carrier is chosen. Configure it under the visual workspace's Taslak & yedek or the authenticated admin's Yapılandırma. No carrier API, shipment status feed or secret is invented. Read the [Turkish owner/setup guide](docs/UYELIK-BLOG-KARGO.md).
+
+Tests: `node scripts/test-member-preview.mjs` exercises the new preview flows; `tests/customer.spec.ts` checks server membership/session/order ownership, and the PostgreSQL test applies both migrations and checks anonymous/direct-RPC bypass, verified email and customer isolation.
+
 ## Windows source download
 
 The current local source package is [`downloads/KUZMIN-Kaynak.zip`](downloads/KUZMIN-Kaynak.zip). Install Node.js 24 or a newer LTS release from [the official Node.js site](https://nodejs.org/en/download), extract the source package, open Command Prompt in that folder, and run `npm.cmd run kurulum`. Then run `npm.cmd run local` and copy the printed store or admin URL into your browser. No hosting account is required. Read `BASLAMADAN-ONCE.txt` for the Turkish walkthrough.
@@ -54,7 +62,7 @@ The local relational database is `.data/store.sqlite`. Image uploads go to ignor
 
 ## Use Supabase / deploy to Vercel
 
-1. Create a Supabase project. Run [`supabase/migrations/001_store.sql`](supabase/migrations/001_store.sql) in SQL Editor (or with your Supabase migration workflow) on a new database. The migration creates tables, constraints, RLS, role helpers, the atomic order-request RPC and the public `catalog` image bucket.
+1. Create a Supabase project. Run [`supabase/migrations/001_store.sql`](supabase/migrations/001_store.sql), then [`supabase/migrations/002_customer_membership.sql`](supabase/migrations/002_customer_membership.sql) in SQL Editor (or with your Supabase migration workflow) on a new database. These migrations create tables, constraints, RLS, role helpers, the atomic order-request RPC and the public `catalog` image bucket.
 2. Optionally run [`supabase/seed.sql`](supabase/seed.sql). All products, prices, inventory, generations and compatibility entries are **demonstration data**, not verified commercial facts. The three supported brands are seeded here too. If importing real data instead, insert these three brand rows first.
 3. In Supabase Authentication, create the owner's user securely. Disable public sign-ups for this owner-only dashboard. Assign the user's actual Auth UUID through SQL Editor:
 

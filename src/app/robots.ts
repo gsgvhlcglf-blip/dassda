@@ -5,7 +5,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       ...(indexingEnabled
-        ? { allow: "/", disallow: ["/admin", "/api/", "/sepet", "/odeme"] }
+        ? {
+            allow: "/",
+            disallow: [
+              "/admin",
+              "/api/",
+              "/sepet",
+              "/odeme",
+              "/giris",
+              "/uye-ol",
+              "/hesabim",
+            ],
+          }
         : { disallow: ["/"] }),
     },
     sitemap: indexingEnabled

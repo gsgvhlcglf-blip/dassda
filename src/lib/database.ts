@@ -71,6 +71,19 @@ export function localDB() {
  CREATE TABLE IF NOT EXISTS order_items(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,product_id TEXT NOT NULL REFERENCES products(id),variant_id TEXT NOT NULL REFERENCES variants(id),title TEXT NOT NULL,sku TEXT NOT NULL,quantity INTEGER NOT NULL,unit_price REAL NOT NULL);
  CREATE INDEX IF NOT EXISTS fitment_lookup ON compatibility(model_id,year_from,year_to);
  `);
+  db.exec(
+    "CREATE TABLE IF NOT EXISTS customers(id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL)",
+  );
+  const orderColumns = db.prepare("PRAGMA table_info(orders)").all() as {
+    name: string;
+  }[];
+  if (!orderColumns.some((column) => column.name === "customer_id"))
+    db.exec(
+      "ALTER TABLE orders ADD COLUMN customer_id TEXT REFERENCES customers(id)",
+    );
+  db.exec(
+    "CREATE INDEX IF NOT EXISTS orders_customer ON orders(customer_id,created_at)",
+  );
   if (
     !(db.prepare("SELECT count(*) as n FROM brands").get() as { n: number }).n
   ) {

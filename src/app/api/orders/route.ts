@@ -6,13 +6,18 @@ import { quote } from "@/lib/commerce";
 import { isLive, localDB, insertLocal } from "@/lib/database";
 import { sameOrigin, rateLimit } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { getCustomer } from "@/lib/customer";
 export async function POST(req: Request) {
   if (!sameOrigin(req))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (!rateLimit("orders:" + req.headers.get("x-forwarded-for"), 5))
     return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 });
+  const customer = await getCustomer();
+  if (!customer)
+    return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
   try {
     const input = orderSchema.parse(await req.json());
+    input.email = customer.email;
     if (isLive) {
       const s = await supabase();
       const { data, error } = await s.rpc("create_order_request", { input });
@@ -28,6 +33,7 @@ export async function POST(req: Request) {
       insertLocal("orders", {
         id,
         reference,
+        customer_id: customer.id,
         customer_name: input.customer_name,
         email: input.email,
         phone: input.phone,

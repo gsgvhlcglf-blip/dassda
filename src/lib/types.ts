@@ -61,6 +61,7 @@ export type Compatibility = Row & {
 export type Category = Row & { slug: string; name: Localized };
 export type Content = Row & { key: string; title: Localized; body: Localized };
 export type Order = Row & {
+  customer_id?: string | null;
   reference: string;
   customer_name: string;
   email: string;
