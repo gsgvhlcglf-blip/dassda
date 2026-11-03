@@ -51,19 +51,13 @@ test("Windows setup accepts private stdin, stores only a hash and preserves exis
     rmSync(dir, { recursive: true, force: true });
   }
 });
-test("installation identity follows folder location and CMD launchers keep Windows paths intact", () => {
+test("installation identity follows folder location", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "KUZMIN id "));
   try {
     assert.equal(installationId(dir), installationId(dir));
     assert.notEqual(installationId(dir), installationId());
   } finally {
     rmSync(dir, { recursive: true, force: true });
-  }
-  for (const filename of ["2-BASLAT.cmd", "3-YONETIM.cmd"]) {
-    const source = readFileSync(filename, "utf8");
-    assert.ok(source.includes('".runtime\\node\\node.exe"'));
-    assert.ok(source.includes("\r\n"));
-    assert.ok(source.includes("DisableDelayedExpansion"));
   }
 });
 test("local port selection reuses this installation and skips unrelated services", async () => {

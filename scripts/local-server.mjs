@@ -12,11 +12,11 @@ process.chdir(root);
 async function main() {
   if (Number(process.versions.node.split(".")[0]) < 24)
     throw new Error(
-      "Node.js 24 veya yenisi gerekiyor. 1-KURULUM.cmd dosyasini calistirin.",
+      "Node.js 24 veya yenisi gerekiyor. npm.cmd run kurulum komutunu calistirin.",
     );
   if (!existsSync(".env.local") || !existsSync(".next/BUILD_ID"))
     throw new Error(
-      "Ilk kurulum tamamlanmamis. Once 1-KURULUM.cmd dosyasini calistirin.",
+      "Ilk kurulum tamamlanmamis. Once npm.cmd run kurulum komutunu calistirin.",
     );
   // A locally installed copy is deliberately independent of any hosting account.
   const config = readFileSync(".env.local", "utf8");

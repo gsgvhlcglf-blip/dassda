@@ -1,52 +1,54 @@
-KUZMIN — WINDOWS'TA KAYIT OLMADAN KULLANIM
+KUZMIN — YEREL KAYNAK PAKETİ
 
-Gerekenler: Windows 10/11, 64 bit (Intel/AMD veya ARM), ilk kurulumda internet,
-yaklaşık 2 GB boş alan. Chrome veya Edge kullanabilirsiniz. Ek hesap gerekmez.
-Node.js bilgisayarınıza genel olarak kurulmaz; bu klasörün içinde tutulur.
+Bu sürüm, önceki otomatik Windows kurucusunun yerine geçer.
+Özel .cmd/.bat/.ps1 kurucu veya paketlenmiş .exe/.dll içermez.
+Node.js çalışma ortamını yalnızca resmi nodejs.org sitesinden kendiniz kurarsınız.
+Hiçbir güvenlik ayarını değiştirmeniz veya antivirüse istisna eklemeniz gerekmez.
+Bu açıklama bir antivirüs taraması veya güvenlik sertifikası değildir.
+Windows yeni paketi de engellerse indirmeyi/kurulumu durdurun.
 
-1. ZIP dosyasına sağ tıklayın ve "Tümünü ayıkla" seçin.
-   Çıkardığınız KUZMIN-Windows klasörünü Belgelerim gibi kalıcı bir yere koyun.
-   Programı ZIP'in içinden açmayın.
+İLK KURULUM
+1. https://nodejs.org/en/download adresinden Windows için Node.js 24 veya daha
+   yeni bir LTS sürümünü kurun. Resmi Windows Installer (.msi) seçeneğini kullanın.
+   Bir hesap açmanız gerekmez.
+2. Bu ZIP'e sağ tıklayın ve "Tümünü ayıkla" seçin.
+3. Çıkardığınız KUZMIN-Yerel klasörünü açın.
+4. Dosya Gezgini'nin üstteki adres çubuğuna cmd yazıp Enter'a basın.
+   Siyah Komut İstemi bu klasörde açılır.
+5. Aşağıdaki komutu kopyalayıp Enter'a basın:
 
-2. İlk kullanımda "1-KURULUM.cmd" dosyasına çift tıklayın.
-   Yönetim şifrenizi kendiniz belirleyin (en az 12 karakter).
-   Yazarken şifre ekranda görünmez; bu normaldir.
-   Kurulum internetten gerekli araçları indirir ve uygulamayı hazırlar.
-   İşlemin bitmesini bekleyin. İnternet hızına göre birkaç dakika sürebilir.
+   npm.cmd run kurulum
 
-3. Mağazayı açmak için "2-BASLAT.cmd" dosyasına çift tıklayın.
-   Tarayıcı otomatik açılır. Açılmazsa pencerede yazan adresi tarayıcıya yazın.
+   İlk kurulumda yönetim şifrenizi belirleyin (12-128 karakter).
+   Yazdığınız şifre ekranda görünmez. İşlemin bitmesini bekleyin.
+   Bağımlılıklar npm'in kilit dosyasındaki bütünlük bilgileriyle kurulur.
 
-4. Yönetim ve yapılandırma için "3-YONETIM.cmd" dosyasına çift tıklayın.
-   E-posta: demo@local.test
-   Şifre: ilk kurulumda sizin belirlediğiniz şifre.
-   Bu yalnızca bilgisayarınızdaki bir giriş hesabıdır; kayıt/e-posta doğrulaması yoktur.
+BAŞLATMA
+Aynı klasördeki Komut İstemi'nde şu komutu çalıştırın:
 
-KULLANIRKEN
-- Siyah sunucu penceresi açık kalmalı. Küçültebilirsiniz.
-- Kapatmak için o pencerede Ctrl+C kullanın. Ertesi gün tekrar 2-BASLAT'a tıklayın.
-- İnternet olmadan yerel görseller, ürünler, sepet ve yönetim paneli çalışır.
-- Dış bir internet adresinden eklediğiniz görseller/video internetsiz açılmaz.
-  Fotoğrafları yönetim panelinden yüklemek onları bu bilgisayarda tutar.
-- Program, bilgisayarınızdaki yerel bağlantıya açılır; internete yayınlanmaz.
-- 3000 numaralı bağlantı başka uygulamada kullanılıyorsa boş bir bağlantı seçilir.
-  Her zaman pencerede yazan adresi kullanın.
-- Gerçek ödeme alınmaz. Siparişler yerel demo talepleri olarak kaydedilir.
-- Bu dosyalar Windows'ta çalıştırılmak için hazırlanmıştır. Hazırlama ortamı Linux'tur;
-  Windows'taki ilk kurulum sonucu henüz bu bilgisayarda doğrulanmamıştır.
+   npm.cmd run local
 
-VERİLER VE YEDEKLEME
-- Ürünler ve metinler: .data klasörü
-- Yüklenen fotoğraflar: public\uploads klasörü
-- Giriş ayarları: .env.local dosyası (özel tutun)
-- Yedek almak için önce sunucuyu kapatın, sonra KUZMIN-Windows klasörünün
-  tamamını harici diskinize kopyalayın. .data veya .env.local dosyasını silmeyin.
-- İlk ZIP paketi bu sohbetteki şifreleri veya kişisel verileri içermez;
-  size ait giriş ayarları bilgisayarınızdaki kurulumda oluşturulur.
+Terminalde "Magaza", "Yonetim" ve "Yapilandirma" adresleri görünür.
+İstediğiniz adresi kopyalayıp Chrome/Edge adres çubuğuna yapıştırın.
+Yönetim e-postası: demo@local.test
+Şifre: kurulumda belirlediğiniz şifre.
+Sunucu penceresi açık kalmalı. Küçültebilirsiniz. Durdurmak için Ctrl+C kullanın.
 
-SORUN OLURSA
-- Kurulum sırasında internet açık olmalı. Yönetici olarak çalıştırmak gerekmez.
-- Şirket bilgisayarının politikası betikleri engelliyorsa sistem politikasını
-  değiştirmeyin; BT yöneticinizden yardım alın.
-- Bir hata görürseniz hata mesajını paylaşın; şifrenizi veya .env.local dosyasını paylaşmayın.
-- Daha ayrıntılı rehber: docs\OWNER-GUIDE.md ve README.md.
+SONRAKİ KULLANIMLAR
+Sadece npm.cmd run local komutu yeterlidir.
+İlk kurulumdan sonra yerel sayfalar, görseller ve yönetim internetsiz çalışır.
+Dış internet adreslerinden eklenen medya ve hizmetler internete ihtiyaç duyar.
+Uygulama yalnızca bu bilgisayardaki yerel bağlantıyı dinler; internete yayınlanmaz.
+Gerçek ödeme alınmaz. Siparişler yerel demo talepleridir.
+
+YEDEK
+Ürünler: .data klasörü
+Yüklenen fotoğraflar: public/uploads klasörü
+Giriş ayarları: .env.local dosyası (özel tutun)
+Yedek almadan önce sunucuyu Ctrl+C ile durdurun ve klasörü kopyalayın.
+Bu pakette önceki oturumun şifreleri, veritabanı ve yüklenen dosyaları bulunmaz.
+
+DOĞRULAMA SINIRI
+Uygulamanın yerel giriş ve düzenleme akışı Linux/Chromium ortamında test edilir.
+Bu ortamda Windows Defender veya yerel Windows kurulumu çalıştırılamadı.
+Bir güvenlik uyarısı çıkarsa çalıştırmaya zorlamayın; uyarı ayrıntılarını paylaşın.

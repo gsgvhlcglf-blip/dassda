@@ -13,7 +13,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "setup:demo": "node scripts/setup-demo.mjs",
-    "local": "node scripts/local-server.mjs"
+    "local": "node scripts/local-server.mjs",
+    "kurulum": "node scripts/local-install.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
