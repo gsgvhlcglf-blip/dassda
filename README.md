@@ -2,6 +2,16 @@
 
 Next.js App Router, React, TypeScript, Tailwind CSS and Supabase. Visual direction follows the supplied Framer references: near-black editorial layouts, restrained navigation, oversized type, three marque cards and generous spacing. Turkish is the default; the storefront interface also supports English and Russian. KUZMIN is a working identity taken from the reference, not a claim about a registered business.
 
+## Quick browser workspace
+
+A standalone catalog draft workspace is available at [`docs/panel.html`](docs/panel.html). [Open with HTMLPreview](https://htmlpreview.github.io/?https://raw.githubusercontent.com/gsgvhlcglf-blip/dassda/main/docs/panel.html). It needs no Node.js, installation, backend credentials or account. The preview host is an external service; its availability is separate from the Next.js application.
+
+This is a **public catalog preparation workspace**, not the authenticated production admin. It seeds only labeled demonstration catalog data; it never reads the local database, customer orders, `.env.local` or credentials. It stores edits in browser local storage and exports/imports the relational catalog as JSON. Live store data is not updated. Do not enter customer details or secrets. Export before clearing browser data, and use public catalog content only on a shared preview origin.
+
+The workspace supports products/photos/prices/stock, models and years, model-generation fitment ranges, categories, translated page copy and an exact brand/model/year preview. Its quick model editor supports one generation per model and explicitly rejects multi-generation restructuring. The existing authenticated Next.js/Supabase admin remains available in the application for production management.
+
+Rebuild after changing the template/seed with `npm run panel:build`. For local browser verification, serve the repository with `python3 -m http.server 4173 --bind 127.0.0.1`, then run `node scripts/test-quick-panel.mjs`. The test covers creation, photo upload, exact fitment, reload persistence, backup, malformed import rejection and responsive layout. Provider-side HTMLPreview loading cannot be verified from this environment's network; its public loader transformation was tested with a local transport simulation.
+
 ## Windows source download
 
 The current local source package is [`downloads/KUZMIN-Kaynak.zip`](downloads/KUZMIN-Kaynak.zip). Install Node.js 24 or a newer LTS release from [the official Node.js site](https://nodejs.org/en/download), extract the source package, open Command Prompt in that folder, and run `npm.cmd run kurulum`. Then run `npm.cmd run local` and copy the printed store or admin URL into your browser. No hosting account is required. Read `BASLAMADAN-ONCE.txt` for the Turkish walkthrough.

@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "setup:demo": "node scripts/setup-demo.mjs",
     "local": "node scripts/local-server.mjs",
-    "kurulum": "node scripts/local-install.mjs"
+    "kurulum": "node scripts/local-install.mjs",
+    "panel:build": "node --import tsx scripts/build-quick-panel.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

@@ -1,0 +1,1913 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>KUZMIN — Hızlı Kontrol Paneli</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #0d0d0d;
+        color: #eaeaea;
+        font:
+          14px/1.6 Arial,
+          Helvetica,
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        color: inherit;
+        background: none;
+        border: 0;
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      a {
+        color: inherit;
+      }
+      button:focus-visible,
+      a:focus-visible {
+        outline: 2px solid #c0c0c0;
+        outline-offset: 4px;
+      }
+      input,
+      select,
+      textarea {
+        background: #191919;
+        border: 1px solid #404040;
+        color: #eeeeee;
+        border-radius: 6px;
+        padding: 12px;
+        width: 100%;
+        outline: none;
+        min-width: 0;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: #bfbfbf;
+      }
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        font-weight: 400;
+        letter-spacing: -0.045em;
+        line-height: 1.15;
+      }
+      h1 {
+        font-size: clamp(30px, 3.2vw, 48px);
+      }
+      h2 {
+        font-size: 28px;
+      }
+      h3 {
+        font-size: 18px;
+      }
+      small,
+      .muted {
+        color: #9f9f9f;
+      }
+      .eyebrow {
+        font-size: 9px;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #9f9f9f;
+        margin-bottom: 16px;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        border-right: 1px solid #2d2d2d;
+        background: #131313;
+        padding: 36px 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: -0.07em;
+        padding: 0 13px;
+      }
+      .logo span {
+        display: block;
+        font-size: 8px;
+        font-weight: 400;
+        letter-spacing: 0.2em;
+        color: #a2a2a2;
+        margin-top: 10px;
+      }
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 50px;
+      }
+      .nav button {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-align: left;
+        padding: 13px;
+        border-radius: 5px;
+        color: #adadad;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .nav button.active,
+      .nav button:hover {
+        background: #2e2e2e;
+        color: #f4f4f4;
+      }
+      .nav i {
+        font-style: normal;
+        font-size: 15px;
+        width: 20px;
+        text-align: center;
+      }
+      .side-bottom {
+        margin-top: auto;
+        padding: 25px 13px 0;
+        color: #949494;
+        font-size: 10px;
+      }
+      .status-dot {
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #bfbfbf;
+        margin-right: 7px;
+      }
+      .main {
+        min-width: 0;
+        padding: 0 44px 70px;
+      }
+      .topbar {
+        height: 85px;
+        border-bottom: 1px solid #2f2f2f;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .topbar small {
+        font-size: 10px;
+      }
+      .topbar .eyebrow {
+        margin: 0;
+      }
+      .tag {
+        display: inline-flex;
+        font-size: 9px;
+        border: 1px solid #464646;
+        padding: 6px 10px;
+        border-radius: 20px;
+        color: #c6c6c6;
+        letter-spacing: 0.04em;
+      }
+      .title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin: 42px 0 27px;
+      }
+      .title p {
+        font-size: 12px;
+        color: #a1a1a1;
+        margin-top: 14px;
+      }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        background: #e0e0e0;
+        color: #1a1a1a;
+        font-size: 11px;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 13px 19px;
+        min-height: 43px;
+        white-space: nowrap;
+      }
+      .button:hover {
+        background: #f2f2f2;
+      }
+      .secondary {
+        background: #2b2b2b;
+        color: #dddddd;
+        border: 1px solid #4d4d4d;
+      }
+      .ghost {
+        font-size: 11px;
+        color: #cecece;
+        padding: 10px;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      .banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        background: #1c1c1c;
+        border: 1px solid #3c3c3c;
+        padding: 14px 18px;
+        border-radius: 7px;
+        font-size: 11px;
+        color: #bcbcbc;
+        margin-bottom: 26px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .stat {
+        background: #181818;
+        border: 1px solid #2f2f2f;
+        border-radius: 7px;
+        padding: 25px;
+      }
+      .stat small {
+        font-size: 10px;
+      }
+      .stat strong {
+        display: block;
+        font-size: 43px;
+        font-weight: 400;
+        letter-spacing: -0.05em;
+        margin: 10px 0 0;
+      }
+      .stat p {
+        font-size: 10px;
+        color: #8f8f8f;
+      }
+      .welcome {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 25px;
+      }
+      .box {
+        background: #161616;
+        border: 1px solid #323232;
+        border-radius: 8px;
+        padding: 30px;
+      }
+      .box > .eyebrow {
+        margin-bottom: 20px;
+      }
+      .box p.muted {
+        font-size: 12px;
+        line-height: 1.8;
+        margin: 20px 0 25px;
+        max-width: 550px;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .guide {
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+      }
+      .guide button {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        text-align: left;
+        padding: 19px 0;
+        border-top: 1px solid #313131;
+      }
+      .guide span {
+        font-size: 10px;
+        color: #9b9b9b;
+      }
+      .guide div {
+        flex: 1;
+      }
+      .guide small {
+        display: block;
+        font-size: 11px;
+        margin-top: 7px;
+      }
+      .guide b {
+        font-size: 14px;
+        font-weight: 400;
+      }
+      .guide em {
+        font-style: normal;
+        font-size: 20px;
+      }
+      .searchbar {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid #3c3c3c;
+        border-radius: 6px;
+        padding: 0 15px;
+        margin: 0 0 20px;
+        background: #141414;
+      }
+      .searchbar input {
+        border: 0;
+        background: transparent;
+        padding: 15px 0;
+        font-size: 12px;
+      }
+      .searchbar span {
+        white-space: nowrap;
+        color: #929292;
+        font-size: 10px;
+      }
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid #303030;
+        border-radius: 7px;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        min-width: 620px;
+      }
+      .table th {
+        font-size: 9px;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #a0a0a0;
+        padding: 16px;
+        background: #1d1d1d;
+      }
+      .table td {
+        font-size: 12px;
+        padding: 18px 16px;
+        border-top: 1px solid #303030;
+        max-width: 320px;
+      }
+      .table strong {
+        font-weight: 400;
+      }
+      .table small {
+        display: block;
+        font-size: 10px;
+        margin-top: 5px;
+      }
+      .table .ghost {
+        padding: 3px;
+        font-size: 10px;
+      }
+      .row-name {
+        display: flex;
+        gap: 13px;
+        align-items: center;
+      }
+      .thumb {
+        width: 50px;
+        height: 52px;
+        object-fit: contain;
+        background: #282828;
+        border-radius: 4px;
+      }
+      .pill {
+        font-size: 9px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #323232;
+        color: #cccccc;
+        display: inline-block;
+      }
+      .empty {
+        padding: 60px 20px;
+        text-align: center;
+        color: #9f9f9f;
+      }
+      .page-note {
+        color: #ababab;
+        font-size: 11px;
+        max-width: 700px;
+        margin: 25px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .content-card {
+        padding: 25px;
+        border: 1px solid #3b3b3b;
+        border-radius: 7px;
+        background: #191919;
+      }
+      .content-card h3 {
+        margin-bottom: 12px;
+      }
+      .content-card p {
+        font-size: 12px;
+        color: #a7a7a7;
+        margin-bottom: 20px;
+        white-space: pre-wrap;
+      }
+      .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #363636;
+        padding: 16px 0;
+        gap: 20px;
+        font-size: 12px;
+      }
+      .settings-row > span {
+        color: #a4a4a4;
+      }
+      .settings-row b {
+        font-weight: 400;
+        text-align: right;
+      }
+      .preview-selects {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 30px;
+      }
+      .preview-products {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      .product {
+        border: 1px solid #3c3c3c;
+        border-radius: 7px;
+        overflow: hidden;
+      }
+      .product img {
+        width: 100%;
+        aspect-ratio: 1.2;
+        object-fit: contain;
+        background: #202020;
+      }
+      .product > div {
+        padding: 20px;
+      }
+      .product h3 {
+        font-size: 17px;
+        margin-bottom: 10px;
+      }
+      .product p {
+        font-size: 11px;
+        color: #aeaeae;
+        margin: 8px 0;
+      }
+      dialog {
+        width: min(660px, calc(100% - 24px));
+        max-height: 92vh;
+        border: 1px solid #5b5b5b;
+        border-radius: 10px;
+        background: #171717;
+        color: #e7e7e7;
+        padding: 0;
+        box-shadow: 0 30px 100px #0008;
+      }
+      dialog::backdrop {
+        background: #0009;
+        backdrop-filter: blur(6px);
+      }
+      .modal-head {
+        padding: 27px 30px;
+        border-bottom: 1px solid #383838;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+      .modal-head h2 {
+        font-size: 25px;
+      }
+      .close {
+        font-size: 27px;
+        color: #bebebe;
+        padding: 0 5px;
+        line-height: 1;
+      }
+      .modal-body {
+        padding: 25px 30px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .form-grid label {
+        display: block;
+        font-size: 11px;
+        color: #c7c7c7;
+      }
+      .form-grid label > input,
+      .form-grid label > select,
+      .form-grid label > textarea {
+        display: block;
+        margin-top: 8px;
+      }
+      .span-2 {
+        grid-column: span 2;
+      }
+      .checks {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .checks label {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+      .checks input {
+        width: 15px;
+        accent-color: #bdbdbd;
+      }
+      .image-upload {
+        padding: 18px;
+        border: 1px dashed #656565;
+        border-radius: 6px;
+      }
+      .image-upload p {
+        font-size: 10px;
+        color: #a2a2a2;
+        margin-bottom: 10px;
+      }
+      .image-upload img {
+        max-height: 130px;
+        max-width: 100%;
+        object-fit: contain;
+        margin-top: 15px;
+      }
+      .form-actions {
+        padding: 20px 30px;
+        border-top: 1px solid #383838;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        justify-content: flex-end;
+        background: #1b1b1b;
+        position: sticky;
+        bottom: 0;
+      }
+      .danger {
+        margin-right: auto;
+        color: #f1b9a3;
+      }
+      .error {
+        background: #45241b;
+        border: 1px solid #86533d;
+        color: #f1c5b3;
+        padding: 13px;
+        margin-top: 18px;
+        font-size: 12px;
+        border-radius: 5px;
+      }
+      .help {
+        font-size: 10px;
+        color: #979797;
+        margin: 10px 0 0;
+      }
+      .toast {
+        position: fixed;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100% - 30px);
+        background: #e4e4e4;
+        color: #272727;
+        border-radius: 6px;
+        padding: 14px 23px;
+        box-shadow: 0 6px 40px #0009;
+        z-index: 100;
+        font-size: 12px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .footer-note {
+        font-size: 10px;
+        color: #898989;
+        margin-top: 22px;
+      }
+      .sr-only {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      @media (max-width: 1100px) {
+        .shell {
+          grid-template-columns: 210px 1fr;
+        }
+        .main {
+          padding: 0 25px 50px;
+        }
+        .cards {
+          grid-template-columns: 1fr 1fr;
+        }
+        .welcome {
+          grid-template-columns: 1fr;
+        }
+        .preview-products {
+          grid-template-columns: 1fr 1fr;
+        }
+        .sidebar {
+          padding-left: 15px;
+          padding-right: 15px;
+        }
+      }
+      @media (max-width: 720px) {
+        .shell {
+          display: block;
+        }
+        .sidebar {
+          position: relative;
+          height: auto;
+          padding: 23px 20px 10px;
+          border-right: 0;
+          border-bottom: 1px solid #383838;
+        }
+        .logo {
+          padding: 0;
+          font-size: 25px;
+        }
+        .logo span {
+          font-size: 7px;
+          margin-top: 7px;
+        }
+        .nav {
+          flex-direction: row;
+          overflow: auto;
+          margin-top: 23px;
+          gap: 5px;
+          padding-bottom: 7px;
+        }
+        .nav button {
+          font-size: 10px;
+          padding: 10px;
+        }
+        .nav i {
+          display: none;
+        }
+        .side-bottom {
+          display: none;
+        }
+        .main {
+          padding: 0 19px 40px;
+        }
+        .topbar {
+          height: 62px;
+        }
+        .topbar .eyebrow {
+          font-size: 8px;
+        }
+        .topbar small {
+          font-size: 9px;
+        }
+        .title {
+          margin: 30px 0 23px;
+          align-items: flex-end;
+          gap: 15px;
+        }
+        .title h1 {
+          font-size: 32px;
+        }
+        .title p {
+          font-size: 11px;
+        }
+        .title .button {
+          font-size: 10px;
+          padding: 11px 13px;
+        }
+        .banner {
+          font-size: 10px;
+          padding: 13px;
+          align-items: flex-start;
+        }
+        .banner .ghost {
+          font-size: 9px;
+          padding: 0;
+          white-space: nowrap;
+        }
+        .cards {
+          gap: 11px;
+        }
+        .stat {
+          padding: 21px;
+        }
+        .stat strong {
+          font-size: 36px;
+        }
+        .box {
+          padding: 23px;
+        }
+        .box h2 {
+          font-size: 27px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .preview-selects {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+        .preview-products {
+          gap: 13px;
+        }
+        .product > div {
+          padding: 14px;
+        }
+        .product h3 {
+          font-size: 14px;
+        }
+        .modal-head {
+          padding: 23px 20px;
+        }
+        .modal-body {
+          padding: 21px 20px;
+        }
+        .form-actions {
+          padding: 18px 20px;
+          gap: 12px;
+        }
+        .form-grid {
+          gap: 15px;
+        }
+        .form-grid .span-2-mobile {
+          grid-column: span 2;
+        }
+        .settings-row {
+          font-size: 11px;
+        }
+        .settings-row b {
+          max-width: 55%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="logo">KUZMIN<span>STUDIO / ÇALIŞMA ALANI</span></div>
+        <nav class="nav" aria-label="Panel bölümleri"></nav>
+        <div class="side-bottom">
+          <span class="status-dot"></span>Bu tarayıcıdaki taslaklar<br /><br />İndirme
+          ve kurulum gerekmez.
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <span class="eyebrow">KARBON. KARAKTER. KUZMIN.</span
+          ><small id="save-status">Tarayıcı çalışma alanı</small>
+        </header>
+        <div class="title">
+          <div>
+            <h1 id="page-title"></h1>
+            <p id="page-subtitle"></p>
+          </div>
+          <div id="primary-action"></div>
+        </div>
+        <div class="banner">
+          <span
+            >Tarayıcı çalışma alanı · Değişiklikler bu tarayıcıda saklanır;
+            canlı mağazaya aktarılmaz.</span
+          ><button class="ghost" data-action="export">Taslağı indir ↗</button>
+        </div>
+        <div id="view"></div>
+        <p class="footer-note">
+          Örnek veriler gerçek stok ve doğrulanmış motosiklet uyumluluğu
+          değildir. Müşteri bilgisi, şifre veya ödeme anahtarı girmeyin.
+        </p>
+      </main>
+    </div>
+    <dialog id="editor">
+      <form id="edit-form">
+        <header class="modal-head">
+          <h2 id="editor-title"></h2>
+          <button
+            type="button"
+            class="close"
+            aria-label="Kapat"
+            data-action="close"
+          >
+            ×
+          </button>
+        </header>
+        <div class="modal-body">
+          <div class="form-grid" id="fields"></div>
+          <p id="form-error" role="alert" class="error hidden"></p>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="ghost danger hidden"
+            id="delete-record"
+            data-action="delete"
+          >
+            Kaydı sil</button
+          ><button type="button" class="ghost" data-action="close">
+            Vazgeç</button
+          ><button class="button" type="submit">Değişiklikleri kaydet ✓</button>
+        </div>
+      </form>
+    </dialog>
+    <input
+      type="file"
+      id="import-file"
+      accept="application/json,.json"
+      class="hidden"
+    />
+    <div id="toast" role="status" class="toast hidden"></div>
+    <script>
+      (() => {
+        "use strict";
+        const INITIAL = {"brands":[{"id":"ducati","slug":"ducati","name":"DUCATI","position":1},{"id":"bmw","slug":"bmw","name":"BMW","position":2},{"id":"yamaha","slug":"yamaha","name":"YAMAHA","position":3}],"models":[{"id":"ducati-diavel-1200","slug":"diavel-1200","name":"Diavel 1200","brand_id":"ducati","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"ducati-diavel-v4","slug":"diavel-v4","name":"Diavel V4","brand_id":"ducati","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"ducati-panigale-v4","slug":"panigale-v4","name":"Panigale V4","brand_id":"ducati","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"ducati-monster","slug":"monster","name":"Monster","brand_id":"ducati","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"bmw-s1000rr","slug":"s1000rr","name":"S1000RR","brand_id":"bmw","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"bmw-s1000r","slug":"s1000r","name":"S1000R","brand_id":"bmw","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"bmw-m1000rr","slug":"m1000rr","name":"M1000RR","brand_id":"bmw","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"bmw-r1250gs","slug":"r1250gs","name":"R1250GS","brand_id":"bmw","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"yamaha-mt-25","slug":"mt-25","name":"MT-25","brand_id":"yamaha","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"yamaha-mt-07","slug":"mt-07","name":"MT-07","brand_id":"yamaha","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"yamaha-mt-09","slug":"mt-09","name":"MT-09","brand_id":"yamaha","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="},{"id":"yamaha-yzf-r1","slug":"yzf-r1","name":"YZF-R1","brand_id":"yamaha","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDEwMDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgyPSIuNSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNhNmFkOWYiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjNGI1NTQzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMWQyNTE5Ii8+PC9saW5lYXJHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImciPjxzdG9wIHN0b3AtY29sb3I9IiM2NjdhNTAiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTMxNzEwIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48ZWxsaXBzZSBjeD0iNTAwIiBjeT0iMzAwIiByeD0iNDgwIiByeT0iMjQwIiBmaWxsPSJ1cmwoI2cpIi8+PGVsbGlwc2UgY3g9IjUwMCIgY3k9IjQ5NSIgcng9IjM0MCIgcnk9IjEyIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNSIvPjxnIHN0cm9rZT0iIzE3MWUxMiIgc3Ryb2tlLXdpZHRoPSI4Ij48Y2lyY2xlIGN4PSIyNjUiIGN5PSIzOTEiIHI9IjkxIiBmaWxsPSIjMGQxMTBiIi8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI5MSIgZmlsbD0iIzBkMTEwYiIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjM5MSIgcj0iNjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYyNmU1NyIgc3Ryb2tlLXdpZHRoPSI1Ii8+PGNpcmNsZSBjeD0iNzM3IiBjeT0iMzkxIiByPSI2NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjI2ZTU3IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMjY1IDMyNiAwIDEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTJtNDI2LTE5djEzMG0tNjUtNjVoMTMwbS0xMTEtNDYgOTIgOTJtLTkyIDAgOTItOTIiIHN0cm9rZT0iIzQxNGIzNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0ibTI2NSAzOTEgMTg1LTU0IDEwOCA2My0xNDAgMjdaIiBmaWxsPSIjMjczMDFmIiBzdHJva2U9IiM3MjdjNjYiIHN0cm9rZS13aWR0aD0iNSIvPjxwYXRoIGQ9Im03MzcgMzkxLTg1LTE3NyIgc3Ryb2tlPSIjYjNhZDhhIiBzdHJva2Utd2lkdGg9IjEzIi8+PHBhdGggZD0ibTczNyAzOTEtNzQtMTU3IiBzdHJva2U9IiM1NTVjNGEiIHN0cm9rZS13aWR0aD0iNiIvPjxwYXRoIGQ9Im00NTUgMzA4IDQ1IDEwNWgxMThsLTE4LTExOCIgZmlsbD0iIzFiMjMxNiIgc3Ryb2tlPSIjNzk4NTcwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNMjM2IDIzMCAzOTUgMjY0IDQ3OCAyMzFRNTE4IDE4NCA1ODUgMTkzTDY0MSAyMTkgNjg0IDI1NiA2MTUgMjY3IDU2NyAzMTggNDMyIDMyNiAzODUgMjg0IDI1NSAyNjNaIiBmaWxsPSJ1cmwoI2IpIiBzdHJva2U9IiM3Njg0NmMiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Im0yNDMgMjMwIDE1NCAyNSA0OS0xOC0yMiAzNC0xMjYtMTJaIiBmaWxsPSIjMTAxNzBjIi8+PHBhdGggZD0ibTUxMCAyMDUgNTctMTIgNjcgMjEtMjIgMjEtMTE1IDdaIiBmaWxsPSIjODk5NjdjIiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Im00NzggMzMxIDEzNC02MCA0MiAxNy02MyA2NCA0IDU5LTc1IDhaIiBmaWxsPSIjMzEzZDI2IiBzdHJva2U9IiM2MTZkNTQiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Im02NDcgMjIyLTE4LTQ4IDMwLTkgMjAgMTYtMTMgMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4NzY1YiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0ibTYzNyAxOTMtMzEtOSIgc3Ryb2tlPSIjZDRkOGM4IiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJtMzc2IDM2NSAxNDIgNzEtMzMgMTctMTM4LTU3WiIgZmlsbD0iIzc3N2U2YiIgc3Ryb2tlPSIjNDI0ZjM3IiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJtNzM1IDMwMiAzOCAxMCAxMyAyMy04My0xNSIgZmlsbD0iIzQ2NTYzYSIgc3Ryb2tlPSIjN2M4YzZjIiBzdHJva2Utd2lkdGg9IjMiLz48L2c+PC9zdmc+Cg=="}],"generations":[{"id":"ducati-diavel-1200-demo","model_id":"ducati-diavel-1200","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"ducati-diavel-v4-demo","model_id":"ducati-diavel-v4","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"ducati-panigale-v4-demo","model_id":"ducati-panigale-v4","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"ducati-monster-demo","model_id":"ducati-monster","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"bmw-s1000rr-demo","model_id":"bmw-s1000rr","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"bmw-s1000r-demo","model_id":"bmw-s1000r","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"bmw-m1000rr-demo","model_id":"bmw-m1000rr","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"bmw-r1250gs-demo","model_id":"bmw-r1250gs","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"yamaha-mt-25-demo","model_id":"yamaha-mt-25","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"yamaha-mt-07-demo","model_id":"yamaha-mt-07","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"yamaha-mt-09-demo","model_id":"yamaha-mt-09","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026},{"id":"yamaha-yzf-r1-demo","model_id":"yamaha-yzf-r1","name":"Demo generation / gerçek uyumluluk doğrulanmamıştır","start_year":2022,"end_year":2026}],"model_years":[{"id":"ducati-diavel-1200-2022","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year":2022},{"id":"ducati-diavel-1200-2023","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year":2023},{"id":"ducati-diavel-1200-2024","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year":2024},{"id":"ducati-diavel-1200-2025","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year":2025},{"id":"ducati-diavel-1200-2026","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year":2026},{"id":"ducati-diavel-v4-2022","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year":2022},{"id":"ducati-diavel-v4-2023","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year":2023},{"id":"ducati-diavel-v4-2024","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year":2024},{"id":"ducati-diavel-v4-2025","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year":2025},{"id":"ducati-diavel-v4-2026","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year":2026},{"id":"ducati-panigale-v4-2022","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year":2022},{"id":"ducati-panigale-v4-2023","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year":2023},{"id":"ducati-panigale-v4-2024","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year":2024},{"id":"ducati-panigale-v4-2025","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year":2025},{"id":"ducati-panigale-v4-2026","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year":2026},{"id":"ducati-monster-2022","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year":2022},{"id":"ducati-monster-2023","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year":2023},{"id":"ducati-monster-2024","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year":2024},{"id":"ducati-monster-2025","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year":2025},{"id":"ducati-monster-2026","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year":2026},{"id":"bmw-s1000rr-2022","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year":2022},{"id":"bmw-s1000rr-2023","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year":2023},{"id":"bmw-s1000rr-2024","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year":2024},{"id":"bmw-s1000rr-2025","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year":2025},{"id":"bmw-s1000rr-2026","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year":2026},{"id":"bmw-s1000r-2022","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year":2022},{"id":"bmw-s1000r-2023","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year":2023},{"id":"bmw-s1000r-2024","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year":2024},{"id":"bmw-s1000r-2025","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year":2025},{"id":"bmw-s1000r-2026","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year":2026},{"id":"bmw-m1000rr-2022","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year":2022},{"id":"bmw-m1000rr-2023","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year":2023},{"id":"bmw-m1000rr-2024","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year":2024},{"id":"bmw-m1000rr-2025","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year":2025},{"id":"bmw-m1000rr-2026","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year":2026},{"id":"bmw-r1250gs-2022","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year":2022},{"id":"bmw-r1250gs-2023","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year":2023},{"id":"bmw-r1250gs-2024","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year":2024},{"id":"bmw-r1250gs-2025","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year":2025},{"id":"bmw-r1250gs-2026","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year":2026},{"id":"yamaha-mt-25-2022","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year":2022},{"id":"yamaha-mt-25-2023","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year":2023},{"id":"yamaha-mt-25-2024","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year":2024},{"id":"yamaha-mt-25-2025","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year":2025},{"id":"yamaha-mt-25-2026","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year":2026},{"id":"yamaha-mt-07-2022","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year":2022},{"id":"yamaha-mt-07-2023","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year":2023},{"id":"yamaha-mt-07-2024","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year":2024},{"id":"yamaha-mt-07-2025","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year":2025},{"id":"yamaha-mt-07-2026","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year":2026},{"id":"yamaha-mt-09-2022","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year":2022},{"id":"yamaha-mt-09-2023","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year":2023},{"id":"yamaha-mt-09-2024","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year":2024},{"id":"yamaha-mt-09-2025","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year":2025},{"id":"yamaha-mt-09-2026","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year":2026},{"id":"yamaha-yzf-r1-2022","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year":2022},{"id":"yamaha-yzf-r1-2023","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year":2023},{"id":"yamaha-yzf-r1-2024","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year":2024},{"id":"yamaha-yzf-r1-2025","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year":2025},{"id":"yamaha-yzf-r1-2026","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year":2026}],"products":[{"id":"p1","slug":"karbon-on-camurluk","sku":"DEMO-KZ-001","title":{"tr":"Karbon ön çamurluk","en":"Carbon front fender","ru":"Карбоновое переднее крыло"},"description":{"tr":"Tasarımın her çizgisini tamamlayan yalın bir dokunuş. Bu ürün yalnızca mağaza deneyimini göstermek için hazırlanmış örnek içeriktir. Gerçek ürün, teknik özellik ve uyumluluk bilgileri henüz sağlanmadı.","en":"A considered finishing touch. This is demonstration content only. Real product details, specifications and fitment have not been supplied.","ru":"Продуманная деталь. Только демонстрационный товар. Реальные характеристики и совместимость пока не предоставлены."},"specifications":{"tr":"Örnek malzeme ve yüzey seçenekleri. Teknik doğrulama gereklidir.","en":"Example material and finish options. Technical verification required.","ru":"Пример материалов и покрытий. Требуется техническая проверка."},"category_id":"body","material":"full_carbon","price":6850,"stock":12,"featured":true,"published":true,"demo":true,"weight":null,"installation":{"tr":"Montaj talimatları gerçek ürünle birlikte eklenecektir.","en":"Installation instructions will be added with real products.","ru":"Инструкция будет добавлена с реальными товарами."},"video_url":"","viewer_url":""},{"id":"p2","slug":"karbon-depo-kaplamasi","sku":"DEMO-KZ-002","title":{"tr":"Karbon depo kaplaması","en":"Carbon tank cover","ru":"Карбоновая накладка бака"},"description":{"tr":"Tasarımın her çizgisini tamamlayan yalın bir dokunuş. Bu ürün yalnızca mağaza deneyimini göstermek için hazırlanmış örnek içeriktir. Gerçek ürün, teknik özellik ve uyumluluk bilgileri henüz sağlanmadı.","en":"A considered finishing touch. This is demonstration content only. Real product details, specifications and fitment have not been supplied.","ru":"Продуманная деталь. Только демонстрационный товар. Реальные характеристики и совместимость пока не предоставлены."},"specifications":{"tr":"Örnek malzeme ve yüzey seçenekleri. Teknik doğrulama gereklidir.","en":"Example material and finish options. Technical verification required.","ru":"Пример материалов и покрытий. Требуется техническая проверка."},"category_id":"protection","material":"hybrid","price":12400,"stock":12,"featured":true,"published":true,"demo":true,"weight":null,"installation":{"tr":"Montaj talimatları gerçek ürünle birlikte eklenecektir.","en":"Installation instructions will be added with real products.","ru":"Инструкция будет добавлена с реальными товарами."},"video_url":"","viewer_url":""},{"id":"p3","slug":"karbon-egzoz-korumasi","sku":"DEMO-KZ-003","title":{"tr":"Karbon egzoz koruması","en":"Carbon exhaust shield","ru":"Карбоновая защита выхлопа"},"description":{"tr":"Tasarımın her çizgisini tamamlayan yalın bir dokunuş. Bu ürün yalnızca mağaza deneyimini göstermek için hazırlanmış örnek içeriktir. Gerçek ürün, teknik özellik ve uyumluluk bilgileri henüz sağlanmadı.","en":"A considered finishing touch. This is demonstration content only. Real product details, specifications and fitment have not been supplied.","ru":"Продуманная деталь. Только демонстрационный товар. Реальные характеристики и совместимость пока не предоставлены."},"specifications":{"tr":"Örnek malzeme ve yüzey seçenekleri. Teknik doğrulama gereklidir.","en":"Example material and finish options. Technical verification required.","ru":"Пример материалов и покрытий. Требуется техническая проверка."},"category_id":"details","material":"forged","price":3250,"stock":12,"featured":true,"published":true,"demo":true,"weight":null,"installation":{"tr":"Montaj talimatları gerçek ürünle birlikte eklenecektir.","en":"Installation instructions will be added with real products.","ru":"Инструкция будет добавлена с реальными товарами."},"video_url":"","viewer_url":""},{"id":"p4","slug":"karbon-arka-camurluk","sku":"DEMO-KZ-004","title":{"tr":"Karbon arka çamurluk","en":"Carbon rear hugger","ru":"Карбоновое заднее крыло"},"description":{"tr":"Tasarımın her çizgisini tamamlayan yalın bir dokunuş. Bu ürün yalnızca mağaza deneyimini göstermek için hazırlanmış örnek içeriktir. Gerçek ürün, teknik özellik ve uyumluluk bilgileri henüz sağlanmadı.","en":"A considered finishing touch. This is demonstration content only. Real product details, specifications and fitment have not been supplied.","ru":"Продуманная деталь. Только демонстрационный товар. Реальные характеристики и совместимость пока не предоставлены."},"specifications":{"tr":"Örnek malzeme ve yüzey seçenekleri. Teknik doğrulama gereklidir.","en":"Example material and finish options. Technical verification required.","ru":"Пример материалов и покрытий. Требуется техническая проверка."},"category_id":"body","material":"full_carbon","price":7950,"stock":12,"featured":true,"published":true,"demo":true,"weight":null,"installation":{"tr":"Montaj talimatları gerçek ürünle birlikte eklenecektir.","en":"Installation instructions will be added with real products.","ru":"Инструкция будет добавлена с реальными товарами."},"video_url":"","viewer_url":""},{"id":"p5","slug":"karbon-yan-panel","sku":"DEMO-KZ-005","title":{"tr":"Karbon yan panel seti","en":"Carbon side panel set","ru":"Карбоновые боковые панели"},"description":{"tr":"Tasarımın her çizgisini tamamlayan yalın bir dokunuş. Bu ürün yalnızca mağaza deneyimini göstermek için hazırlanmış örnek içeriktir. Gerçek ürün, teknik özellik ve uyumluluk bilgileri henüz sağlanmadı.","en":"A considered finishing touch. This is demonstration content only. Real product details, specifications and fitment have not been supplied.","ru":"Продуманная деталь. Только демонстрационный товар. Реальные характеристики и совместимость пока не предоставлены."},"specifications":{"tr":"Örnek malzeme ve yüzey seçenekleri. Teknik doğrulama gereklidir.","en":"Example material and finish options. Technical verification required.","ru":"Пример материалов и покрытий. Требуется техническая проверка."},"category_id":"protection","material":"hybrid","price":14800,"stock":12,"featured":false,"published":true,"demo":true,"weight":null,"installation":{"tr":"Montaj talimatları gerçek ürünle birlikte eklenecektir.","en":"Installation instructions will be added with real products.","ru":"Инструкция будет добавлена с реальными товарами."},"video_url":"","viewer_url":""},{"id":"p6","slug":"karbon-zincir-korumasi","sku":"DEMO-KZ-006","title":{"tr":"Karbon zincir koruması","en":"Carbon chain guard","ru":"Карбоновая защита цепи"},"description":{"tr":"Tasarımın her çizgisini tamamlayan yalın bir dokunuş. Bu ürün yalnızca mağaza deneyimini göstermek için hazırlanmış örnek içeriktir. Gerçek ürün, teknik özellik ve uyumluluk bilgileri henüz sağlanmadı.","en":"A considered finishing touch. This is demonstration content only. Real product details, specifications and fitment have not been supplied.","ru":"Продуманная деталь. Только демонстрационный товар. Реальные характеристики и совместимость пока не предоставлены."},"specifications":{"tr":"Örnek malzeme ve yüzey seçenekleri. Teknik doğrulama gereklidir.","en":"Example material and finish options. Technical verification required.","ru":"Пример материалов и покрытий. Требуется техническая проверка."},"category_id":"details","material":"forged","price":2850,"stock":12,"featured":false,"published":true,"demo":true,"weight":null,"installation":{"tr":"Montaj talimatları gerçek ürünle birlikte eklenecektir.","en":"Installation instructions will be added with real products.","ru":"Инструкция будет добавлена с реальными товарами."},"video_url":"","viewer_url":""}],"variants":[{"id":"p1-gloss","product_id":"p1","name":{"tr":"Parlak","en":"Gloss","ru":"Глянец"},"sku":"DEMO-KZ-001-G","price":6850,"stock":6,"finish":"gloss"},{"id":"p1-matte","product_id":"p1","name":{"tr":"Mat","en":"Matte","ru":"Матовый"},"sku":"DEMO-KZ-001-M","price":6850,"stock":6,"finish":"matte"},{"id":"p2-gloss","product_id":"p2","name":{"tr":"Parlak","en":"Gloss","ru":"Глянец"},"sku":"DEMO-KZ-002-G","price":12400,"stock":6,"finish":"gloss"},{"id":"p2-matte","product_id":"p2","name":{"tr":"Mat","en":"Matte","ru":"Матовый"},"sku":"DEMO-KZ-002-M","price":12400,"stock":6,"finish":"matte"},{"id":"p3-gloss","product_id":"p3","name":{"tr":"Parlak","en":"Gloss","ru":"Глянец"},"sku":"DEMO-KZ-003-G","price":3250,"stock":6,"finish":"gloss"},{"id":"p3-matte","product_id":"p3","name":{"tr":"Mat","en":"Matte","ru":"Матовый"},"sku":"DEMO-KZ-003-M","price":3250,"stock":6,"finish":"matte"},{"id":"p4-gloss","product_id":"p4","name":{"tr":"Parlak","en":"Gloss","ru":"Глянец"},"sku":"DEMO-KZ-004-G","price":7950,"stock":6,"finish":"gloss"},{"id":"p4-matte","product_id":"p4","name":{"tr":"Mat","en":"Matte","ru":"Матовый"},"sku":"DEMO-KZ-004-M","price":7950,"stock":6,"finish":"matte"},{"id":"p5-gloss","product_id":"p5","name":{"tr":"Parlak","en":"Gloss","ru":"Глянец"},"sku":"DEMO-KZ-005-G","price":14800,"stock":6,"finish":"gloss"},{"id":"p5-matte","product_id":"p5","name":{"tr":"Mat","en":"Matte","ru":"Матовый"},"sku":"DEMO-KZ-005-M","price":14800,"stock":6,"finish":"matte"},{"id":"p6-gloss","product_id":"p6","name":{"tr":"Parlak","en":"Gloss","ru":"Глянец"},"sku":"DEMO-KZ-006-G","price":2850,"stock":6,"finish":"gloss"},{"id":"p6-matte","product_id":"p6","name":{"tr":"Mat","en":"Matte","ru":"Матовый"},"sku":"DEMO-KZ-006-M","price":2850,"stock":6,"finish":"matte"}],"product_images":[{"id":"img-p1","product_id":"p1","url":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNzAwIiB2aWV3Qm94PSIwIDAgOTAwIDcwMCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImMiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0zNSkiPjxyZWN0IHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIxMjcxZCIvPjxwYXRoIGQ9Ik0wIDBoNnY2SDB6TTYgNmg2djZINnoiIGZpbGw9IiM1NTYwNGMiLz48cGF0aCBkPSJNMCAyaDZtMCA2aDYiIHN0cm9rZT0iIzliYTg4ZSIgc3Ryb2tlLW9wYWNpdHk9Ii4zIi8+PC9wYXR0ZXJuPjxsaW5lYXJHcmFkaWVudCBpZD0ibCIgeDI9Ii40IiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2I3YzNhYSIgc3RvcC1vcGFjaXR5PSIuNyIvPjxzdG9wIG9mZnNldD0iLjQiIHN0b3AtY29sb3I9IiMzMDQ0MjMiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDUwMSIgc3RvcC1vcGFjaXR5PSIuOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjUxMCIgcng9IjI0MCIgcnk9IjMwIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNiIgZmlsdGVyPSJ1cmwoI3MpIi8+PHBhdGggZD0iTTE5MCAzNzBRMjA1IDE2MCA0NjAgMTQ1UTcwNSAxNTUgNzUwIDM1MEw2NjUgMzk0UTU3OSAyNDcgNDQ0IDI2MFEzMTAgMjU4IDI3MCA0MzBaIiBmaWxsPSJ1cmwoI2MpIiBzdHJva2U9IiM4Yjk5ODAiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0xOTAgMzcwUTIwNSAxNjAgNDYwIDE0NVE3MDUgMTU1IDc1MCAzNTBMNjY1IDM5NFE1NzkgMjQ3IDQ0NCAyNjBRMzEwIDI1OCAyNzAgNDMwWiIgZmlsbD0idXJsKCNsKSIvPjxwYXRoIGQ9Ik0yNjAgMzA1UTM4MCAxOTAgNTc4IDI1MCIgc3Ryb2tlPSIjZDVkZmNkIiBzdHJva2Utb3BhY2l0eT0iLjMiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjxjaXJjbGUgY3g9IjI2MCIgY3k9IjM2NyIgcj0iOCIgZmlsbD0iIzEwMTcwYSIgc3Ryb2tlPSIjODg5NjdiIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI2NzMiIGN5PSIzMzgiIHI9IjgiIGZpbGw9IiMxMDE3MGEiIHN0cm9rZT0iIzg4OTY3YiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+","alt":{"tr":"Karbon ön çamurluk","en":"Carbon front fender","ru":"Карбоновое переднее крыло"},"position":0},{"id":"img-p2","product_id":"p2","url":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNzAwIiB2aWV3Qm94PSIwIDAgOTAwIDcwMCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImMiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0zNSkiPjxyZWN0IHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIxMjcxZCIvPjxwYXRoIGQ9Ik0wIDBoNnY2SDB6TTYgNmg2djZINnoiIGZpbGw9IiM1NTYwNGMiLz48cGF0aCBkPSJNMCAyaDZtMCA2aDYiIHN0cm9rZT0iIzliYTg4ZSIgc3Ryb2tlLW9wYWNpdHk9Ii4zIi8+PC9wYXR0ZXJuPjxsaW5lYXJHcmFkaWVudCBpZD0ibCIgeDI9Ii40IiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2I3YzNhYSIgc3RvcC1vcGFjaXR5PSIuNyIvPjxzdG9wIG9mZnNldD0iLjQiIHN0b3AtY29sb3I9IiMzMDQ0MjMiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDUwMSIgc3RvcC1vcGFjaXR5PSIuOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjUxMCIgcng9IjI0MCIgcnk9IjMwIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNiIgZmlsdGVyPSJ1cmwoI3MpIi8+PHBhdGggZD0iTTIwMCAyMzAgNDE4IDE0NSA3MTAgMjcwIDY3NSA0NjcgNDMwIDUwNSAyMzAgMzk5WiIgZmlsbD0idXJsKCNjKSIgc3Ryb2tlPSIjOGI5OTgwIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNMjAwIDIzMCA0MTggMTQ1IDcxMCAyNzAgNjc1IDQ2NyA0MzAgNTA1IDIzMCAzOTlaIiBmaWxsPSJ1cmwoI2wpIi8+PHBhdGggZD0iTTI2MCAzMDVRMzgwIDE5MCA1NzggMjUwIiBzdHJva2U9IiNkNWRmY2QiIHN0cm9rZS1vcGFjaXR5PSIuMyIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PGNpcmNsZSBjeD0iMjYwIiBjeT0iMzY3IiByPSI4IiBmaWxsPSIjMTAxNzBhIiBzdHJva2U9IiM4ODk2N2IiIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjY3MyIgY3k9IjMzOCIgcj0iOCIgZmlsbD0iIzEwMTcwYSIgc3Ryb2tlPSIjODg5NjdiIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=","alt":{"tr":"Karbon depo kaplaması","en":"Carbon tank cover","ru":"Карбоновая накладка бака"},"position":0},{"id":"img-p3","product_id":"p3","url":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNzAwIiB2aWV3Qm94PSIwIDAgOTAwIDcwMCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImMiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0zNSkiPjxyZWN0IHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIxMjcxZCIvPjxwYXRoIGQ9Ik0wIDBoNnY2SDB6TTYgNmg2djZINnoiIGZpbGw9IiM1NTYwNGMiLz48cGF0aCBkPSJNMCAyaDZtMCA2aDYiIHN0cm9rZT0iIzliYTg4ZSIgc3Ryb2tlLW9wYWNpdHk9Ii4zIi8+PC9wYXR0ZXJuPjxsaW5lYXJHcmFkaWVudCBpZD0ibCIgeDI9Ii40IiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2I3YzNhYSIgc3RvcC1vcGFjaXR5PSIuNyIvPjxzdG9wIG9mZnNldD0iLjQiIHN0b3AtY29sb3I9IiMzMDQ0MjMiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDUwMSIgc3RvcC1vcGFjaXR5PSIuOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjUxMCIgcng9IjI0MCIgcnk9IjMwIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNiIgZmlsdGVyPSJ1cmwoI3MpIi8+PHBhdGggZD0iTTIwMCAzNTBRMjUwIDIwMCA0NTAgMjIwTDcxMCAyNzUgNzM1IDM3MCA0ODAgNDUwIDMwMCA0MjVaIiBmaWxsPSJ1cmwoI2MpIiBzdHJva2U9IiM4Yjk5ODAiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0yMDAgMzUwUTI1MCAyMDAgNDUwIDIyMEw3MTAgMjc1IDczNSAzNzAgNDgwIDQ1MCAzMDAgNDI1WiIgZmlsbD0idXJsKCNsKSIvPjxwYXRoIGQ9Ik0yNjAgMzA1UTM4MCAxOTAgNTc4IDI1MCIgc3Ryb2tlPSIjZDVkZmNkIiBzdHJva2Utb3BhY2l0eT0iLjMiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjxjaXJjbGUgY3g9IjI2MCIgY3k9IjM2NyIgcj0iOCIgZmlsbD0iIzEwMTcwYSIgc3Ryb2tlPSIjODg5NjdiIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI2NzMiIGN5PSIzMzgiIHI9IjgiIGZpbGw9IiMxMDE3MGEiIHN0cm9rZT0iIzg4OTY3YiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+","alt":{"tr":"Karbon egzoz koruması","en":"Carbon exhaust shield","ru":"Карбоновая защита выхлопа"},"position":0},{"id":"img-p4","product_id":"p4","url":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNzAwIiB2aWV3Qm94PSIwIDAgOTAwIDcwMCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImMiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0zNSkiPjxyZWN0IHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIxMjcxZCIvPjxwYXRoIGQ9Ik0wIDBoNnY2SDB6TTYgNmg2djZINnoiIGZpbGw9IiM1NTYwNGMiLz48cGF0aCBkPSJNMCAyaDZtMCA2aDYiIHN0cm9rZT0iIzliYTg4ZSIgc3Ryb2tlLW9wYWNpdHk9Ii4zIi8+PC9wYXR0ZXJuPjxsaW5lYXJHcmFkaWVudCBpZD0ibCIgeDI9Ii40IiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2I3YzNhYSIgc3RvcC1vcGFjaXR5PSIuNyIvPjxzdG9wIG9mZnNldD0iLjQiIHN0b3AtY29sb3I9IiMzMDQ0MjMiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDUwMSIgc3RvcC1vcGFjaXR5PSIuOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjUxMCIgcng9IjI0MCIgcnk9IjMwIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNiIgZmlsdGVyPSJ1cmwoI3MpIi8+PHBhdGggZD0iTTE5MCAzNzBRMjA1IDE2MCA0NjAgMTQ1UTcwNSAxNTUgNzUwIDM1MEw2NjUgMzk0UTU3OSAyNDcgNDQ0IDI2MFEzMTAgMjU4IDI3MCA0MzBaIiBmaWxsPSJ1cmwoI2MpIiBzdHJva2U9IiM4Yjk5ODAiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0xOTAgMzcwUTIwNSAxNjAgNDYwIDE0NVE3MDUgMTU1IDc1MCAzNTBMNjY1IDM5NFE1NzkgMjQ3IDQ0NCAyNjBRMzEwIDI1OCAyNzAgNDMwWiIgZmlsbD0idXJsKCNsKSIvPjxwYXRoIGQ9Ik0yNjAgMzA1UTM4MCAxOTAgNTc4IDI1MCIgc3Ryb2tlPSIjZDVkZmNkIiBzdHJva2Utb3BhY2l0eT0iLjMiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjxjaXJjbGUgY3g9IjI2MCIgY3k9IjM2NyIgcj0iOCIgZmlsbD0iIzEwMTcwYSIgc3Ryb2tlPSIjODg5NjdiIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI2NzMiIGN5PSIzMzgiIHI9IjgiIGZpbGw9IiMxMDE3MGEiIHN0cm9rZT0iIzg4OTY3YiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+","alt":{"tr":"Karbon arka çamurluk","en":"Carbon rear hugger","ru":"Карбоновое заднее крыло"},"position":0},{"id":"img-p5","product_id":"p5","url":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNzAwIiB2aWV3Qm94PSIwIDAgOTAwIDcwMCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImMiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0zNSkiPjxyZWN0IHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIxMjcxZCIvPjxwYXRoIGQ9Ik0wIDBoNnY2SDB6TTYgNmg2djZINnoiIGZpbGw9IiM1NTYwNGMiLz48cGF0aCBkPSJNMCAyaDZtMCA2aDYiIHN0cm9rZT0iIzliYTg4ZSIgc3Ryb2tlLW9wYWNpdHk9Ii4zIi8+PC9wYXR0ZXJuPjxsaW5lYXJHcmFkaWVudCBpZD0ibCIgeDI9Ii40IiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2I3YzNhYSIgc3RvcC1vcGFjaXR5PSIuNyIvPjxzdG9wIG9mZnNldD0iLjQiIHN0b3AtY29sb3I9IiMzMDQ0MjMiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDUwMSIgc3RvcC1vcGFjaXR5PSIuOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjUxMCIgcng9IjI0MCIgcnk9IjMwIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNiIgZmlsdGVyPSJ1cmwoI3MpIi8+PHBhdGggZD0iTTIwMCAyMzAgNDE4IDE0NSA3MTAgMjcwIDY3NSA0NjcgNDMwIDUwNSAyMzAgMzk5WiIgZmlsbD0idXJsKCNjKSIgc3Ryb2tlPSIjOGI5OTgwIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNMjAwIDIzMCA0MTggMTQ1IDcxMCAyNzAgNjc1IDQ2NyA0MzAgNTA1IDIzMCAzOTlaIiBmaWxsPSJ1cmwoI2wpIi8+PHBhdGggZD0iTTI2MCAzMDVRMzgwIDE5MCA1NzggMjUwIiBzdHJva2U9IiNkNWRmY2QiIHN0cm9rZS1vcGFjaXR5PSIuMyIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PGNpcmNsZSBjeD0iMjYwIiBjeT0iMzY3IiByPSI4IiBmaWxsPSIjMTAxNzBhIiBzdHJva2U9IiM4ODk2N2IiIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjY3MyIgY3k9IjMzOCIgcj0iOCIgZmlsbD0iIzEwMTcwYSIgc3Ryb2tlPSIjODg5NjdiIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=","alt":{"tr":"Karbon yan panel seti","en":"Carbon side panel set","ru":"Карбоновые боковые панели"},"position":0},{"id":"img-p6","product_id":"p6","url":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNzAwIiB2aWV3Qm94PSIwIDAgOTAwIDcwMCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImMiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKC0zNSkiPjxyZWN0IHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIxMjcxZCIvPjxwYXRoIGQ9Ik0wIDBoNnY2SDB6TTYgNmg2djZINnoiIGZpbGw9IiM1NTYwNGMiLz48cGF0aCBkPSJNMCAyaDZtMCA2aDYiIHN0cm9rZT0iIzliYTg4ZSIgc3Ryb2tlLW9wYWNpdHk9Ii4zIi8+PC9wYXR0ZXJuPjxsaW5lYXJHcmFkaWVudCBpZD0ibCIgeDI9Ii40IiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iI2I3YzNhYSIgc3RvcC1vcGFjaXR5PSIuNyIvPjxzdG9wIG9mZnNldD0iLjQiIHN0b3AtY29sb3I9IiMzMDQ0MjMiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMDUwMSIgc3RvcC1vcGFjaXR5PSIuOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjUxMCIgcng9IjI0MCIgcnk9IjMwIiBmaWxsPSIjMDAwIiBvcGFjaXR5PSIuNiIgZmlsdGVyPSJ1cmwoI3MpIi8+PHBhdGggZD0iTTIwMCAzNTBRMjUwIDIwMCA0NTAgMjIwTDcxMCAyNzUgNzM1IDM3MCA0ODAgNDUwIDMwMCA0MjVaIiBmaWxsPSJ1cmwoI2MpIiBzdHJva2U9IiM4Yjk5ODAiIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0yMDAgMzUwUTI1MCAyMDAgNDUwIDIyMEw3MTAgMjc1IDczNSAzNzAgNDgwIDQ1MCAzMDAgNDI1WiIgZmlsbD0idXJsKCNsKSIvPjxwYXRoIGQ9Ik0yNjAgMzA1UTM4MCAxOTAgNTc4IDI1MCIgc3Ryb2tlPSIjZDVkZmNkIiBzdHJva2Utb3BhY2l0eT0iLjMiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjxjaXJjbGUgY3g9IjI2MCIgY3k9IjM2NyIgcj0iOCIgZmlsbD0iIzEwMTcwYSIgc3Ryb2tlPSIjODg5NjdiIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI2NzMiIGN5PSIzMzgiIHI9IjgiIGZpbGw9IiMxMDE3MGEiIHN0cm9rZT0iIzg4OTY3YiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+","alt":{"tr":"Karbon zincir koruması","en":"Carbon chain guard","ru":"Карбоновая защита цепи"},"position":0}],"compatibility":[{"id":"p1-ducati-diavel-1200","product_id":"p1","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year_from":2022,"year_to":2026},{"id":"p1-ducati-monster","product_id":"p1","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year_from":2022,"year_to":2026},{"id":"p1-bmw-m1000rr","product_id":"p1","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year_from":2022,"year_to":2026},{"id":"p1-yamaha-mt-25","product_id":"p1","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year_from":2022,"year_to":2026},{"id":"p1-yamaha-mt-07","product_id":"p1","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year_from":2022,"year_to":2026},{"id":"p2-ducati-diavel-v4","product_id":"p2","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year_from":2022,"year_to":2026},{"id":"p2-bmw-s1000rr","product_id":"p2","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year_from":2022,"year_to":2026},{"id":"p2-bmw-r1250gs","product_id":"p2","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year_from":2022,"year_to":2026},{"id":"p2-yamaha-mt-25","product_id":"p2","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year_from":2022,"year_to":2026},{"id":"p2-yamaha-mt-09","product_id":"p2","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year_from":2022,"year_to":2026},{"id":"p3-ducati-panigale-v4","product_id":"p3","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year_from":2022,"year_to":2026},{"id":"p3-bmw-s1000r","product_id":"p3","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year_from":2022,"year_to":2026},{"id":"p3-yamaha-mt-25","product_id":"p3","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year_from":2022,"year_to":2026},{"id":"p3-yamaha-yzf-r1","product_id":"p3","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year_from":2022,"year_to":2026},{"id":"p4-ducati-diavel-1200","product_id":"p4","model_id":"ducati-diavel-1200","generation_id":"ducati-diavel-1200-demo","year_from":2022,"year_to":2026},{"id":"p4-ducati-monster","product_id":"p4","model_id":"ducati-monster","generation_id":"ducati-monster-demo","year_from":2022,"year_to":2026},{"id":"p4-bmw-m1000rr","product_id":"p4","model_id":"bmw-m1000rr","generation_id":"bmw-m1000rr-demo","year_from":2022,"year_to":2026},{"id":"p4-yamaha-mt-25","product_id":"p4","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year_from":2022,"year_to":2026},{"id":"p4-yamaha-mt-07","product_id":"p4","model_id":"yamaha-mt-07","generation_id":"yamaha-mt-07-demo","year_from":2022,"year_to":2026},{"id":"p5-ducati-diavel-v4","product_id":"p5","model_id":"ducati-diavel-v4","generation_id":"ducati-diavel-v4-demo","year_from":2022,"year_to":2026},{"id":"p5-bmw-s1000rr","product_id":"p5","model_id":"bmw-s1000rr","generation_id":"bmw-s1000rr-demo","year_from":2022,"year_to":2026},{"id":"p5-bmw-r1250gs","product_id":"p5","model_id":"bmw-r1250gs","generation_id":"bmw-r1250gs-demo","year_from":2022,"year_to":2026},{"id":"p5-yamaha-mt-25","product_id":"p5","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year_from":2022,"year_to":2026},{"id":"p5-yamaha-mt-09","product_id":"p5","model_id":"yamaha-mt-09","generation_id":"yamaha-mt-09-demo","year_from":2022,"year_to":2026},{"id":"p6-ducati-panigale-v4","product_id":"p6","model_id":"ducati-panigale-v4","generation_id":"ducati-panigale-v4-demo","year_from":2022,"year_to":2026},{"id":"p6-bmw-s1000r","product_id":"p6","model_id":"bmw-s1000r","generation_id":"bmw-s1000r-demo","year_from":2022,"year_to":2026},{"id":"p6-yamaha-mt-25","product_id":"p6","model_id":"yamaha-mt-25","generation_id":"yamaha-mt-25-demo","year_from":2022,"year_to":2026},{"id":"p6-yamaha-yzf-r1","product_id":"p6","model_id":"yamaha-yzf-r1","generation_id":"yamaha-yzf-r1-demo","year_from":2022,"year_to":2026}],"categories":[{"id":"body","slug":"govde","name":{"tr":"Gövde & Kaporta","en":"Bodywork","ru":"Обтекатели"}},{"id":"protection","slug":"koruma","name":{"tr":"Koruma","en":"Protection","ru":"Защита"}},{"id":"details","slug":"detaylar","name":{"tr":"İnce Detaylar","en":"Finishing touches","ru":"Детали"}}],"content":[{"id":"home","key":"home","title":{"tr":"Detayda fark yarat.","en":"Defined by detail.","ru":"Совершенство в деталях."},"body":{"tr":"Motosikletinin karakterini tamamlayan karbon parçalar. Sade tasarım. Güçlü bir ifade.","en":"Carbon details that complement the character of your motorcycle. Considered design. A distinct expression.","ru":"Карбоновые детали, дополняющие характер вашего мотоцикла. Лаконичный дизайн. Яркое выражение."}},{"id":"about","key":"about","title":{"tr":"Hakkımızda","en":"About us","ru":"О нас"},"body":{"tr":"Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.","en":"The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.","ru":"Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме."}},{"id":"contact","key":"contact","title":{"tr":"Birlikte konuşalım.","en":"Let’s talk.","ru":"Давайте поговорим."},"body":{"tr":"Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.","en":"The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.","ru":"Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме."}},{"id":"faq","key":"faq","title":{"tr":"Sık sorulan sorular","en":"Frequently asked questions","ru":"Частые вопросы"},"body":{"tr":"Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.","en":"The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.","ru":"Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме."}},{"id":"shipping","key":"shipping","title":{"tr":"Teslimat & İade","en":"Shipping & returns","ru":"Доставка и возврат"},"body":{"tr":"Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.","en":"The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.","ru":"Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме."}},{"id":"privacy","key":"privacy","title":{"tr":"Gizlilik politikası","en":"Privacy policy","ru":"Конфиденциальность"},"body":{"tr":"Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.","en":"The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.","ru":"Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме."}},{"id":"terms","key":"terms","title":{"tr":"Kullanım koşulları","en":"Terms & conditions","ru":"Условия использования"},"body":{"tr":"Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.","en":"The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.","ru":"Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме."}}]};
+        const KEY = "kuzmin.workspace.gsgvhlcglf-blip.dassda.v1";
+        const $ = (s) => document.querySelector(s),
+          esc = (v) =>
+            String(v ?? "").replace(
+              /[&<>"']/g,
+              (c) =>
+                ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;",
+                })[c],
+            ),
+          name = (r) =>
+            typeof r?.name === "string"
+              ? r.name
+              : r?.title?.tr || r?.name?.tr || r?.id || "",
+          loc = (v) => ({ tr: v, en: v, ru: v }),
+          uid = () => crypto.randomUUID(),
+          money = (v) =>
+            new Intl.NumberFormat("tr-TR", {
+              style: "currency",
+              currency: "TRY",
+              maximumFractionDigits: 0,
+            }).format(v),
+          clone = (v) => JSON.parse(JSON.stringify(v));
+        const sections = {
+          overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
+          products: [
+            "Ürünler",
+            "Fiyatları, stokları ve ürün detaylarını düzenleyin.",
+            "▣",
+          ],
+          models: [
+            "Motosikletler",
+            "Ducati, BMW ve Yamaha modellerini yönetin.",
+            "◇",
+          ],
+          compatibility: [
+            "Uyumluluk",
+            "Her parçayı doğru model ve yıl aralığına bağlayın.",
+            "⇄",
+          ],
+          preview: [
+            "Uyumluluğu dene",
+            "Marka → model → yıl seçerek sonucu kontrol edin.",
+            "↗",
+          ],
+          categories: ["Kategoriler", "Koleksiyonunuzu düzenleyin.", "▤"],
+          content: [
+            "Sayfa içerikleri",
+            "Ana sayfa ve diğer sayfaların metinlerini düzenleyin.",
+            "≡",
+          ],
+          settings: [
+            "Taslak & yedek",
+            "Çalışmanızı dışa aktarın ve daha sonra devam edin.",
+            "⚙",
+          ],
+        };
+        let state = clone(INITIAL),
+          section = "overview",
+          query = "",
+          editing = null,
+          newPhoto = "",
+          photoDirty = false,
+          toastTimer;
+        try {
+          const saved = localStorage.getItem(KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            validate(parsed);
+            state = parsed;
+          }
+          $("#save-status").textContent = "● Tarayıcıya kayıt açık";
+        } catch {
+          $("#save-status").textContent = "Kayıt kullanılamıyor · Dışa aktarın";
+        }
+        function toast(message) {
+          clearTimeout(toastTimer);
+          $("#toast").textContent = message;
+          $("#toast").classList.remove("hidden");
+          toastTimer = setTimeout(
+            () => $("#toast").classList.add("hidden"),
+            4500,
+          );
+        }
+        function imageFor(product) {
+          return (
+            state.product_images
+              .filter((i) => i.product_id === product.id)
+              .sort((a, b) => a.position - b.position)[0]?.url || ""
+          );
+        }
+        function imageTag(url, alt, cls = "thumb") {
+          return /^(data:image\/(png|jpeg|webp|svg\+xml);base64,|https:\/\/)/.test(
+            url || "",
+          )
+            ? `<img class="${cls}" src="${esc(url)}" alt="${esc(alt)}">`
+            : "";
+        }
+        function validate(c) {
+          const keys = Object.keys(INITIAL);
+          if (
+            !c ||
+            typeof c !== "object" ||
+            keys.some((k) => !Array.isArray(c[k])) ||
+            Object.keys(c).some((k) => !keys.includes(k))
+          )
+            throw Error("Bu dosya KUZMIN katalog taslağı değil.");
+          for (const k of keys) {
+            const ids = new Set();
+            for (const r of c[k]) {
+              if (
+                !r ||
+                typeof r.id !== "string" ||
+                !/^[a-zA-Z0-9_-]+$/.test(r.id) ||
+                ids.has(r.id)
+              )
+                throw Error("Geçersiz veya tekrar eden kayıt.");
+              ids.add(r.id);
+            }
+          }
+          if (
+            c.brands.length !== 3 ||
+            !["ducati", "bmw", "yamaha"].every((id) =>
+              c.brands.some((b) => b.id === id && b.slug === id),
+            )
+          )
+            throw Error("Üç desteklenen marka korunmalıdır.");
+          const localized = (value) =>
+            value &&
+            ["tr", "en", "ru"].every(
+              (l) => typeof value[l] === "string" && value[l].length <= 12000,
+            );
+          for (const key of keys) {
+            if (c[key].length > 5000)
+              throw Error(
+                "Bu hızlı çalışma alanında bir tabloda en fazla 5000 kayıt desteklenir.",
+              );
+            for (const row of c[key])
+              if (
+                Object.keys(row).some((k) =>
+                  ["__proto__", "constructor", "prototype"].includes(k),
+                )
+              )
+                throw Error("Geçersiz kayıt alanı.");
+          }
+          for (const brand of c.brands)
+            if (typeof brand.name !== "string")
+              throw Error("Marka adı geçersiz.");
+          for (const row of c.categories)
+            if (!localized(row.name) || typeof row.slug !== "string")
+              throw Error("Kategori metni geçersiz.");
+          for (const row of c.content)
+            if (
+              !localized(row.title) ||
+              !localized(row.body) ||
+              typeof row.key !== "string"
+            )
+              throw Error("Sayfa metni geçersiz.");
+          for (const row of c.products)
+            if (
+              !localized(row.title) ||
+              !localized(row.description) ||
+              !localized(row.specifications) ||
+              typeof row.sku !== "string" ||
+              typeof row.slug !== "string" ||
+              typeof row.published !== "boolean" ||
+              typeof row.featured !== "boolean"
+            )
+              throw Error("Ürün metni veya görünürlüğü geçersiz.");
+          for (const row of c.variants)
+            if (!localized(row.name) || typeof row.sku !== "string")
+              throw Error("Varyant metni geçersiz.");
+          for (const row of c.product_images)
+            if (typeof row.url !== "string" || !localized(row.alt))
+              throw Error("Ürün görseli geçersiz.");
+          const has = (t, id) => c[t].some((r) => r.id === id);
+          for (const m of c.models) {
+            if (!has("brands", m.brand_id) || typeof m.name !== "string")
+              throw Error("Model markası geçersiz.");
+          }
+          for (const y of c.model_years) {
+            if (
+              !has("models", y.model_id) ||
+              !Number.isInteger(y.year) ||
+              !c.generations.some(
+                (g) =>
+                  g.id === y.generation_id &&
+                  g.model_id === y.model_id &&
+                  y.year >= g.start_year &&
+                  y.year <= g.end_year,
+              )
+            )
+              throw Error("Model yılı veya nesli geçersiz.");
+          }
+          for (const p of c.products) {
+            if (
+              !has("categories", p.category_id) ||
+              typeof p.title?.tr !== "string" ||
+              !Number.isFinite(p.price) ||
+              p.price < 0 ||
+              !Number.isInteger(p.stock) ||
+              p.stock < 0
+            )
+              throw Error("Ürün bilgileri geçersiz.");
+          }
+          for (const v of c.variants)
+            if (
+              !has("products", v.product_id) ||
+              !Number.isFinite(v.price) ||
+              v.price < 0 ||
+              !Number.isInteger(v.stock) ||
+              v.stock < 0
+            )
+              throw Error("Varyant geçersiz.");
+          for (const f of c.compatibility)
+            if (
+              !has("products", f.product_id) ||
+              !has("models", f.model_id) ||
+              !Number.isInteger(f.year_from) ||
+              !Number.isInteger(f.year_to) ||
+              f.year_from > f.year_to ||
+              (f.generation_id &&
+                !c.generations.some(
+                  (g) =>
+                    g.id === f.generation_id &&
+                    g.model_id === f.model_id &&
+                    f.year_from >= g.start_year &&
+                    f.year_to <= g.end_year,
+                ))
+            )
+              throw Error("Uyumluluk geçersiz.");
+          for (const i of c.product_images)
+            if (!has("products", i.product_id))
+              throw Error("Görsel ürünü geçersiz.");
+          for (const g of c.generations)
+            if (!has("models", g.model_id) || g.start_year > g.end_year)
+              throw Error("Nesil geçersiz.");
+        }
+        function commit(next) {
+          validate(next);
+          try {
+            localStorage.setItem(KEY, JSON.stringify(next));
+          } catch {
+            throw Error(
+              "Tarayıcı taslağı kaydedemedi. Önce taslağı dışa aktarın veya daha küçük bir görsel kullanın.",
+            );
+          }
+          state = next;
+          $("#save-status").textContent =
+            "● Kaydedildi · " +
+            new Intl.DateTimeFormat("tr-TR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "Europe/Istanbul",
+            }).format(new Date());
+          render();
+        }
+        function nav() {
+          document.querySelector(".nav").innerHTML = Object.entries(sections)
+            .map(
+              ([id, v]) =>
+                `<button aria-label="${esc(v[0])}" data-action="section" data-id="${id}" class="${section === id ? "active" : ""}" ${section === id ? 'aria-current="page"' : ""}><i>${v[2]}</i>${v[0]}</button>`,
+            )
+            .join("");
+        }
+        function goto(id) {
+          if (!sections[id]) return;
+          section = id;
+          query = "";
+          render();
+          window.scrollTo(0, 0);
+        }
+        const action = (label, a, id = "", cls = "button") =>
+          `<button class="${cls}" data-action="${a}" data-id="${esc(id)}">${label}</button>`;
+        function table(headers, rows) {
+          return `<div class="table-wrap"><table class="table"><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows || `<tr><td colspan="${headers.length}" class="empty">Henüz kayıt bulunmuyor.</td></tr>`}</tbody></table></div>`;
+        }
+        function rowsFor() {
+          const rows = state[section] || [];
+          return rows.filter((r) =>
+            JSON.stringify(r)
+              .toLocaleLowerCase("tr")
+              .includes(query.toLocaleLowerCase("tr")),
+          );
+        }
+        function search() {
+          return `<div class="searchbar"><span>⌕</span><input id="search" aria-label="Kayıtlarda ara" placeholder="İsim veya SKU ile ara…" value="${esc(query)}"><span id="result-count"></span></div><div id="table-area"></div>`;
+        }
+        function render() {
+          nav();
+          $("#page-title").textContent = sections[section][0];
+          $("#page-subtitle").textContent = sections[section][1];
+          $("#primary-action").innerHTML = [
+            "products",
+            "models",
+            "compatibility",
+            "categories",
+          ].includes(section)
+            ? action("+ Yeni kayıt", "new")
+            : "";
+          const view = $("#view");
+          if (section === "overview") {
+            view.innerHTML = `<div class="cards">${[
+              ["Ürün", state.products.length, "Koleksiyonunuzdaki parçalar"],
+              ["Motosiklet", state.models.length, "3 desteklenen marka"],
+              [
+                "Uyumluluk",
+                state.compatibility.length,
+                "Model ve yıl ilişkileri",
+              ],
+              [
+                "Öne çıkan",
+                state.products.filter((p) => p.featured).length,
+                "Ana sayfa seçkisi",
+              ],
+            ]
+              .map(
+                ([a, b, c]) =>
+                  `<div class="stat"><small>${a}</small><strong>${b}</strong><p>${c}</p></div>`,
+              )
+              .join(
+                "",
+              )}</div><div class="welcome"><section class="box"><p class="eyebrow">HOŞ GELDİNİZ / KUZMIN STUDIO</p><h2>Her detay sizin elinizde.</h2><p class="muted">Ürün ekleyin, fotoğrafını değiştirin, motosikletlere bağlayın. Kaydettiğiniz taslakları burada hemen kontrol edebilirsiniz.</p><div class="actions">${action("+ Ürün ekle", "new-product")}${action("Uyumluluğu dene ↗", "section", "preview", "button secondary")}</div><p class="help">İlk kayıtlar açıkça örnek içeriktir; gerçek stok veya doğrulanmış uyumluluk değildir.</p></section><section class="box"><p class="eyebrow">BAŞLAMAK İÇİN</p><h2>Bir parçadan koleksiyona.</h2><div class="guide">${[
+              [
+                "models",
+                "01",
+                "Motosikletinizi ekleyin",
+                "Marka, model, fotoğraf ve üretim yılları.",
+              ],
+              [
+                "products",
+                "02",
+                "Ürününüzü hazırlayın",
+                "Açıklama, fiyat, yüzey ve stok.",
+              ],
+              [
+                "compatibility",
+                "03",
+                "Doğru motosiklete bağlayın",
+                "Model ve uyumlu yıl aralığını seçin.",
+              ],
+              [
+                "preview",
+                "04",
+                "Müşteri seçimini kontrol edin",
+                "Marka → model → yıl akışını deneyin.",
+              ],
+            ]
+              .map(
+                ([id, n, t, d]) =>
+                  `<button data-action="section" data-id="${id}"><span>${n}</span><div><b>${t}</b><small>${d}</small></div><em>↗</em></button>`,
+              )
+              .join("")}</div></section></div>`;
+            return;
+          }
+          if (
+            ["products", "models", "compatibility", "categories"].includes(
+              section,
+            )
+          ) {
+            view.innerHTML = search();
+            renderRows();
+            return;
+          }
+          if (section === "content") {
+            view.innerHTML = `<div class="grid">${state.content.map((r) => `<section class="content-card"><p class="eyebrow">${esc(r.key)}</p><h3>${esc(r.title.tr)}</h3><p>${esc(r.body.tr.slice(0, 160))}${r.body.tr.length > 160 ? "…" : ""}</p>${action("Metni düzenle ↗", "edit", r.id, "ghost")}</section>`).join("")}</div>`;
+            return;
+          }
+          if (section === "preview") {
+            const b = state.brands[0];
+            view.innerHTML = `<section class="box"><div class="preview-selects"><label>Marka<select id="preview-brand">${state.brands.map((b) => `<option value="${b.id}">${b.name}</option>`).join("")}</select></label><label>Model<select id="preview-model"></select></label><label>Yıl<select id="preview-year"></select></label></div><div id="preview-results"></div></section>`;
+            updatePreviewModels();
+            return;
+          }
+          view.innerHTML = `<div class="welcome"><section class="box"><p class="eyebrow">YEDEĞİNİZ ELİNİZDE</p><h2>Taslağınızı yanınıza alın.</h2><p class="muted">Taslağı JSON dosyası olarak indirip başka bir tarayıcıya aktarabilirsiniz. Tarayıcı verilerini temizlemeden önce yedek alın.</p><div class="actions">${action("Taslağı indir ↗", "export")}${action("Taslak yükle", "import", "", "button secondary")}</div></section><section class="box"><p class="eyebrow">ÇALIŞMA ALANI</p>${[
+            ["Kayıt yeri", "Bu tarayıcı"],
+            ["Canlı mağaza bağlantısı", "Bağlı değil"],
+            ["Müşteri / ödeme verisi", "Bu panelde bulunmaz"],
+            ["Para birimi", "Türk lirası (TRY)"],
+            ["Katalog modeli", "Marka · Model · Nesil · Yıl"],
+          ]
+            .map(
+              ([k, v]) =>
+                `<div class="settings-row"><span>${k}</span><b>${v}</b></div>`,
+            )
+            .join(
+              "",
+            )}<p class="page-note">Bu ekran parola veya sunucu kurulumu gerektirmeyen bir katalog çalışma alanıdır. Buradaki düzenlemeler canlı mağazada yayınlanmaz.</p></section></div>`;
+        }
+        function renderRows() {
+          const rows = rowsFor();
+          $("#result-count").textContent = rows.length + " kayıt";
+          let body = "";
+          if (section === "products")
+            body = table(
+              ["Ürün", "Fiyat / Stok", "Görünürlük", "İşlem"],
+              rows
+                .map(
+                  (p) =>
+                    `<tr><td><div class="row-name">${imageTag(imageFor(p), p.title.tr)}<div><strong>${esc(p.title.tr)}</strong><small>${esc(p.sku)}</small></div></div></td><td>${money(p.price)}<small>Toplam stok: ${p.stock}</small></td><td><span class="pill">${p.published ? "Gösteriliyor" : "Taslak"}${p.featured ? " · Öne çıkan" : ""}</span></td><td>${action("Düzenle ↗", "edit", p.id, "ghost")}</td></tr>`,
+                )
+                .join(""),
+            );
+          if (section === "models")
+            body = table(
+              ["Model", "Marka", "Üretim yılları", "İşlem"],
+              rows
+                .map(
+                  (m) =>
+                    `<tr><td><strong>${esc(m.name)}</strong><small>${esc(m.slug)}</small></td><td>${esc(state.brands.find((b) => b.id === m.brand_id)?.name)}</td><td>${state.model_years
+                      .filter((y) => y.model_id === m.id)
+                      .map((y) => y.year)
+                      .sort()
+                      .join(
+                        " · ",
+                      )}</td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
+                )
+                .join(""),
+            );
+          if (section === "compatibility")
+            body = table(
+              ["Ürün", "Motosiklet", "Yıl aralığı", "İşlem"],
+              rows
+                .map(
+                  (f) =>
+                    `<tr><td>${esc(name(state.products.find((p) => p.id === f.product_id)))}</td><td>${esc(name(state.models.find((m) => m.id === f.model_id)))}</td><td>${f.year_from} — ${f.year_to}</td><td>${action("Düzenle ↗", "edit", f.id, "ghost")}</td></tr>`,
+                )
+                .join(""),
+            );
+          if (section === "categories")
+            body = table(
+              ["Kategori", "URL adı", "Ürün sayısı", "İşlem"],
+              rows
+                .map(
+                  (r) =>
+                    `<tr><td>${esc(r.name.tr)}</td><td>${esc(r.slug)}</td><td>${state.products.filter((p) => p.category_id === r.id).length}</td><td>${action("Düzenle ↗", "edit", r.id, "ghost")}</td></tr>`,
+                )
+                .join(""),
+            );
+          $("#table-area").innerHTML = body;
+        }
+        function field(label, key, value = "", type = "text", extra = "") {
+          return `<label>${label}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;
+        }
+        function area(label, key, value) {
+          return `<label class="span-2">${label}<textarea name="${key}">${esc(value)}</textarea></label>`;
+        }
+        function select(label, key, rows, value, blank = false) {
+          return `<label>${label}<select name="${key}" aria-label="${esc(label)}">${blank ? '<option value="">Seçin…</option>' : ""}${rows.map((r) => `<option value="${esc(r.id)}" ${r.id === value ? "selected" : ""}>${esc(name(r))}</option>`).join("")}</select></label>`;
+        }
+        function photoField(url) {
+          return `<label class="span-2 image-upload">Fotoğraf yükle<p>JPEG, PNG veya WebP · En fazla 5 MB · Bu tarayıcıda işlenir.</p><input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp">${imageTag(url, "Seçilen görsel", "photo-preview")}</label>`;
+        }
+        function openEditor(id) {
+          const table = section;
+          const record = id ? state[table].find((r) => r.id === id) : null;
+          editing = { table, id: id || uid(), isNew: !id };
+          newPhoto =
+            table === "products" && record
+              ? imageFor(record)
+              : record?.image || "";
+          photoDirty = false;
+          $("#form-error").classList.add("hidden");
+          $("#delete-record").classList.toggle(
+            "hidden",
+            !record || table === "content",
+          );
+          $("#editor-title").textContent = record
+            ? name(record)
+            : "Yeni " +
+              ({
+                products: "ürün",
+                models: "motosiklet",
+                compatibility: "uyumluluk",
+                categories: "kategori",
+              }[table] || "kayıt");
+          let html = "";
+          if (table === "products") {
+            const v = state.variants.filter((v) => v.product_id === id);
+            html =
+              field(
+                "Ürün adı",
+                "title",
+                record?.title.tr || "",
+                "text",
+                'required maxlength="120"',
+              ) +
+              field(
+                "SKU",
+                "sku",
+                record?.sku || "KZ-" + Date.now().toString().slice(-6),
+                "text",
+                'required maxlength="100"',
+              ) +
+              select(
+                "Kategori",
+                "category_id",
+                state.categories,
+                record?.category_id || state.categories[0]?.id,
+              ) +
+              select(
+                "Malzeme",
+                "material",
+                [
+                  { id: "full_carbon", name: "Tam karbon fiber" },
+                  { id: "hybrid", name: "Karbon / cam elyaf" },
+                  { id: "forged", name: "Forged karbon" },
+                  { id: "carbon_finish", name: "Karbon dış yüzey" },
+                ],
+                record?.material || "full_carbon",
+              ) +
+              field(
+                "Görünen fiyat (TRY)",
+                "price",
+                record?.price || 0,
+                "number",
+                'required min="0" max="100000000" step="0.01"',
+              ) +
+              field(
+                "Toplam stok",
+                "stock",
+                record?.stock || 0,
+                "number",
+                'required min="0" max="1000000" step="1"',
+              ) +
+              field(
+                "Parlak yüzey stoku",
+                "gloss_stock",
+                v.find((v) => v.finish === "gloss")?.stock || 0,
+                "number",
+                'min="0" step="1"',
+              ) +
+              field(
+                "Mat yüzey stoku",
+                "matte_stock",
+                v.find((v) => v.finish === "matte")?.stock || 0,
+                "number",
+                'min="0" step="1"',
+              ) +
+              area("Açıklama", "description", record?.description.tr || "") +
+              area(
+                "Malzeme ve teknik detaylar",
+                "specifications",
+                record?.specifications.tr || "",
+              ) +
+              photoField(newPhoto) +
+              `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published ? "checked" : ""}>Koleksiyonda göster</label><label><input type="checkbox" name="featured" ${record?.featured ? "checked" : ""}>Ana sayfada öne çıkar</label></div>`;
+          }
+          if (table === "models") {
+            const g = state.generations.find((g) => g.model_id === id);
+            html =
+              select(
+                "Marka",
+                "brand_id",
+                state.brands,
+                record?.brand_id || "yamaha",
+              ) +
+              field(
+                "Model adı",
+                "name",
+                record?.name || "",
+                "text",
+                'required maxlength="100"',
+              ) +
+              field(
+                "Nesil adı",
+                "generation_name",
+                g?.name || "Yeni nesil",
+                "text",
+                "required",
+              ) +
+              field(
+                "Üretim yılları (virgülle ayırın)",
+                "years",
+                state.model_years
+                  .filter((y) => y.model_id === id)
+                  .map((y) => y.year)
+                  .sort()
+                  .join(", ") || "2024, 2025, 2026",
+                "text",
+                'required placeholder="2024, 2025, 2026"',
+              ) +
+              photoField(newPhoto) +
+              `<p class="help span-2">Bu hızlı form modelin yıllarını tek bir nesilde toplar. Mevcut uyumlulukların dışında yıl bırakan değişiklikler kaydedilmez.</p>`;
+          }
+          if (table === "compatibility")
+            html =
+              select(
+                "Ürün",
+                "product_id",
+                state.products,
+                record?.product_id || state.products[0]?.id,
+              ) +
+              select(
+                "Motosiklet modeli",
+                "model_id",
+                state.models,
+                record?.model_id || state.models[0]?.id,
+              ) +
+              field(
+                "İlk uyumlu yıl",
+                "year_from",
+                record?.year_from || 2024,
+                "number",
+                'min="1900" max="2100" required',
+              ) +
+              field(
+                "Son uyumlu yıl",
+                "year_to",
+                record?.year_to || 2026,
+                "number",
+                'min="1900" max="2100" required',
+              ) +
+              `<p class="help span-2">Aynı ürünü farklı motosikletlere bağlamak için her model için ayrı kayıt ekleyin. Yıl aralığını doğrulanmış bilgilerle doldurun.</p>`;
+          if (table === "categories")
+            html =
+              field(
+                "Kategori adı",
+                "name",
+                record?.name.tr || "",
+                "text",
+                'required maxlength="100"',
+              ) +
+              field(
+                "URL adı",
+                "slug",
+                record?.slug || "",
+                "text",
+                'required pattern="[a-z0-9-]+"',
+              );
+          if (table === "content")
+            html =
+              `<p class="help span-2">${esc(record.key)} sayfasını düzenliyorsunuz. Buradaki metinler taslak olarak saklanır.</p>` +
+              ["tr", "en", "ru"]
+                .map(
+                  (l) =>
+                    `<label class="span-2">Başlık / ${l.toUpperCase()}<input name="title_${l}" value="${esc(record.title[l])}" maxlength="200"></label>${area("İçerik / " + l.toUpperCase(), "body_" + l, record.body[l])}`,
+                )
+                .join("");
+          $("#fields").innerHTML = html;
+          $("#editor").showModal();
+        }
+        function slugify(s) {
+          return (
+            s
+              .toLowerCase()
+              .replaceAll("ı", "i")
+              .replaceAll("ğ", "g")
+              .replaceAll("ü", "u")
+              .replaceAll("ş", "s")
+              .replaceAll("ö", "o")
+              .replaceAll("ç", "c")
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "") || "kayit"
+          );
+        }
+        $("#edit-form").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          const str = (k) => String(form.get(k) || "").trim(),
+            num = (k) => Number(form.get(k)),
+            next = clone(state),
+            { table, id, isNew } = editing;
+          const current = next[table].find((r) => r.id === id);
+          try {
+            let r;
+            if (table === "products") {
+              if (
+                next.products.some((p) => p.id !== id && p.sku === str("sku"))
+              )
+                throw Error("Bu SKU başka bir üründe kullanılıyor.");
+              r = {
+                ...(current || {
+                  id,
+                  slug: slugify(str("title")) + "-" + id.slice(0, 6),
+                  weight: null,
+                  installation: loc(""),
+                  video_url: "",
+                  viewer_url: "",
+                  demo: true,
+                }),
+                title: {
+                  ...(current?.title || loc(str("title"))),
+                  tr: str("title"),
+                },
+                description: {
+                  ...(current?.description || loc("")),
+                  tr: str("description"),
+                },
+                specifications: {
+                  ...(current?.specifications || loc("")),
+                  tr: str("specifications"),
+                },
+                sku: str("sku"),
+                category_id: str("category_id"),
+                material: str("material"),
+                price: num("price"),
+                stock: num("stock"),
+                published: form.has("published"),
+                featured: form.has("featured"),
+              };
+              for (const finish of ["gloss", "matte"]) {
+                const old = next.variants.find(
+                  (v) => v.product_id === id && v.finish === finish,
+                );
+                const variant = {
+                  ...(old || {
+                    id: uid(),
+                    product_id: id,
+                    name:
+                      finish === "gloss"
+                        ? { tr: "Parlak", en: "Gloss", ru: "Глянец" }
+                        : { tr: "Mat", en: "Matte", ru: "Матовый" },
+                    finish,
+                  }),
+                  sku: r.sku + (finish === "gloss" ? "-G" : "-M"),
+                  price: r.price,
+                  stock: num(finish + "_stock"),
+                };
+                if (old) Object.assign(old, variant);
+                else next.variants.push(variant);
+              }
+              if (photoDirty) {
+                const old = next.product_images
+                  .filter((i) => i.product_id === id)
+                  .sort((a, b) => a.position - b.position)[0];
+                if (old) {
+                  old.url = newPhoto;
+                  old.alt = r.title;
+                } else
+                  next.product_images.push({
+                    id: uid(),
+                    product_id: id,
+                    url: newPhoto,
+                    alt: r.title,
+                    position: 0,
+                  });
+              }
+            }
+            if (table === "models") {
+              const years = [
+                ...new Set(
+                  str("years")
+                    .split(/[,;\s]+/)
+                    .map(Number),
+                ),
+              ].sort((a, b) => a - b);
+              if (
+                !years.length ||
+                years.some((y) => !Number.isInteger(y) || y < 1900 || y > 2100)
+              )
+                throw Error("Yılları 2024, 2025 şeklinde girin.");
+              if (next.generations.filter((g) => g.model_id === id).length > 1)
+                throw Error(
+                  "Bu model birden fazla nesil içeriyor; hızlı form bu modeli yeniden yapılandıramaz.",
+                );
+              const old = next.generations.find((g) => g.model_id === id),
+                g = {
+                  id: old?.id || uid(),
+                  model_id: id,
+                  name: str("generation_name"),
+                  start_year: years[0],
+                  end_year: years.at(-1),
+                };
+              if (
+                next.compatibility.some(
+                  (f) =>
+                    f.model_id === id &&
+                    (f.year_from < g.start_year || f.year_to > g.end_year),
+                )
+              )
+                throw Error(
+                  "Mevcut uyumluluklar bu yılların dışına çıkıyor. Önce uyumlulukları düzenleyin.",
+                );
+              if (old) Object.assign(old, g);
+              else next.generations.push(g);
+              next.model_years = next.model_years.filter(
+                (y) => y.model_id !== id,
+              );
+              for (const year of years)
+                next.model_years.push({
+                  id: uid(),
+                  model_id: id,
+                  generation_id: g.id,
+                  year,
+                });
+              r = {
+                ...(current || {
+                  id,
+                  slug: slugify(str("name")) + "-" + id.slice(0, 6),
+                }),
+                brand_id: str("brand_id"),
+                name: str("name"),
+                image: photoDirty ? newPhoto : current?.image || "",
+              };
+            }
+            if (table === "compatibility") {
+              const model_id = str("model_id"),
+                g = next.generations.find(
+                  (g) =>
+                    g.model_id === model_id &&
+                    num("year_from") >= g.start_year &&
+                    num("year_to") <= g.end_year,
+                );
+              if (!g)
+                throw Error(
+                  "Yıl aralığı, seçilen motosikletin tanımlı nesli içinde olmalı.",
+                );
+              r = {
+                id,
+                product_id: str("product_id"),
+                model_id,
+                generation_id: g.id,
+                year_from: num("year_from"),
+                year_to: num("year_to"),
+              };
+              if (
+                next.compatibility.some(
+                  (f) =>
+                    f.id !== id &&
+                    f.product_id === r.product_id &&
+                    f.model_id === r.model_id &&
+                    f.year_from === r.year_from &&
+                    f.year_to === r.year_to,
+                )
+              )
+                throw Error("Bu uyumluluk zaten kayıtlı.");
+            }
+            if (table === "categories") {
+              if (
+                next.categories.some(
+                  (c) => c.id !== id && c.slug === str("slug"),
+                )
+              )
+                throw Error("Bu URL adı kullanılıyor.");
+              r = {
+                id,
+                slug: str("slug"),
+                name: {
+                  ...(current?.name || loc(str("name"))),
+                  tr: str("name"),
+                },
+              };
+            }
+            if (table === "content") {
+              r = { ...current, title: {}, body: {} };
+              for (const l of ["tr", "en", "ru"]) {
+                r.title[l] = str("title_" + l);
+                r.body[l] = str("body_" + l);
+              }
+            }
+            if (isNew) next[table].push(r);
+            else Object.assign(current, r);
+            commit(next);
+            $("#editor").close();
+            toast("Değişiklikler bu tarayıcıya kaydedildi.");
+          } catch (error) {
+            $("#form-error").textContent = error.message;
+            $("#form-error").classList.remove("hidden");
+          }
+        });
+        function deleteRecord() {
+          if (
+            !editing ||
+            !confirm(
+              "Bu kayıt silinsin mi? Bağlı yıllar ve uyumluluklar da kaldırılabilir.",
+            )
+          )
+            return;
+          const next = clone(state),
+            { table, id } = editing;
+          try {
+            if (
+              table === "categories" &&
+              next.products.some((p) => p.category_id === id)
+            )
+              throw Error(
+                "Bu kategori ürünlerde kullanılıyor. Önce ürünlerin kategorisini değiştirin.",
+              );
+            next[table] = next[table].filter((r) => r.id !== id);
+            if (table === "products") {
+              for (const key of ["variants", "product_images", "compatibility"])
+                next[key] = next[key].filter((r) => r.product_id !== id);
+            }
+            if (table === "models") {
+              for (const key of ["generations", "model_years", "compatibility"])
+                next[key] = next[key].filter((r) => r.model_id !== id);
+            }
+            commit(next);
+            $("#editor").close();
+            toast("Kayıt silindi.");
+          } catch (error) {
+            $("#form-error").textContent = error.message;
+            $("#form-error").classList.remove("hidden");
+          }
+        }
+        function updatePreviewModels() {
+          const brand = $("#preview-brand").value;
+          $("#preview-model").innerHTML = state.models
+            .filter((m) => m.brand_id === brand)
+            .map((m) => `<option value="${m.id}">${esc(m.name)}</option>`)
+            .join("");
+          updatePreviewYears();
+        }
+        function updatePreviewYears() {
+          const model = $("#preview-model").value;
+          $("#preview-year").innerHTML = state.model_years
+            .filter((y) => y.model_id === model)
+            .sort((a, b) => b.year - a.year)
+            .map((y) => `<option value="${y.year}">${y.year}</option>`)
+            .join("");
+          preview();
+        }
+        function preview() {
+          const model = $("#preview-model").value,
+            year = Number($("#preview-year").value),
+            y = state.model_years.find(
+              (y) => y.model_id === model && y.year === year,
+            );
+          const ids = new Set(
+            state.compatibility
+              .filter(
+                (f) =>
+                  f.model_id === model &&
+                  year >= f.year_from &&
+                  year <= f.year_to &&
+                  (!f.generation_id || f.generation_id === y?.generation_id),
+              )
+              .map((f) => f.product_id),
+          );
+          const products = y
+            ? state.products.filter((p) => p.published && ids.has(p.id))
+            : [];
+          $("#preview-results").innerHTML =
+            `<p class="eyebrow">${products.length} UYUMLU TASLAK ÜRÜN</p><div class="preview-products">${products.map((p) => `<article class="product">${imageTag(imageFor(p), p.title.tr, "product-photo")}<div><h3>${esc(p.title.tr)}</h3><b>${money(p.price)}</b><p>${esc(p.sku)} · Stok: ${p.stock}</p>${action("Düzenle ↗", "preview-edit", p.id, "ghost")}</div></article>`).join("")}</div>${!products.length ? '<p class="empty">Bu seçim için görünür bir ürün bulunmuyor.</p>' : ""}`;
+        }
+        function exportData() {
+          const blob = new Blob([JSON.stringify(state, null, 2)], {
+              type: "application/json",
+            }),
+            url = URL.createObjectURL(blob),
+            a = document.createElement("a");
+          a.href = url;
+          a.download =
+            "KUZMIN-Taslak-" + new Date().toISOString().slice(0, 10) + ".json";
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          toast("Taslak JSON dosyası hazırlanıyor.");
+        }
+        $("#import-file").addEventListener("change", async (event) => {
+          try {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 4 * 1024 * 1024)
+              throw Error("Taslak dosyası en fazla 4 MB olabilir.");
+            const value = JSON.parse(await file.text());
+            validate(value);
+            if (
+              !confirm("Mevcut tarayıcı taslağı bu dosyayla değiştirilsin mi?")
+            )
+              return;
+            commit(value);
+            toast("Taslak yüklendi.");
+          } catch (error) {
+            toast(error.message);
+          } finally {
+            event.target.value = "";
+          }
+        });
+        document.addEventListener("input", (event) => {
+          if (event.target.id === "search") {
+            query = event.target.value;
+            renderRows();
+          }
+        });
+        document.addEventListener("change", async (event) => {
+          if (event.target.id === "preview-brand") updatePreviewModels();
+          if (event.target.id === "preview-model") updatePreviewYears();
+          if (event.target.id === "preview-year") preview();
+          if (event.target.id === "photo-file") {
+            try {
+              const file = event.target.files[0];
+              if (!file) return;
+              if (
+                !["image/jpeg", "image/png", "image/webp"].includes(
+                  file.type,
+                ) ||
+                file.size > 5 * 1024 * 1024
+              )
+                throw Error(
+                  "JPEG, PNG veya WebP dosyası seçin (en fazla 5 MB).",
+                );
+              const bitmap = await createImageBitmap(file);
+              const canvas = document.createElement("canvas"),
+                ratio = Math.min(
+                  1,
+                  720 / Math.max(bitmap.width, bitmap.height),
+                );
+              canvas.width = Math.round(bitmap.width * ratio);
+              canvas.height = Math.round(bitmap.height * ratio);
+              canvas
+                .getContext("2d")
+                .drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+              bitmap.close();
+              newPhoto = canvas.toDataURL("image/webp", 0.8);
+              photoDirty = true;
+              const old = $(".photo-preview");
+              if (old) old.src = newPhoto;
+              else {
+                const image = document.createElement("img");
+                image.className = "photo-preview";
+                image.alt = "Seçilen görsel";
+                image.src = newPhoto;
+                event.target.parentElement.appendChild(image);
+              }
+            } catch (error) {
+              toast(error.message);
+            }
+          }
+        });
+        document.addEventListener("click", (event) => {
+          const el = event.target.closest("[data-action]");
+          if (!el) return;
+          const a = el.dataset.action,
+            id = el.dataset.id;
+          if (a === "section") goto(id);
+          if (a === "new") openEditor();
+          if (a === "edit") openEditor(id);
+          if (a === "new-product") {
+            goto("products");
+            openEditor();
+          }
+          if (a === "preview-edit") {
+            goto("products");
+            openEditor(id);
+          }
+          if (a === "close") $("#editor").close();
+          if (a === "delete") deleteRecord();
+          if (a === "export") exportData();
+          if (a === "import") $("#import-file").click();
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>
