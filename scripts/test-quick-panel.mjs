@@ -103,7 +103,9 @@ try {
     .click();
   const file = await download;
   const path = await file.path();
-  const backup = JSON.parse(readFileSync(path, "utf8"));
+  const backupFile = JSON.parse(readFileSync(path, "utf8"));
+  assert.equal(backupFile.format,"kuzmin-workspace");
+  const backup = backupFile.catalog;
   assert.ok(backup.products.some((p) => p.sku === "TEST-QUICK-001"));
   await page.getByRole("button", { name: "Taslak yükle", exact: true }).click();
   await page.locator("#import-file").setInputFiles({

@@ -1833,7 +1833,7 @@
             `<p class="eyebrow">${products.length} UYUMLU TASLAK ÜRÜN</p><div class="preview-products">${products.map((p) => `<article class="product">${imageTag(imageFor(p), p.title.tr, "product-photo")}<div><h3>${esc(p.title.tr)}</h3><b>${money(p.price)}</b><p>${esc(p.sku)} · Stok: ${p.stock}</p>${action("Düzenle ↗", "preview-edit", p.id, "ghost")}</div></article>`).join("")}</div>${!products.length ? '<p class="empty">Bu seçim için görünür bir ürün bulunmuyor.</p>' : ""}`;
         }
         function exportData() {
-          const blob = new Blob([JSON.stringify(state, null, 2)], {
+          const blob = new Blob([JSON.stringify({format:"kuzmin-workspace",version:2,catalog:state,design:siteDesign}, null, 2)], {
               type: "application/json",
             }),
             url = URL.createObjectURL(blob),
@@ -1849,14 +1849,27 @@
           try {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 4 * 1024 * 1024)
-              throw Error("Taslak dosyası en fazla 4 MB olabilir.");
-            const value = JSON.parse(await file.text());
+            if (file.size > 12 * 1024 * 1024)
+              throw Error("Taslak dosyası en fazla 12 MB olabilir.");
+            const imported = JSON.parse(await file.text());
+            const value = imported.format === "kuzmin-workspace" ? imported.catalog : imported;
+            const design = imported.format === "kuzmin-workspace" ? validateDesign(imported.design) : siteDesign;
             validate(value);
             if (
               !confirm("Mevcut tarayıcı taslağı bu dosyayla değiştirilsin mi?")
             )
               return;
+            const previousCatalog = localStorage.getItem(KEY);
+            const previousDesign = localStorage.getItem(KEY + ".design");
+            try {
+              localStorage.setItem(KEY, JSON.stringify(value));
+              localStorage.setItem(KEY + ".design", JSON.stringify(design));
+            } catch (error) {
+              if (previousCatalog === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, previousCatalog);
+              if (previousDesign === null) localStorage.removeItem(KEY + ".design"); else localStorage.setItem(KEY + ".design", previousDesign);
+              throw error;
+            }
+            siteDesign = design;
             commit(value);
             toast("Taslak yüklendi.");
           } catch (error) {

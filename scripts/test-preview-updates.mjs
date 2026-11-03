@@ -84,6 +84,7 @@ try {
   assert.equal(await page.locator("#site-page").inputValue(), "product");
   await page.locator("#site-inspect").check();
   await frame().locator(".product-copy h1").click();
+  await page.locator(".site-change-note summary").click();
   await page
     .getByRole("button", { name: "Ürün kaydını düzenle ↗", exact: true })
     .click();

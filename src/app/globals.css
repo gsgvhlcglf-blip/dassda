@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source not "../../docs/panel.html";
+@source not "../../docs/store.html";
 :root {
   --bg: #090a09;
   --panel: #131413;
@@ -2591,3 +2592,5 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+.hero-shade { pointer-events: none; }

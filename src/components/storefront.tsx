@@ -19,7 +19,12 @@ import {
   MoveDown,
 } from "lucide-react";
 import type { Catalog, Product, CartLine, Lang } from "@/lib/types";
-import { translate, money, type MessageKey } from "@/lib/i18n";
+import { money, type MessageKey } from "@/lib/i18n";
+import {
+  useVisualTranslate,
+  useVisualImage,
+  useVisualCopy,
+} from "@/lib/visual";
 import { useCart } from "@/lib/cart-store";
 import { compatibleProducts } from "@/lib/commerce";
 function Art({
@@ -27,15 +32,19 @@ function Art({
   alt,
   priority = false,
   className = "",
+  visualId,
 }: {
+  visualId?: string;
   src: string | undefined;
   alt: string;
   priority?: boolean;
   className?: string;
 }) {
+  const resolved = useVisualImage(visualId, src);
   return (
     <Image
-      src={src || "/images/model.svg"}
+      data-visual-image={visualId}
+      src={resolved || "/images/model.svg"}
       alt={alt}
       fill
       sizes="(max-width: 700px) 100vw, 60vw"
@@ -43,6 +52,26 @@ function Art({
       unoptimized={src?.startsWith("/uploads/") || src?.startsWith("https:")}
       className={className}
     />
+  );
+}
+function BrandVisual({
+  id,
+  name,
+  children,
+}: {
+  id: string;
+  name: string;
+  children: React.ReactNode;
+}) {
+  const image = useVisualImage(`brand:${id}`, undefined);
+  return image ? (
+    <img
+      src={image}
+      alt={name}
+      style={{ maxWidth: "80%", maxHeight: 130, objectFit: "contain" }}
+    />
+  ) : (
+    children
   );
 }
 export function Storefront({
@@ -62,7 +91,8 @@ export function Storefront({
   lang: Lang;
   live: boolean;
 }) {
-  const t = (key: MessageKey) => translate(lang, key),
+  const copy = useVisualCopy(lang);
+  const t = useVisualTranslate(lang),
     href = (path: string) =>
       `${path}${lang === "tr" ? "" : `${path.includes("?") ? "&" : "?"}lang=${lang}`}`;
   const [cart, setCart] = useCart();
@@ -138,6 +168,7 @@ export function Storefront({
               .sort((a, b) => a.position - b.position)[0]?.url
           }
           alt={p.title[lang]}
+          visualId={`product:${p.id}`}
         />
         <span className="product-label">
           {p.demo ? "DEMO" : p.stock > 0 ? t("available") : t("outStock")}
@@ -147,8 +178,10 @@ export function Storefront({
         </span>
       </div>
       <div className="product-heading">
-        <h3>{p.title[lang]}</h3>
-        <span>{money(p.price, lang)}</span>
+        <h3 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h3>
+        <span data-edit-text={`products:${p.id}:price`}>
+          {money(p.price, lang)}
+        </span>
       </div>
       <p className="micro muted">
         {t(p.material as MessageKey)} <span> / </span>{" "}
@@ -167,25 +200,30 @@ export function Storefront({
             key={b.id}
           >
             <span className="brand-index">0{i + 1}</span>
-            <div className={`brand-word ${b.slug}`}>
-              {b.name === "BMW" ? (
-                <>
-                  <div className="bmw-ring">
-                    <span>BMW</span>
-                    <div className="bmw-check" />
+            <div
+              className={`brand-word ${b.slug}`}
+              data-visual-image={`brand:${b.id}`}
+            >
+              <BrandVisual id={b.id} name={b.name}>
+                {b.name === "BMW" ? (
+                  <>
+                    <div className="bmw-ring">
+                      <span>BMW</span>
+                      <div className="bmw-check" />
+                    </div>
+                  </>
+                ) : b.name === "DUCATI" ? (
+                  <div className="ducati-shield">
+                    <b>DUCATI</b>
+                    <span />
                   </div>
-                </>
-              ) : b.name === "DUCATI" ? (
-                <div className="ducati-shield">
-                  <b>DUCATI</b>
-                  <span />
-                </div>
-              ) : (
-                <>
-                  <div className="yamaha-icon">✳</div>
-                  <b>YAMAHA</b>
-                </>
-              )}
+                ) : (
+                  <>
+                    <div className="yamaha-icon">✳</div>
+                    <b>YAMAHA</b>
+                  </>
+                )}
+              </BrandVisual>
             </div>
             <span className="brand-discover">
               {b.name} · {t("discover")} <ArrowUpRight size={14} />
@@ -242,6 +280,7 @@ export function Storefront({
                 >
                   <div className="model-art">
                     <Art
+                      visualId={`model:${m.id}`}
                       src={m.image}
                       alt={`${b.name} ${m.name} — ${t("imageLabel")}`}
                     />
@@ -251,7 +290,7 @@ export function Storefront({
                     <span className="micro muted">
                       0{i + 1} / {b.name}
                     </span>
-                    <h2>{m.name}</h2>
+                    <h2 data-edit-text={`models:${m.id}:name`}>{m.name}</h2>
                     <ArrowUpRight />
                   </div>
                 </Link>
@@ -304,7 +343,7 @@ export function Storefront({
               </Link>
             </div>
             <div className="year-image">
-              <Art src={m.image} alt={m.name} />
+              <Art src={m.image} alt={m.name} visualId={`model:${m.id}`} />
               <span className="micro muted">{t("imageLabel")}</span>
             </div>
           </div>
@@ -451,8 +490,13 @@ export function Storefront({
     return (
       <section className="page-section prose-page">
         <p className="eyebrow">KUZMIN / {key[s[0]]}</p>
-        <h1>{row?.title[lang] || t("notProvided")}</h1>
-        <div className="content-body">
+        <h1 data-edit-text={row && `content:${row.id}:title`}>
+          {row?.title[lang] || t("notProvided")}
+        </h1>
+        <div
+          className="content-body"
+          data-edit-text={row && `content:${row.id}:body`}
+        >
           {row?.body[lang]?.split("\n").map((p, i) => (
             <p key={i}>{p}</p>
           ))}
@@ -482,7 +526,9 @@ export function Storefront({
               fill="currentColor"
             />
           </svg>
-          <span>KUZMIN</span>
+          <span data-visual-text="slot:brand.name">
+            {copy("brand.name", "KUZMIN")}
+          </span>
         </Link>
         <nav
           className={menu ? "primary-nav open" : "primary-nav"}
@@ -549,26 +595,39 @@ export function Storefront({
         {!s.length ? (
           <>
             <section className="hero">
-              <Art src="/images/hero.webp" alt={t("imageLabel")} priority />
+              <Art
+                src="/images/hero.webp"
+                alt={t("imageLabel")}
+                priority
+                visualId="home.hero"
+              />
               <div className="hero-shade" />
               <div className="hero-content">
                 <p className="eyebrow">{t("eyebrow")}</p>
-                <h1>{home?.title[lang] || "Detayda fark yarat."}</h1>
-                <p>{home?.body[lang]}</p>
+                <h1 data-edit-text={home && `content:${home.id}:title`}>
+                  {home?.title[lang] || "Detayda fark yarat."}
+                </h1>
+                <p data-edit-text={home && `content:${home.id}:body`}>
+                  {home?.body[lang]}
+                </p>
                 <Link className="button" href={href("/motosikletler")}>
                   {t("explore")}
                   <ArrowUpRight size={16} />
                 </Link>
               </div>
               <div className="hero-bottom">
-                <span className="micro">01 — CARBON COLLECTION</span>
+                <span className="micro" data-visual-text="slot:hero.collection">
+                  {copy("hero.collection", "01 — CARBON COLLECTION")}
+                </span>
                 <a href="#collection" className="scroll-link">
                   {t("scroll")}
                   <MoveDown size={16} />
                 </a>
                 <span className="micro hero-art-label">{t("imageLabel")}</span>
               </div>
-              <span className="hero-side">DESIGNED TO MAKE A DIFFERENCE</span>
+              <span className="hero-side" data-visual-text="slot:hero.side">
+                {copy("hero.side", "DESIGNED TO MAKE A DIFFERENCE")}
+              </span>
             </section>
             <section id="collection" className="section editorial-section">
               <div className="section-heading">
@@ -587,7 +646,11 @@ export function Storefront({
                   className="editorial-card"
                 >
                   <div className="editorial-image carbon-photo">
-                    <Art src="/images/carbon.svg" alt={t("imageLabel")} />
+                    <Art
+                      src="/images/carbon.svg"
+                      alt={t("imageLabel")}
+                      visualId="home.collection.body"
+                    />
                     <span className="editorial-number">01</span>
                     <ArrowUpRight className="editorial-arrow" />
                   </div>
@@ -603,7 +666,11 @@ export function Storefront({
                   className="editorial-card"
                 >
                   <div className="editorial-image bike-detail">
-                    <Art src="/images/hero.webp" alt={t("imageLabel")} />
+                    <Art
+                      src="/images/hero.webp"
+                      alt={t("imageLabel")}
+                      visualId="home.collection.details"
+                    />
                     <span className="editorial-number">02</span>
                     <ArrowUpRight className="editorial-arrow" />
                   </div>
@@ -646,8 +713,14 @@ export function Storefront({
             </section>
             <section className="craft-section">
               <div className="craft-image">
-                <Art src="/images/carbon.svg" alt={t("imageLabel")} />
-                <span className="micro">THE LANGUAGE OF CARBON</span>
+                <Art
+                  src="/images/carbon.svg"
+                  alt={t("imageLabel")}
+                  visualId="home.craft"
+                />
+                <span className="micro" data-visual-text="slot:craft.caption">
+                  {copy("craft.caption", "THE LANGUAGE OF CARBON")}
+                </span>
               </div>
               <div className="craft-copy">
                 <p className="eyebrow">04 / KUZMIN</p>
@@ -783,7 +856,7 @@ function ProductListing({
   lang: Lang;
   card: (p: Product) => React.ReactNode;
 }) {
-  const t = (k: MessageKey) => translate(lang, k);
+  const t = useVisualTranslate(lang);
   const [search, setSearch] = useState(""),
     [category, setCategory] = useState(""),
     [material, setMaterial] = useState(""),
@@ -918,7 +991,7 @@ function ProductDetail({
   href: (p: string) => string;
   add: (p: Product, v: string, q: number) => void;
 }) {
-  const t = (k: MessageKey) => translate(lang, k),
+  const t = useVisualTranslate(lang),
     variants = c.variants.filter((v) => v.product_id === p.id),
     images = c.product_images
       .filter((i) => i.product_id === p.id)
@@ -942,6 +1015,9 @@ function ProductDetail({
             <Art
               src={images[image]?.url || "/images/part-0.svg"}
               alt={images[image]?.alt[lang] || p.title[lang]}
+              visualId={
+                images[image] ? `image:${images[image].id}` : `product:${p.id}`
+              }
             />
             <span className="product-label">{p.demo ? "DEMO" : p.sku}</span>
           </div>
@@ -953,7 +1029,11 @@ function ProductDetail({
                 key={img.id}
                 onClick={() => setImage(i)}
               >
-                <Art src={img.url} alt={img.alt[lang]} />
+                <Art
+                  src={img.url}
+                  alt={img.alt[lang]}
+                  visualId={`image:${img.id}`}
+                />
               </button>
             ))}
           </div>
@@ -962,9 +1042,15 @@ function ProductDetail({
           <p className="eyebrow">
             {t(p.material as MessageKey)} / {p.sku}
           </p>
-          <h1>{p.title[lang]}</h1>
+          <h1 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h1>
           <div className="detail-price">
-            {money(v?.price ?? p.price, lang)}
+            <span
+              data-edit-text={
+                v ? `variants:${v.id}:price` : `products:${p.id}:price`
+              }
+            >
+              {money(v?.price ?? p.price, lang)}
+            </span>
             <span className="stock-dot">
               {max > 0
                 ? p.demo
@@ -973,7 +1059,12 @@ function ProductDetail({
                 : t("outStock")}
             </span>
           </div>
-          <p className="description">{p.description[lang]}</p>
+          <p
+            className="description"
+            data-edit-text={`products:${p.id}:description`}
+          >
+            {p.description[lang]}
+          </p>
           {p.demo && <div className="demo-box">{t("demoProduct")}</div>}
           <fieldset className="variant-field">
             <legend>{t("finish")}</legend>
@@ -1041,7 +1132,9 @@ function ProductDetail({
           >
             {tab === "specs" ? (
               <>
-                <p>{p.specifications[lang]}</p>
+                <p data-edit-text={`products:${p.id}:specifications`}>
+                  {p.specifications[lang]}
+                </p>
                 <dl>
                   <dt>{t("material")}</dt>
                   <dd>{t(p.material as MessageKey)}</dd>
@@ -1052,7 +1145,9 @@ function ProductDetail({
                 </dl>
               </>
             ) : tab === "installation" ? (
-              <p>{p.installation[lang] || t("notProvided")}</p>
+              <p data-edit-text={`products:${p.id}:installation`}>
+                {p.installation[lang] || t("notProvided")}
+              </p>
             ) : (
               <ul className="fitment-list">
                 {c.compatibility
@@ -1117,7 +1212,7 @@ function Checkout({
   href: (p: string) => string;
   clear: () => void;
 }) {
-  const t = (k: MessageKey) => translate(lang, k),
+  const t = useVisualTranslate(lang),
     [status, setStatus] = useState(""),
     [result, setResult] = useState<{ reference: string; demo: boolean } | null>(
       null,

@@ -270,3 +270,8 @@ export const money = (value: number, lang: Lang = "tr") =>
     currency: storeSettings.currency,
     maximumFractionDigits: 0,
   }).format(value);
+
+export const messageEntries = (lang: Lang) =>
+  Object.keys(messages).map(
+    (key) => [key, translate(lang, key as MessageKey)] as const,
+  );

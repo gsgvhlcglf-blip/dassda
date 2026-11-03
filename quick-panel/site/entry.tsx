@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Storefront } from "../../src/components/storefront";
+import { VisualContext } from "../../src/lib/visual";
+import { messageEntries } from "../../src/lib/i18n";
 import { setNavigator } from "./routing";
 import type { Lang } from "../../src/lib/types";
 import type {} from "./types";
@@ -109,32 +111,104 @@ document.addEventListener(
 );
 window.addEventListener("scroll", () => (overlay.style.display = "none"));
 window.addEventListener("resize", () => (overlay.style.display = "none"));
+type Binding = { type: "record" | "text" | "image"; key: string; lang: Lang };
+let activeInline: HTMLElement | null = null;
+function bindingFor(
+  target: Element,
+): { binding: Binding; element: Element; value: string } | null {
+  const lang = document.documentElement.lang as Lang;
+  const image = target.closest("[data-visual-image]");
+  if (image)
+    return {
+      binding: {
+        type: "image",
+        key: image.getAttribute("data-visual-image")!,
+        lang,
+      },
+      element: image,
+      value:
+        (image instanceof HTMLImageElement
+          ? image.src
+          : image.querySelector("img")?.src) || "",
+    };
+  const record = target.closest("[data-edit-text]");
+  if (record) {
+    const key = record.getAttribute("data-edit-text")!;
+    const [table, id, field] = key.split(":");
+    const row = (
+      config.catalog[table as keyof typeof config.catalog] as unknown as Record<
+        string,
+        unknown
+      >[]
+    )?.find((r) => r.id === id);
+    const raw = row?.[field];
+    const value =
+      raw && typeof raw === "object"
+        ? (raw as Record<string, string>)[lang]
+        : String(raw ?? "");
+    return {
+      binding: { type: "record", key, lang },
+      element: record,
+      value: value || "",
+    };
+  }
+  const slot = target.closest("[data-visual-text]");
+  if (slot)
+    return {
+      binding: {
+        type: "text",
+        key: slot.getAttribute("data-visual-text")!,
+        lang,
+      },
+      element: slot,
+      value: slot.textContent || "",
+    };
+  const text = target.closest("h1,h2,h3,p,button,a,label,span,legend,b");
+  if (!text) return null;
+  const value = (text.textContent || "").trim();
+  const comparable = value.replace(/^[0-9]{2} \/ /, "").replace(/\.$/, "");
+  const match = messageEntries(lang).find(
+    ([key, original]) =>
+      (config.design?.texts[lang]?.["ui:" + key] ?? original) === value ||
+      (config.design?.texts[lang]?.["ui:" + key] ?? original).replace(
+        /\.$/,
+        "",
+      ) === comparable,
+  );
+  return match
+    ? {
+        binding: { type: "text", key: "ui:" + match[0], lang },
+        element: text,
+        value: config.design?.texts[lang]?.["ui:" + match[0]] ?? match[1],
+      }
+    : null;
+}
+function stopInline() {
+  if (!activeInline) return;
+  activeInline.contentEditable = "false";
+  activeInline.oninput = null;
+  activeInline.onblur = null;
+  activeInline.onkeydown = null;
+  window.getSelection()?.removeAllRanges();
+  activeInline.removeAttribute("data-inline-editing");
+  activeInline = null;
+}
 document.addEventListener(
   "click",
   (event) => {
-    if (!(event.target instanceof Element)) return;
-    const anchor = event.target.closest("a");
-    if (!inspect) {
-      if (anchor && /^https?:/i.test(anchor.getAttribute("href") || "")) {
-        event.preventDefault();
-        event.stopPropagation();
-        window.parent.postMessage(
-          {
-            type: "kz-site-info",
-            message: "Harici bağlantı tasarım önizlemesinde açılmaz.",
-          },
-          "*",
-        );
-      }
-      return;
-    }
+    if (!inspect || !(event.target instanceof Element)) return;
+    if (activeInline?.contains(event.target)) return;
     event.preventDefault();
     event.stopPropagation();
+    stopInline();
     const match = findRegion(event.target);
     if (!match) return;
-    highlight(event.target);
+    const field = bindingFor(event.target);
+    highlight(field?.element || event.target);
     const text =
-      event.target.closest("h1,h2,h3,p,button,a,label,img") || match.element;
+      field?.element ||
+      event.target.closest("h1,h2,h3,p,button,a,label,img") ||
+      match.element;
     window.parent.postMessage(
       {
         type: "kz-site-selection",
@@ -142,18 +216,54 @@ document.addEventListener(
           id: match.id,
           label: match.title,
           selector: match.selector,
-          text: (text instanceof HTMLImageElement
-            ? text.alt
-            : text.textContent || ""
-          )
-            .trim()
-            .slice(0, 600),
+          text: field?.value ?? (text.textContent || "").trim().slice(0, 600),
           kind: text.tagName.toLowerCase(),
           href: event.target.closest("a")?.getAttribute("href") || "",
+          binding: field?.binding || null,
         },
       },
       "*",
     );
+    // Plain text leaf nodes can be edited directly without replacing icons or markup.
+    if (
+      field &&
+      field.binding.type !== "image" &&
+      !field.binding.key.endsWith(":price") &&
+      field.element instanceof HTMLElement &&
+      !field.element.children.length &&
+      (field.element.textContent || "").trim() === field.value
+    ) {
+      const element = field.element;
+      activeInline = element;
+      element.contentEditable = "plaintext-only";
+      element.dataset.inlineEditing = "true";
+      element.focus();
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      element.oninput = () =>
+        window.parent.postMessage(
+          {
+            type: "kz-site-edit",
+            binding: field.binding,
+            value: element.innerText,
+            inline: true,
+          },
+          "*",
+        );
+      element.onblur = () => {
+        stopInline();
+        window.parent.postMessage({ type: "kz-site-inline-end" }, "*");
+      };
+      element.onkeydown = (e) => {
+        if (e.key === "Escape" || (e.key === "Enter" && !e.shiftKey)) {
+          e.preventDefault();
+          element.blur();
+        }
+      };
+    }
   },
   true,
 );
@@ -162,15 +272,27 @@ window.addEventListener("message", (event) => {
   if (event.data?.type === "kz-site-inspect") {
     inspect = Boolean(event.data.enabled);
     overlay.style.display = "none";
+    if (!inspect) stopInline();
   }
 });
 function App() {
+  const [, refresh] = useState(0);
   const [route, setRoute] = useState(
     () => new URL(config.path, "https://kuzmin.preview"),
   );
   const [language, setLanguage] = useState<Lang>(config.lang);
-  function navigate(url: string) {
+  function navigate(url: string, push = true) {
     const next = new URL(url, "https://kuzmin.preview");
+    if (
+      config.standalone &&
+      push &&
+      location.hash !== "#" + next.pathname + next.search
+    )
+      history.pushState(
+        null,
+        "",
+        location.pathname + location.search + "#" + next.pathname + next.search,
+      );
     const requested = next.searchParams.get("lang");
     setLanguage(requested === "en" || requested === "ru" ? requested : "tr");
     setRoute(next);
@@ -186,7 +308,46 @@ function App() {
   }
   useEffect(() => {
     setNavigator(navigate);
+    const update = (event: MessageEvent) => {
+      if (
+        event.source !== window.parent ||
+        event.data?.type !== "kz-site-config"
+      )
+        return;
+      config.catalog = event.data.catalog;
+      config.design = event.data.design;
+      refresh((n) => n + 1);
+    };
+    const storage = () => {
+      if (!config.standalone || !config.storageKey) return;
+      try {
+        const catalog = JSON.parse(
+          localStorage.getItem(config.storageKey) || "null",
+        );
+        if (catalog) config.catalog = catalog;
+        config.design = JSON.parse(
+          localStorage.getItem(config.storageKey + ".design") ||
+            '{"texts":{},"images":{}}',
+        );
+        refresh((n) => n + 1);
+      } catch {
+        /* Keep the last valid view if a storage read fails. */
+      }
+    };
+    const hash = () => {
+      if (config.standalone) navigate(location.hash.slice(1) || "/", false);
+    };
+    window.addEventListener("message", update);
+    window.addEventListener("storage", storage);
+    window.addEventListener("hashchange", hash);
+    window.addEventListener("focus", storage);
     window.parent.postMessage({ type: "kz-site-ready" }, "*");
+    return () => {
+      window.removeEventListener("message", update);
+      window.removeEventListener("storage", storage);
+      window.removeEventListener("hashchange", hash);
+      window.removeEventListener("focus", storage);
+    };
   }, []);
   const segments = route.pathname.split("/").filter(Boolean);
   if (segments[0] === "admin")
@@ -197,16 +358,18 @@ function App() {
       </main>
     );
   return (
-    <Storefront
-      key={route.pathname + route.search}
-      catalog={config.catalog}
-      segments={segments}
-      lang={language}
-      live={false}
-      preview
-      previewQuery={route.search}
-      onNavigate={navigate}
-    />
+    <VisualContext.Provider value={config.design || { texts: {}, images: {} }}>
+      <Storefront
+        key={route.pathname + route.search}
+        catalog={config.catalog}
+        segments={segments}
+        lang={language}
+        live={false}
+        preview
+        previewQuery={route.search}
+        onNavigate={navigate}
+      />
+    </VisualContext.Provider>
   );
 }
 createRoot(document.getElementById("root")!).render(<App />);

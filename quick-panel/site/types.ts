@@ -6,6 +6,9 @@ export type SiteConfig = {
   assets: Record<string, string>;
   inspect: boolean;
   cart: CartLine[];
+  design?: import("../../src/lib/visual").VisualDesign;
+  standalone?: boolean;
+  storageKey?: string;
 };
 declare global {
   interface Window {

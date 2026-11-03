@@ -75,6 +75,9 @@ async function main() {
     .update(styles.css)
     .update(readFileSync("quick-panel/site/host.js"))
     .update(readFileSync("quick-panel/site/host.css"))
+    .update(readFileSync("quick-panel/site/direct-editor.js"))
+    .update(readFileSync("quick-panel/site/customer.js"))
+    .update(readFileSync("quick-panel/design.mjs"))
     .update(readFileSync("quick-panel/template.html"))
     .update(readFileSync("quick-panel/catalog-updates.mjs"))
     .update(readFileSync("scripts/build-quick-panel.ts"))
@@ -108,10 +111,39 @@ async function main() {
         readFileSync("quick-panel/site/host.css", "utf8") +
         "</style>",
     )
-    .replace("/*__SITE_PREVIEW_HOST__*/", () =>
-      readFileSync("quick-panel/site/host.js", "utf8"),
+    .replace(
+      "/*__SITE_PREVIEW_HOST__*/",
+      () =>
+        readFileSync("quick-panel/design.mjs", "utf8").replace(
+          /^export /gm,
+          "",
+        ) +
+        "\n" +
+        readFileSync("quick-panel/site/direct-editor.js", "utf8") +
+        "\n" +
+        readFileSync("quick-panel/site/host.js", "utf8"),
     );
   writeFileSync("docs/panel.html", template);
+  const customerScript = readFileSync("quick-panel/site/customer.js", "utf8")
+    .replace("__SEED__", () => json(data))
+    .replace("__SITE_PREVIEW__", () => json(preview))
+    .replace("/*__DESIGN_VALIDATOR__*/", () =>
+      readFileSync("quick-panel/design.mjs", "utf8").replace(/^export /gm, ""),
+    )
+    .replace("/*__CATALOG_UPDATES__*/", () =>
+      readFileSync("quick-panel/catalog-updates.mjs", "utf8").replace(
+        /^export /gm,
+        "",
+      ),
+    );
+  writeFileSync(
+    "docs/store.html",
+    '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>KUZMIN · Müşteri önizlemesi</title><style>' +
+      styles.css +
+      '</style></head><body><div id="root"></div><script>' +
+      customerScript +
+      "</script></body></html>",
+  );
   writeFileSync(
     "docs/panel-version.json",
     JSON.stringify({ version, built_at: new Date().toISOString() }) + "\n",

@@ -34,7 +34,8 @@ try {
       .locator("#site-preview-shell")
       .evaluate((el) => el.classList.contains("site-preview-expanded")),
   );
-  assert.equal(await page.locator("#site-inspect").isChecked(), false);
+  assert.equal(await page.locator("#site-inspect").isChecked(), true);
+  await page.locator("#site-inspect").uncheck();
   await frame()
     .locator(".hero img")
     .evaluate(async (img) => {
@@ -135,6 +136,7 @@ try {
       .querySelector("#site-inspector h3")
       ?.textContent.includes("Ana başlık"),
   );
+  await page.locator(".site-change-note summary").click();
   await page
     .getByLabel("Ne değişsin?", { exact: true })
     .fill("Başlığı biraz küçültelim.");
@@ -190,6 +192,7 @@ try {
   await choose("product");
   await page.locator("#site-inspect").check();
   await frame().locator(".product-copy h1").click();
+  await page.locator(".site-change-note summary").click();
   await page
     .getByRole("button", { name: "Ürün kaydını düzenle ↗", exact: true })
     .click();

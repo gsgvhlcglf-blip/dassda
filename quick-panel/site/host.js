@@ -24,7 +24,7 @@ let sitePage = "home",
   siteYear = 2024,
   siteProduct = state.products[0]?.id || "",
   siteLang = "tr",
-  siteInspect = false,
+  siteInspect = true,
   siteCart = [],
   siteCartMode = "sample",
   siteSelection = null,
@@ -44,7 +44,8 @@ try {
     if (typeof saved.model === "string") siteModel = saved.model;
     if (Number.isInteger(saved.year)) siteYear = saved.year;
     if (typeof saved.product === "string") siteProduct = saved.product;
-    if (typeof saved.inspect === "boolean") siteInspect = saved.inspect;
+    if (saved.editorVersion === 2 && typeof saved.inspect === "boolean")
+      siteInspect = saved.inspect;
     if (typeof saved.note === "string") siteNote = saved.note.slice(0, 8000);
     if (saved.selection && typeof saved.selection.id === "string")
       siteSelection = {
@@ -69,6 +70,7 @@ function saveSiteUi() {
         year: siteYear,
         product: siteProduct,
         inspect: siteInspect,
+        editorVersion: 2,
         selection: siteSelection,
         note: siteNote,
       }),
@@ -180,7 +182,7 @@ function renderSitePreview(view) {
     )
     .join(
       "",
-    )}</div></div><p class="site-preview-hint ${siteInspect ? "" : "hidden"}">Sayfa seçin, masaüstü/mobil görünümü değiştirin. Bölüm seçme açıkken bir metne veya görsele tıklayın; bölümün adı sağda görünsün.</p><div class="site-preview-grid ${siteInspect ? "has-inspector" : ""}"><div class="site-frame-box"><div class="site-frame-toolbar"><label><input type="checkbox" id="site-inspect" ${siteInspect ? "checked" : ""}>Bölüm seçme</label><span class="site-route" id="site-route">${esc(sitePath)} · ${siteWidths[siteDevice]} px</span><span id="site-loading">Yükleniyor…</span><span id="site-update-status" title="Tasarım sürümü ${PREVIEW.version}">Otomatik güncelleme açık</span><button data-action="site-expand">${siteExpanded ? "Paneli göster" : "Genişlet"}</button><button data-action="site-dashboard">Veri paneli</button><button data-action="site-refresh">Güncel tasarımı yükle</button></div><div class="site-viewport" id="site-viewport"><div class="site-scale" id="site-scale"><iframe class="site-frame" id="site-frame" title="Mağaza sayfası tasarım önizlemesi" sandbox="allow-scripts allow-same-origin"></iframe></div></div><div class="site-small-note">Tasarım önizlemesi · Tarayıcıdaki taslak veriler gösterilir; canlı mağaza güncellenmez. Sipariş gönderimi kapalıdır.</div></div><aside class="site-inspector ${siteInspect ? "" : "hidden"}" id="site-inspector"></aside></div></section>`;
+    )}</div></div><p class="site-preview-hint ${siteInspect ? "" : "hidden"}">Sayfa seçin, masaüstü/mobil görünümü değiştirin. Düzenleme modunda metne tıklayıp yazın veya sağdaki alandan değiştirin. Fotoğrafa tıklayıp yenisini yükleyin.</p><div class="site-preview-grid ${siteInspect ? "has-inspector" : ""}"><div class="site-frame-box"><div class="site-frame-toolbar"><label><input type="checkbox" id="site-inspect" ${siteInspect ? "checked" : ""}>Düzenleme modu</label><span class="site-route" id="site-route">${esc(sitePath)} · ${siteWidths[siteDevice]} px</span><span id="site-loading">Yükleniyor…</span><span id="site-update-status" title="Tasarım sürümü ${PREVIEW.version}">Otomatik güncelleme açık</span><button data-action="site-customer">Müşteri önizlemesi ↗</button><button data-action="site-expand">${siteExpanded ? "Paneli göster" : "Genişlet"}</button><button data-action="site-dashboard">Veri paneli</button><button data-action="site-refresh">Güncel tasarımı yükle</button></div><div class="site-viewport" id="site-viewport"><div class="site-scale" id="site-scale"><iframe class="site-frame" id="site-frame" title="Mağaza sayfası tasarım önizlemesi" sandbox="allow-scripts allow-same-origin"></iframe></div></div><div class="site-small-note">Tasarım önizlemesi · Tarayıcıdaki taslak veriler gösterilir; canlı mağaza güncellenmez. Sipariş gönderimi kapalıdır.</div></div><aside class="site-inspector ${siteInspect ? "" : "hidden"}" id="site-inspector"></aside></div></section>`;
   paintSiteInspector();
   loadSiteFrame();
   siteObserver?.disconnect();
@@ -211,6 +213,7 @@ function loadSiteFrame() {
     );
   const config = {
     catalog: state,
+    design: siteDesign,
     path:
       sitePath +
       (siteLang === "tr"
@@ -355,11 +358,11 @@ function paintSiteInspector() {
   if (!el) return;
   if (!siteSelection) {
     el.innerHTML =
-      '<header><p class="eyebrow">NEYİN NEREDE OLDUĞUNU GÖRÜN</p><h2>Bir bölüme tıklayın.</h2><p>“Bölüm seçme” açıkken önizlemede bir başlık, paragraf, görsel veya düğme seçin.</p></header><p>Seçtiğiniz bölümün adını ve mevcut metnini burada göreceksiniz. Değişiklik notunu kopyalayıp sohbete yapıştırabilirsiniz.</p>';
+      '<header><p class="eyebrow">NEYİN NEREDE OLDUĞUNU GÖRÜN</p><h2>Tıkla, değiştir, gör.</h2><p>Düzenleme modunda bir metne veya fotoğrafa tıklayın. Düzenleme araçları burada açılır.</p></header><p>Sayfada gezinmek için düzenleme modunu kapatın veya Müşteri önizlemesi düğmesini kullanın.</p>';
     return;
   }
   const editor = selectedSiteEditor();
-  el.innerHTML = `<header><p class="eyebrow">SEÇİLİ BÖLÜM</p><h3>${esc(siteSelection.label)}</h3><span class="site-section-id">${esc(siteSelection.id)}</span></header><div><p>Şu an görünen metin</p><div class="site-selection-text">${esc(siteSelection.text || "Görsel veya bölüm alanı seçildi.")}</div></div><div><label>Ne değişsin?<textarea id="site-note" aria-label="Ne değişsin?" placeholder="Örneğin: Bu başlığı biraz küçültelim ve görselin sağ altına taşıyalım.">${esc(siteNote)}</textarea></label></div><div class="site-copy-area"><label>Paylaşılacak değişiklik notu<textarea id="site-copy-text" aria-label="Paylaşılacak değişiklik notu" readonly>${esc(siteNoteText())}</textarea></label><button class="button" data-action="site-copy">Notu kopyala</button><div class="site-note-feedback" id="site-note-feedback" role="status"></div></div>${editor?.id ? `<div class="site-edit-area">${action(editor.label + " ↗", "site-edit", editor.id, "ghost")}<p>Kaydettiğiniz taslak değişikliği önizlemeye yansır.</p></div>` : '<p class="site-edit-area">Bu bölümün yerleşimi veya arayüz metni için değişiklik notunu bana iletebilirsiniz.</p>'}`;
+  el.innerHTML = `<header><p class="eyebrow">SEÇİLİ BÖLÜM</p><h3>${esc(siteSelection.label)}</h3><span class="site-section-id">${esc(siteSelection.id)}</span></header>${directEditorHTML()}<details class="site-change-note"><summary>Yerleşim değişikliği notu</summary><div><p>Şu an görünen metin</p><div class="site-selection-text">${esc(siteSelection.text || "Görsel veya bölüm alanı seçildi.")}</div></div><div><label>Ne değişsin?<textarea id="site-note" aria-label="Ne değişsin?" placeholder="Örneğin: Bu başlığı biraz küçültelim ve görselin sağ altına taşıyalım.">${esc(siteNote)}</textarea></label></div><div class="site-copy-area"><label>Paylaşılacak değişiklik notu<textarea id="site-copy-text" aria-label="Paylaşılacak değişiklik notu" readonly>${esc(siteNoteText())}</textarea></label><button class="button" data-action="site-copy">Notu kopyala</button><div class="site-note-feedback" id="site-note-feedback" role="status"></div></div>${editor?.id ? `<div class="site-edit-area">${action(editor.label + " ↗", "site-edit", editor.id, "ghost")}<p>Kaydettiğiniz taslak değişikliği önizlemeye yansır.</p></div>` : '<p class="site-edit-area">Bu bölümün yerleşimi veya arayüz metni için değişiklik notunu bana iletebilirsiniz.</p>'}</details>`;
 }
 function updateSiteRoute(path, language) {
   try {
@@ -430,6 +433,7 @@ window.addEventListener("message", (event) => {
       text: String(data.selection.text || "").slice(0, 600),
       selector: String(data.selection.selector || ""),
       href: String(data.selection.href || ""),
+      binding: directBinding(data.selection.binding),
     };
     siteNote = "";
     saveSiteUi();
@@ -603,7 +607,14 @@ async function checkSiteDesign() {
       sitePendingVersion = metadata.version;
       const status = $("#site-update-status");
       if (status) status.textContent = "Yeni tasarım hazır";
-      if (!$("#editor").open) refreshSiteDesign(metadata.version);
+      if (
+        !$("#editor").open &&
+        !siteDirectDirty &&
+        !$("#site-frame")?.contentDocument?.querySelector(
+          "[data-inline-editing]",
+        )
+      )
+        refreshSiteDesign(metadata.version);
     } else {
       const status = $("#site-update-status");
       if (status) status.textContent = "Tasarım güncel";
