@@ -34,3 +34,14 @@ Yönetici tüm işlemleri yapabilir. Editör ürün ve içerikleri düzenleyebil
 ## Yapılandırma ekranı
 
 `/admin/ayarlar` adresinde ana sayfa, iletişim ve diğer sayfa metinlerini düzenleyebilir; veritabanı sorgusu, Supabase ayarlarının tanımlı olup olmadığı, alan adı ve indeksleme durumunu görebilirsiniz. Bu sayfa da giriş gerektirir. Sunucu bağlantı bilgileri güvenli barındırma ortam ayarlarından yönetilir; anahtar değerleri yönetim ekranına gönderilmez.
+
+
+## Tasarıma bakarak birlikte çalışma
+
+Hızlı tarayıcı paneli ilk açılışta sitenin kendisini gösterir. Üstteki **Önizlenecek sayfa** listesinden sayfayı, ardından **Masaüstü / Tablet / Mobil** görünümünü seçin. Önizleme içinde normal bağlantılarla da gezebilirsiniz.
+
+Bir yeri tarif etmek için **Bölüm seçme** kutusunu açıp başlığa, metne veya görsele tıklayın. Bölümün adı ve mevcut metni sağda görünür. **Ne değişsin?** alanına isteğinizi yazıp **Notu kopyala** düğmesiyle sohbete aktarabilirsiniz. Bu adım zorunlu değildir; gördüğünüz sayfayı ve değişikliği doğrudan da söyleyebilirsiniz.
+
+Yeni tasarım yayınlandığında açık panel sürümü kontrol ederek yenilenir. Seçili sayfa, cihaz ve kaydedilmiş taslaklar korunur. Açık bir düzenleme formu varsa yenileme bekletilir. Gerekirse **Güncel tasarımı yükle** düğmesini kullanın. Ürün ve metin tablolarına dönmek için **Veri paneli** düğmesine basın.
+
+Önizleme, tasarımı ve tarayıcıdaki katalog taslaklarını gösterir; gerçek sipariş göndermez veya canlı mağazanın veritabanını değiştirmez.

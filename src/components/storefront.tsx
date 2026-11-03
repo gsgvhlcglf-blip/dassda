@@ -50,7 +50,13 @@ export function Storefront({
   segments: s,
   lang,
   live,
+  preview = false,
+  previewQuery,
+  onNavigate,
 }: {
+  preview?: boolean;
+  previewQuery?: string;
+  onNavigate?: (url: string) => void;
   catalog: Catalog;
   segments: string[];
   lang: Lang;
@@ -65,15 +71,15 @@ export function Storefront({
     [savedBike, setSavedBike] = useState("");
   useEffect(() => {
     document.documentElement.lang = lang;
-    setSavedBike(localStorage.getItem("kz-bike") || "");
-  }, [lang]);
+    if (!preview) setSavedBike(localStorage.getItem("kz-bike") || "");
+  }, [lang, preview]);
   useEffect(() => {
     if (s[0] === "motosikletler" && s[3]) {
       const path = "/" + s.join("/");
-      localStorage.setItem("kz-bike", path);
+      if (!preview) localStorage.setItem("kz-bike", path);
       setSavedBike(path);
     }
-  }, [s]);
+  }, [s, preview]);
   useEffect(() => {
     if (toast) {
       const tm = setTimeout(() => setToast(""), 3500);
@@ -510,7 +516,9 @@ export function Storefront({
               id="language"
               value={lang}
               onChange={(e) => {
-                window.location.href = `/${s.join("/")}${e.target.value === "tr" ? "" : "?lang=" + e.target.value}`;
+                const nextUrl = `/${s.join("/")}${e.target.value === "tr" ? "" : "?lang=" + e.target.value}`;
+                if (onNavigate) onNavigate(nextUrl);
+                else window.location.href = nextUrl;
               }}
             >
               <option value="tr">TR</option>
@@ -675,6 +683,7 @@ export function Storefront({
                 products={c.products.filter((p) => p.published)}
                 lang={lang}
                 card={productCard}
+                queryString={preview ? previewQuery : undefined}
               />
             </section>
           )
@@ -687,6 +696,7 @@ export function Storefront({
             total={total}
             href={href}
             clear={() => setCart([])}
+            preview={preview}
           />
         ) : (
           renderContent()
@@ -765,7 +775,9 @@ function ProductListing({
   c,
   lang,
   card,
+  queryString,
 }: {
+  queryString?: string;
   products: Product[];
   c: Catalog;
   lang: Lang;
@@ -779,7 +791,9 @@ function ProductListing({
     [stock, setStock] = useState(false);
   useEffect(() => {
     setCategory(
-      new URLSearchParams(window.location.search).get("category") || "",
+      new URLSearchParams(queryString ?? window.location.search).get(
+        "category",
+      ) || "",
     );
   }, []);
   const list = useMemo(
@@ -1094,7 +1108,9 @@ function Checkout({
   total,
   href,
   clear,
+  preview = false,
 }: {
+  preview?: boolean;
   lang: Lang;
   cart: CartLine[];
   total: number;
@@ -1109,6 +1125,16 @@ function Checkout({
     [busy, setBusy] = useState(false);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (preview) {
+      setStatus(
+        {
+          tr: "Tasarım önizlemesinde sipariş gönderilmez.",
+          en: "Orders cannot be submitted in design preview.",
+          ru: "В режиме предпросмотра заказы не отправляются.",
+        }[lang],
+      );
+      return;
+    }
     setBusy(true);
     setStatus("");
     const form = new FormData(e.currentTarget);
@@ -1170,6 +1196,7 @@ function Checkout({
                 {key === "address" || key === "note" ? (
                   <textarea
                     name={key}
+                    disabled={preview}
                     required={key === "address"}
                     minLength={key === "address" ? 10 : 0}
                     maxLength={key === "address" ? 1000 : 2000}
@@ -1180,6 +1207,7 @@ function Checkout({
                 ) : (
                   <input
                     name={key}
+                    disabled={preview}
                     required
                     type={
                       key === "email"
@@ -1204,7 +1232,12 @@ function Checkout({
               </label>
             ))}
             <label className="consent">
-              <input type="checkbox" name="consent" required />
+              <input
+                type="checkbox"
+                name="consent"
+                required
+                disabled={preview}
+              />
               {t("consent")}
             </label>
             <Link href={href("/gizlilik")} className="under-link">
@@ -1215,7 +1248,23 @@ function Checkout({
                 {status}
               </p>
             )}
-            <button className="button wide" disabled={busy}>
+            <button
+              className="button wide"
+              type={preview ? "button" : "submit"}
+              disabled={busy}
+              onClick={
+                preview
+                  ? () =>
+                      setStatus(
+                        {
+                          tr: "Tasarım önizlemesinde sipariş gönderilmez.",
+                          en: "Orders cannot be submitted in design preview.",
+                          ru: "В режиме предпросмотра заказы не отправляются.",
+                        }[lang],
+                      )
+                  : undefined
+              }
+            >
               {busy ? t("sending") : t("submit")}
               <ArrowRight size={16} />
             </button>

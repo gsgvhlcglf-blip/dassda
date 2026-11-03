@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source not "../../docs/panel.html";
 :root {
   --bg: #090a09;
   --panel: #131413;

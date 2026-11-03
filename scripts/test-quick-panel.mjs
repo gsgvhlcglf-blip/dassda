@@ -16,6 +16,7 @@ try {
   await page.goto(
     process.env.TEST_PANEL_URL || "http://localhost:4173/docs/panel.html",
   );
+  await page.getByRole("button", { name: "Veri paneli", exact: true }).click();
   assert.equal(
     await page
       .getByRole("heading", { name: "Genel bakış", exact: true })
@@ -43,6 +44,7 @@ try {
     .click();
   assert.equal(await page.getByRole("dialog").count(), 0);
   await page.reload();
+  await page.getByRole("button", { name: "Veri paneli", exact: true }).click();
   await page.getByRole("button", { name: "Ürünler", exact: true }).click();
   await page
     .getByLabel("Kayıtlarda ara", { exact: true })
@@ -104,15 +106,13 @@ try {
   const backup = JSON.parse(readFileSync(path, "utf8"));
   assert.ok(backup.products.some((p) => p.sku === "TEST-QUICK-001"));
   await page.getByRole("button", { name: "Taslak yükle", exact: true }).click();
-  await page
-    .locator("#import-file")
-    .setInputFiles({
-      name: "broken.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(
-        JSON.stringify({ ...backup, products: [{ id: "bad" }] }),
-      ),
-    });
+  await page.locator("#import-file").setInputFiles({
+    name: "broken.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(
+      JSON.stringify({ ...backup, products: [{ id: "bad" }] }),
+    ),
+  });
   await page.waitForFunction(() =>
     document.querySelector("#toast").textContent.includes("Ürün"),
   );

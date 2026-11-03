@@ -1,25 +1,126 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
+import { build } from "esbuild";
+import postcss from "postcss";
+import tailwindcss from "@tailwindcss/postcss";
 import { seed } from "../src/lib/seed";
-const data = structuredClone(seed);
-function inline(url: string) {
-  if (!url.startsWith("/images/")) return url;
-  const file = path.join("public", url);
-  const type = file.endsWith(".svg")
-    ? "image/svg+xml"
-    : file.endsWith(".webp")
-      ? "image/webp"
-      : "image/png";
-  return `data:${type};base64,${readFileSync(file).toString("base64")}`;
+
+async function main() {
+  const data = structuredClone(seed);
+  function inline(url: string) {
+    if (!url.startsWith("/images/")) return url;
+    const file = path.join("public", url),
+      type = file.endsWith(".svg")
+        ? "image/svg+xml"
+        : file.endsWith(".webp")
+          ? "image/webp"
+          : "image/png";
+    return `data:${type};base64,${readFileSync(file).toString("base64")}`;
+  }
+  for (const r of data.product_images) r.url = inline(r.url);
+  for (const r of data.models) r.image = inline(r.image);
+  const result = await build({
+    entryPoints: ["quick-panel/site/entry.tsx"],
+    bundle: true,
+    write: false,
+    format: "iife",
+    platform: "browser",
+    target: ["es2022"],
+    minify: true,
+    jsx: "automatic",
+    define: {
+      "process.env.NODE_ENV": '"production"',
+      "process.env.NEXT_PUBLIC_SITE_URL": '""',
+      "process.env.ENABLE_INDEXING": '"false"',
+    },
+    plugins: [
+      {
+        name: "preview-adapters",
+        setup(builder) {
+          builder.onResolve({ filter: /^next\/(link|image)$/ }, (args) => ({
+            path: path.resolve(
+              `quick-panel/site/${args.path.split("/")[1]}.tsx`,
+            ),
+          }));
+          builder.onResolve({ filter: /^@\/lib\/cart-store$/ }, () => ({
+            path: path.resolve("quick-panel/site/cart.ts"),
+          }));
+        },
+      },
+    ],
+  });
+  const styles = await postcss([
+    tailwindcss({ base: process.cwd(), optimize: true }),
+  ]).process(
+    readFileSync("src/app/globals.css", "utf8").replace(
+      '@import "tailwindcss";',
+      '@import "tailwindcss" source(none);\n@source "../components";',
+    ),
+    {
+      from: path.resolve("src/app/globals.css"),
+    },
+  );
+  const assets = Object.fromEntries(
+    readdirSync("public/images").map((name) => [
+      "/images/" + name,
+      inline("/images/" + name),
+    ]),
+  );
+  const updates = JSON.parse(
+    readFileSync("quick-panel/content-updates.json", "utf8"),
+  );
+  const version = createHash("sha256")
+    .update(result.outputFiles[0].contents)
+    .update(styles.css)
+    .update(readFileSync("quick-panel/site/host.js"))
+    .update(readFileSync("quick-panel/site/host.css"))
+    .update(readFileSync("quick-panel/template.html"))
+    .update(readFileSync("quick-panel/catalog-updates.mjs"))
+    .update(readFileSync("scripts/build-quick-panel.ts"))
+    .update(JSON.stringify(data))
+    .update(JSON.stringify(assets))
+    .update(JSON.stringify(updates))
+    .digest("hex")
+    .slice(0, 16);
+  const preview = {
+    version,
+    updates,
+    js: Buffer.from(result.outputFiles[0].contents).toString("base64"),
+    css: Buffer.from(styles.css).toString("base64"),
+    assets,
+  };
+  const json = (v: unknown) =>
+    JSON.stringify(v).replaceAll("<", String.fromCharCode(92) + "u003c");
+  const template = readFileSync("quick-panel/template.html", "utf8")
+    .replace("__SEED__", () => json(data))
+    .replace("/*__CATALOG_UPDATES__*/", () =>
+      readFileSync("quick-panel/catalog-updates.mjs", "utf8").replace(
+        /^export /gm,
+        "",
+      ),
+    )
+    .replace("__SITE_PREVIEW__", () => json(preview))
+    .replace(
+      "<!--__SITE_PREVIEW_STYLE__-->",
+      () =>
+        "<style>" +
+        readFileSync("quick-panel/site/host.css", "utf8") +
+        "</style>",
+    )
+    .replace("/*__SITE_PREVIEW_HOST__*/", () =>
+      readFileSync("quick-panel/site/host.js", "utf8"),
+    );
+  writeFileSync("docs/panel.html", template);
+  writeFileSync(
+    "docs/panel-version.json",
+    JSON.stringify({ version, built_at: new Date().toISOString() }) + "\n",
+  );
+  console.log(
+    "Self-contained catalog + real storefront preview built: docs/panel.html",
+  );
 }
-for (const r of data.product_images) r.url = inline(r.url);
-for (const r of data.models) r.image = inline(r.image);
-const json = JSON.stringify(data).replaceAll("<", "\\u003c");
-writeFileSync(
-  "docs/panel.html",
-  readFileSync("quick-panel/template.html", "utf8").replace(
-    "__SEED__",
-    () => json,
-  ),
-);
-console.log("Self-contained catalog workspace built: docs/panel.html");
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

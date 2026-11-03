@@ -783,6 +783,7 @@
         }
       }
     </style>
+    <!--__SITE_PREVIEW_STYLE__-->
   </head>
   <body>
     <div class="shell">
@@ -861,6 +862,7 @@
       (() => {
         "use strict";
         const INITIAL = __SEED__;
+        const PREVIEW = __SITE_PREVIEW__;
         const KEY = "kuzmin.workspace.gsgvhlcglf-blip.dassda.v1";
         const $ = (s) => document.querySelector(s),
           esc = (v) =>
@@ -890,6 +892,11 @@
           clone = (v) => JSON.parse(JSON.stringify(v));
         const sections = {
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
+          sitePreview: [
+            "Sayfa önizlemeleri",
+            "Tüm sayfaları görün, bölümleri seçin ve değişiklik notu hazırlayın.",
+            "▧",
+          ],
           products: [
             "Ürünler",
             "Fiyatları, stokları ve ürün detaylarını düzenleyin.",
@@ -923,18 +930,37 @@
           ],
         };
         let state = clone(INITIAL),
-          section = "overview",
+          section = "sitePreview",
           query = "",
           editing = null,
           newPhoto = "",
           photoDirty = false,
           toastTimer;
+        /*__CATALOG_UPDATES__*/
         try {
           const saved = localStorage.getItem(KEY);
           if (saved) {
             const parsed = JSON.parse(saved);
             validate(parsed);
             state = parsed;
+          }
+          if (PREVIEW.updates?.length) {
+            const previous = JSON.parse(
+              localStorage.getItem(KEY + ".catalog-updates") || "[]",
+            );
+            const result = applyCatalogUpdates(
+              state,
+              PREVIEW.updates,
+              Array.isArray(previous) ? previous : [],
+            );
+            validate(result.catalog);
+            if (result.changed)
+              localStorage.setItem(KEY, JSON.stringify(result.catalog));
+            localStorage.setItem(
+              KEY + ".catalog-updates",
+              JSON.stringify(result.appliedIds),
+            );
+            state = result.catalog;
           }
           $("#save-status").textContent = "● Tarayıcıya kayıt açık";
         } catch {
@@ -1133,6 +1159,7 @@
         function goto(id) {
           if (!sections[id]) return;
           section = id;
+          if (id === "sitePreview") siteExpanded = true;
           query = "";
           render();
           window.scrollTo(0, 0);
@@ -1166,6 +1193,10 @@
             ? action("+ Yeni kayıt", "new")
             : "";
           const view = $("#view");
+          if (section === "sitePreview") {
+            renderSitePreview(view);
+            return;
+          }
           if (section === "overview") {
             view.innerHTML = `<div class="cards">${[
               ["Ürün", state.products.length, "Koleksiyonunuzdaki parçalar"],
@@ -1310,7 +1341,7 @@
           return `<label>${label}<input name="${key}" type="${type}" value="${esc(value)}" ${extra}></label>`;
         }
         function area(label, key, value) {
-          return `<label class="span-2">${label}<textarea name="${key}">${esc(value)}</textarea></label>`;
+          return `<label class="span-2">${label}<textarea name="${key}" aria-label="${esc(label)}">${esc(value)}</textarea></label>`;
         }
         function select(label, key, rows, value, blank = false) {
           return `<label>${label}<select name="${key}" aria-label="${esc(label)}">${blank ? '<option value="">Seçin…</option>' : ""}${rows.map((r) => `<option value="${esc(r.id)}" ${r.id === value ? "selected" : ""}>${esc(name(r))}</option>`).join("")}</select></label>`;
@@ -1318,8 +1349,8 @@
         function photoField(url) {
           return `<label class="span-2 image-upload">Fotoğraf yükle<p>JPEG, PNG veya WebP · En fazla 5 MB · Bu tarayıcıda işlenir.</p><input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp">${imageTag(url, "Seçilen görsel", "photo-preview")}</label>`;
         }
-        function openEditor(id) {
-          const table = section;
+        function openEditor(id, tableOverride = section) {
+          const table = tableOverride;
           const record = id ? state[table].find((r) => r.id === id) : null;
           editing = { table, id: id || uid(), isNew: !id };
           newPhoto =
@@ -1906,6 +1937,7 @@
           if (a === "export") exportData();
           if (a === "import") $("#import-file").click();
         });
+        /*__SITE_PREVIEW_HOST__*/
         render();
       })();
     </script>
