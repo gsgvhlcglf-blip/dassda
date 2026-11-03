@@ -1,6 +1,6 @@
 # Üyelik, Blog ve Kargo Takip
 
-Üst menü sırası: Ana Sayfa → Motosikletler → Hakkımızda → Blog → İletişim. Sağ üstte tek Hesabım bağlantısı bulunur: giriş yapılmamışsa giriş/kayıt ekranına, giriş yapılmışsa hesaba açılır. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur.
+Üst menü sırası: Ana Sayfa → Motosikletler → Hakkımızda → Blog → İletişim. Sağ üstte tek Hesabım bağlantısı bulunur: giriş yapılmamışsa giriş/kayıt ekranına, giriş yapılmışsa hesaba açılır. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur. Site ve müşteri önizlemesi şimdilik yalnızca Türkçedir; dil seçicisi kaldırılmıştır. Önceden kaydedilen çeviriler veri kaybı olmadan saklanır.
 
 ## Blog yazısı eklemek
 

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { supportedLanguages } from "@/lib/settings";
 import { getCatalog } from "@/lib/catalog";
 export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -35,14 +36,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((p) => `/urunler/${p.slug}`),
   ];
   return routes.flatMap((route) =>
-    (["tr", "en", "ru"] as const).map((lang) => ({
+    supportedLanguages.map((lang) => ({
       url: `${origin.replace(/\/$/, "")}${route}${lang === "tr" ? "" : "?lang=" + lang}`,
       alternates: {
-        languages: {
-          tr: `${origin}${route}`,
-          en: `${origin}${route}?lang=en`,
-          ru: `${origin}${route}?lang=ru`,
-        },
+        languages: Object.fromEntries(
+          supportedLanguages.map((language) => [
+            language,
+            `${origin.replace(/\/$/, "")}${route}${language === "tr" ? "" : "?lang=" + language}`,
+          ]),
+        ),
       },
     })),
   );

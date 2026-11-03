@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { build } from "esbuild";
 import postcss from "postcss";
 import tailwindcss from "@tailwindcss/postcss";
+import { supportedLanguages } from "../src/lib/settings";
 import { seed } from "../src/lib/seed";
 
 async function main() {
@@ -87,6 +88,7 @@ async function main() {
     .digest("hex")
     .slice(0, 16);
   const preview = {
+    languages: supportedLanguages,
     version,
     updates,
     js: Buffer.from(result.outputFiles[0].contents).toString("base64"),

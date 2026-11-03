@@ -44,7 +44,7 @@ try {
     if (sitePages[saved.page]) sitePage = saved.page;
     if (["desktop", "tablet", "mobile"].includes(saved.device))
       siteDevice = saved.device;
-    if (["tr", "en", "ru"].includes(saved.lang)) siteLang = saved.lang;
+    if (PREVIEW.languages.includes(saved.lang)) siteLang = saved.lang;
     if (typeof saved.brand === "string") siteBrand = saved.brand;
     if (typeof saved.model === "string") siteModel = saved.model;
     if (Number.isInteger(saved.year)) siteYear = saved.year;
@@ -170,15 +170,7 @@ function renderSitePreview(view) {
     .map(([id, v]) => siteOption(id, v[0], sitePage))
     .join(
       "",
-    )}</select></label>${siteFilters()}<label>Dil<select id="site-lang" aria-label="Dil">${[
-    ["tr", "Türkçe"],
-    ["en", "English"],
-    ["ru", "Русский"],
-  ]
-    .map(([id, label]) => siteOption(id, label, siteLang))
-    .join(
-      "",
-    )}</select></label><div class="site-device-group" aria-label="Ekran boyutu">${Object.entries(
+    )}</select></label>${siteFilters()}<div class="site-device-group" aria-label="Ekran boyutu">${Object.entries(
     siteDeviceNames,
   )
     .map(
@@ -374,7 +366,7 @@ function updateSiteRoute(path, language) {
     const url = new URL(path, "https://kuzmin.preview"),
       p = url.pathname.split("/").filter(Boolean);
     sitePath = url.pathname + url.search;
-    siteLang = ["tr", "en", "ru"].includes(language) ? language : "tr";
+    siteLang = PREVIEW.languages.includes(language) ? language : "tr";
     if (p[0] === "motosikletler") {
       sitePage = p[3] ? "fitment" : p[2] ? "years" : p[1] ? "models" : "brands";
       const b = state.brands.find((b) => b.slug === p[1]);

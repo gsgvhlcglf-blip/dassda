@@ -38,7 +38,12 @@ try {
     0,
   );
   assert.equal(await frame().locator(".member-links a").count(), 1);
-  assert.equal(await frame().locator(".member-links a").innerText(), "Hesabım");
+  assert.equal((await frame().locator(".member-links a").textContent()).trim(), "Hesabım");
+  const typography = await frame().locator(".site-header").evaluate(header=>{
+    const keys=["fontFamily","fontSize","fontWeight","letterSpacing","textTransform"];
+    return [header.querySelector(".primary-nav a"),header.querySelector(".member-links a")].map(element=>Object.fromEntries(keys.map(key=>[key,getComputedStyle(element)[key]])));
+  });
+  assert.deepEqual(typography[0],typography[1]);
   const footer = await frame()
     .locator(".footer-nav > div")
     .last()
@@ -138,11 +143,9 @@ try {
   const popup = await popupPromise;
   await popup.waitForURL("https://carrier.example/track?number=TRACK-123");
   await popup.close();
-  for (const lang of ["tr", "en", "ru"]) {
-    await page.locator("#site-lang").selectOption(lang);
-    await frame().locator(".tracking-page h1").waitFor();
-    assert.equal(await frame().locator("html").getAttribute("lang"), lang);
-  }
+  assert.equal(await page.locator("#site-lang").count(), 0);
+  assert.equal(await frame().locator("#language").count(), 0);
+  assert.equal(await frame().locator("html").getAttribute("lang"), "tr");
   await page.getByRole("button", { name: "Mobil", exact: true }).click();
   await frame().locator(".menu-toggle").click();
   assert.equal(await frame().locator(".primary-nav.open>a").count(), 5);
@@ -155,7 +158,7 @@ try {
   assert.deepEqual(errors, []);
   assert.deepEqual(calls, []);
   console.log(
-    "PASS: menu order, membership checkout gate, demo login without credentials, blog CMS publishing, configurable tracking URL, TR/EN/RU and mobile navigation.",
+    "PASS: menu order, membership checkout gate, demo login without credentials, blog CMS publishing, configurable tracking URL, Turkish-only and mobile navigation.",
   );
 } finally {
   await browser.close();

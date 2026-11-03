@@ -68,7 +68,9 @@ try {
       () => document.getElementById("site-loading")?.textContent === "Hazır",
     );
   }
-  await page.evaluate(()=>sessionStorage.setItem("kz-preview-member","true"));
+  await page.evaluate(() =>
+    sessionStorage.setItem("kz-preview-member", "true"),
+  );
   for (const [id, selector] of Object.entries(cases)) {
     await choose(id);
     await frame().locator(selector).first().waitFor();
@@ -88,17 +90,9 @@ try {
     "PASS: all 15 storefront screens render; checkout preview cannot send requests.",
   );
   await choose("home");
-  await page.locator("#site-lang").selectOption("en");
-  await frame().locator(".hero h1").waitFor();
-  assert.match(
-    await frame().locator(".hero h1").innerText(),
-    /Defined by detail/,
-  );
-  await page.locator("#site-lang").selectOption("ru");
-  await frame().locator(".hero h1").waitFor();
-  assert.match(await frame().locator(".hero h1").innerText(), /Совершенство/);
-  await page.locator("#site-lang").selectOption("tr");
-  await frame().locator(".hero h1").waitFor();
+  assert.equal(await page.locator("#site-lang").count(), 0);
+  assert.equal(await frame().locator("#language").count(), 0);
+  assert.equal(await frame().locator("html").getAttribute("lang"), "tr");
   await page.getByRole("button", { name: "Mobil", exact: true }).click();
   assert.equal(
     await frame()
@@ -176,7 +170,7 @@ try {
   assert.equal(await page.locator("#site-inspect").isChecked(), true);
   await page.locator("#site-inspect").uncheck();
   console.log(
-    "PASS: three device sizes/languages, section targeting, note copy and live draft editing survive reload.",
+    "PASS: three device sizes/Turkish, section targeting, note copy and live draft editing survive reload.",
   );
   await choose("brands");
   await frame().locator(".brand-card").filter({ hasText: "YAMAHA" }).click();

@@ -550,7 +550,7 @@ export function Admin({
                   <dt>Arama motoru indeksleme</dt>
                   <dd>{configuration?.indexing ? "Açık" : "Kapalı"}</dd>
                   <dt>Diller / Para birimi</dt>
-                  <dd>TR · EN · RU / TRY</dd>
+                  <dd>TR / TRY</dd>
                   <dt>Ödeme</dt>
                   <dd>Sipariş talebi</dd>
                 </dl>

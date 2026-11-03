@@ -6,7 +6,6 @@ import {
   ArrowUpRight,
   ArrowRight,
   ArrowLeft,
-  ChevronDown,
   ChevronRight,
   Plus,
   Minus,
@@ -33,6 +32,7 @@ import {
   BlogPage,
   type CustomerView,
 } from "./customer-pages";
+import { resolveStoreLanguage } from "@/lib/settings";
 import { compatibleProducts } from "@/lib/commerce";
 function Art({
   src,
@@ -84,7 +84,7 @@ function BrandVisual({
 export function Storefront({
   catalog: c,
   segments: s,
-  lang,
+  lang: requestedLang,
   live,
   preview = false,
   previewQuery,
@@ -100,6 +100,7 @@ export function Storefront({
   lang: Lang;
   live: boolean;
 }) {
+  const lang = resolveStoreLanguage(requestedLang);
   const copy = useVisualCopy(lang);
   const t = useVisualTranslate(lang),
     href = (path: string) => {
@@ -587,30 +588,6 @@ export function Storefront({
             <Link href={href(member ? "/hesabim" : "/giris")}>
               {t("account")}
             </Link>
-          </div>
-          <div className="language-control">
-            <label className="sr-only" htmlFor="language">
-              Language / Dil / Язык
-            </label>
-            <select
-              id="language"
-              value={lang}
-              onChange={(e) => {
-                const query = new URLSearchParams(
-                  previewQuery ?? window.location.search,
-                );
-                if (e.target.value === "tr") query.delete("lang");
-                else query.set("lang", e.target.value);
-                const nextUrl = `/${s.join("/")}${query.size ? "?" + query.toString() : ""}`;
-                if (onNavigate) onNavigate(nextUrl);
-                else window.location.href = nextUrl;
-              }}
-            >
-              <option value="tr">TR</option>
-              <option value="en">EN</option>
-              <option value="ru">RU</option>
-            </select>
-            <ChevronDown size={10} />
           </div>
           <Link
             className="bag-link"

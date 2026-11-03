@@ -1,3 +1,4 @@
+import { resolveStoreLanguage, supportedLanguages } from "@/lib/settings";
 import { getCatalog } from "@/lib/catalog";
 import { isLive } from "@/lib/database";
 import { Storefront } from "@/components/storefront";
@@ -5,7 +6,6 @@ import { Admin } from "@/components/admin";
 import { getRole } from "@/lib/auth";
 import { getCustomer } from "@/lib/customer";
 import { notFound, redirect } from "next/navigation";
-import type { Lang } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 type Props = {
@@ -15,8 +15,7 @@ type Props = {
 export async function generateMetadata({ params, searchParams }: Props) {
   const { slug = [] } = await params,
     requested = (await searchParams).lang;
-  const lang: Lang =
-    requested === "en" || requested === "ru" ? requested : "tr";
+  const lang = resolveStoreLanguage(requested);
   const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
   const route = "/" + slug.join("/");
   const canonical = base
@@ -26,11 +25,12 @@ export async function generateMetadata({ params, searchParams }: Props) {
     alternates: canonical
       ? {
           canonical,
-          languages: {
-            tr: `${base}${route}`,
-            en: `${base}${route}?lang=en`,
-            ru: `${base}${route}?lang=ru`,
-          },
+          languages: Object.fromEntries(
+            supportedLanguages.map((language) => [
+              language,
+              `${base}${route}${language === "tr" ? "" : "?lang=" + language}`,
+            ]),
+          ),
         }
       : undefined,
   };
@@ -72,8 +72,7 @@ export async function generateMetadata({ params, searchParams }: Props) {
 export default async function Page({ params, searchParams }: Props) {
   const { slug = [] } = await params;
   const langParam = (await searchParams).lang;
-  const lang: Lang =
-    langParam === "en" || langParam === "ru" ? langParam : "tr";
+  const lang = resolveStoreLanguage(langParam);
   if (slug[0] === "admin") {
     if (slug.length > 2 || (slug[1] && slug[1] !== "ayarlar")) notFound();
     const role = await getRole();

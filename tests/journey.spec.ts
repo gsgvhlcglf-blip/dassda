@@ -8,7 +8,7 @@ const password =
   "";
 const stamp = Date.now().toString(),
   slug = `test-${stamp}`;
-test("customer journey, persistence, language switching and a real demo order request", async ({
+test("customer journey, persistence, Turkish-only storefront and a real demo order request", async ({
   page,
 }) => {
   await page.goto("/");
@@ -73,15 +73,13 @@ test("customer journey, persistence, language switching and a real demo order re
   await expect(page.locator(".confirmation")).toContainText(
     "Gerçek bir sipariş veya ödeme oluşturulmadı",
   );
-  await page.locator("#language").selectOption("en");
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#language")).toHaveCount(0);
+  await page.goto("/?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
   await expect(
-    page.getByRole("link", { name: "Motorcycles", exact: true }).first(),
-  ).toBeVisible();
-  await page.locator("#language").selectOption("ru");
-  await expect(page.locator("html")).toHaveAttribute("lang", "ru");
-  await expect(
-    page.getByRole("link", { name: "Мотоциклы", exact: true }).first(),
+    page
+      .locator(".primary-nav")
+      .getByRole("link", { name: "Motosikletler", exact: true }),
   ).toBeVisible();
 });
 test("anonymous users cannot administer, upload or forge orders", async ({

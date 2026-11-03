@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Storefront } from "../../src/components/storefront";
 import { VisualContext } from "../../src/lib/visual";
 import { messageEntries } from "../../src/lib/i18n";
+import { resolveStoreLanguage } from "../../src/lib/settings";
 import { setNavigator } from "./routing";
 import type { Lang } from "../../src/lib/types";
 import type {} from "./types";
@@ -11,7 +12,7 @@ let inspect = config.inspect;
 const regions: [string, string, string][] = [
   [".site-header .logo", "header.logo", "Üst menü · Logo"],
   [".primary-nav", "header.navigation", "Üst menü · Sayfa bağlantıları"],
-  [".nav-actions", "header.actions", "Üst menü · Dil ve sepet"],
+  [".nav-actions", "header.actions", "Üst menü · Hesabım ve sepet"],
   [".site-header", "header", "Üst menü"],
   [".hero h1", "home.hero.title", "Ana sayfa · Ana başlık"],
   [
@@ -280,7 +281,9 @@ function App() {
   const [route, setRoute] = useState(
     () => new URL(config.path, "https://kuzmin.preview"),
   );
-  const [language, setLanguage] = useState<Lang>(config.lang);
+  const [language, setLanguage] = useState<Lang>(
+    resolveStoreLanguage(config.lang),
+  );
   function navigate(url: string, push = true) {
     const next = new URL(url, "https://kuzmin.preview");
     if (
@@ -294,14 +297,14 @@ function App() {
         location.pathname + location.search + "#" + next.pathname + next.search,
       );
     const requested = next.searchParams.get("lang");
-    setLanguage(requested === "en" || requested === "ru" ? requested : "tr");
+    setLanguage(resolveStoreLanguage(requested));
     setRoute(next);
     window.scrollTo(0, 0);
     window.parent.postMessage(
       {
         type: "kz-site-route",
         path: next.pathname + next.search,
-        lang: requested === "en" || requested === "ru" ? requested : "tr",
+        lang: resolveStoreLanguage(requested),
       },
       "*",
     );
