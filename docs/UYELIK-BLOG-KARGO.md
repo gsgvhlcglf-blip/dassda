@@ -1,6 +1,6 @@
 # Üyelik, Blog ve Kargo Takip
 
-Üst menü sırası: Ana Sayfa → Motosikletler → Koleksiyon → Hakkımızda → Blog → İletişim → Kargo Takip. Sağ üstte Üye Ol / Üye Girişi; oturum açıldığında Hesabım görünür. Mobilde tüm sayfalar açılır menüde, üyelik bağlantıları üst çubukta bulunur.
+Üst menü sırası: Ana Sayfa → Motosikletler → Hakkımızda → Blog → İletişim. Sağ üstte tek Hesabım bağlantısı bulunur: giriş yapılmamışsa giriş/kayıt ekranına, giriş yapılmışsa hesaba açılır. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur.
 
 ## Blog yazısı eklemek
 

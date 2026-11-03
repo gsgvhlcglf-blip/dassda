@@ -567,11 +567,9 @@ export function Storefront({
             [
               ["/", "home"],
               ["/motosikletler", "motorcycles"],
-              ["/urunler", "catalog"],
               ["/hakkimizda", "about"],
               ["/blog", "blog"],
               ["/iletisim", "contact"],
-              ["/kargo-takip", "tracking"],
             ] as [string, MessageKey][]
           ).map(([url, label]) => (
             <Link
@@ -586,14 +584,9 @@ export function Storefront({
         </nav>
         <div className="nav-actions">
           <div className="member-links">
-            {member ? (
-              <Link href={href("/hesabim")}>{t("account")}</Link>
-            ) : (
-              <>
-                <Link href={href("/uye-ol")}>{t("signup")}</Link>
-                <Link href={href("/giris")}>{t("login")}</Link>
-              </>
-            )}
+            <Link href={href(member ? "/hesabim" : "/giris")}>
+              {t("account")}
+            </Link>
           </div>
           <div className="language-control">
             <label className="sr-only" htmlFor="language">
@@ -865,7 +858,6 @@ export function Storefront({
             {(
               [
                 ["/motosikletler", "motorcycles"],
-                ["/urunler", "catalog"],
                 ["/hakkimizda", "about"],
               ] as [string, MessageKey][]
             ).map(([url, k]) => (
@@ -881,6 +873,7 @@ export function Storefront({
                 ["/teslimat-iade", "shipping"],
                 ["/gizlilik", "privacy"],
                 ["/kosullar", "terms"],
+                ["/kargo-takip", "tracking"],
                 ["/admin", "admin"],
               ] as [string, MessageKey][]
             ).map(([url, k]) => (

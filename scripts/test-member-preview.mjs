@@ -26,8 +26,34 @@ try {
   const frame = () => page.frameLocator("#site-frame");
   await frame().locator(".hero h1").waitFor();
   const links = await frame().locator(".primary-nav>a").allTextContents();
-  assert.deepEqual(links.slice(-3), ["Blog", "İletişim", "Kargo takip"]);
+  assert.deepEqual(links, [
+    "Ana sayfa",
+    "Motosikletler",
+    "Hakkımızda",
+    "Blog",
+    "İletişim",
+  ]);
+  assert.equal(
+    await frame().locator('.footer-nav a[href="/urunler"]').count(),
+    0,
+  );
+  assert.equal(await frame().locator(".member-links a").count(), 1);
+  assert.equal(await frame().locator(".member-links a").innerText(), "Hesabım");
+  const footer = await frame()
+    .locator(".footer-nav > div")
+    .last()
+    .locator("a")
+    .allTextContents();
+  assert.equal(
+    footer.indexOf("Kargo takip"),
+    footer.indexOf("Kullanım koşulları") + 1,
+  );
   await page.locator("#site-inspect").uncheck();
+  await frame()
+    .locator(".member-links")
+    .getByRole("link", { name: "Hesabım", exact: true })
+    .click();
+  await frame().locator(".member-form").waitFor();
   await frame()
     .locator(".primary-nav")
     .getByRole("link", { name: "Blog", exact: true })
@@ -119,7 +145,7 @@ try {
   }
   await page.getByRole("button", { name: "Mobil", exact: true }).click();
   await frame().locator(".menu-toggle").click();
-  assert.equal(await frame().locator(".primary-nav.open>a").count(), 7);
+  assert.equal(await frame().locator(".primary-nav.open>a").count(), 5);
   assert.ok(
     await frame()
       .locator("html")
