@@ -835,18 +835,6 @@ export function Storefront({
           <div>
             {(
               [
-                ["/motosikletler", "motorcycles"],
-                ["/hakkimizda", "about"],
-              ] as [string, MessageKey][]
-            ).map(([url, k]) => (
-              <Link key={url} href={href(url)}>
-                {t(k)}
-              </Link>
-            ))}
-          </div>
-          <div>
-            {(
-              [
                 ["/sss", "faq"],
                 ["/teslimat-iade", "shipping"],
                 ["/gizlilik", "privacy"],
