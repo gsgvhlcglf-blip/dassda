@@ -12,16 +12,7 @@ function renderAnalyticsPreview(view) {
         type: "text/javascript",
       }),
     );
-  let customerURL = new URL("store.html", location.href).href;
-  const source = location.search.slice(1);
-  if (
-    /^https:\/\/raw\.githubusercontent\.com\/gsgvhlcglf-blip\/dassda\/[^/]+\/docs\/panel\.html(?:\?|$)/.test(
-      source,
-    )
-  )
-    customerURL =
-      "https://htmlpreview.github.io/?" +
-      source.replace("/panel.html", "/store.html");
+  const customerURL=studioCustomerURL('draft');
   const config = {
     catalog: state,
     design: siteDesign,

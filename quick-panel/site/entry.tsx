@@ -1,5 +1,6 @@
-import { PreviewAnalyticsRecorder } from './analytics';
-import { HeatmapMessageLayer } from '../../src/components/analytics-heatmap';
+import { browserPublished } from "../../src/lib/browser-versions";
+import { PreviewAnalyticsRecorder } from "./analytics";
+import { HeatmapMessageLayer } from "../../src/components/analytics-heatmap";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Storefront } from "../../src/components/storefront";
@@ -343,9 +344,19 @@ function App() {
       config.design = event.data.design;
       refresh((n) => n + 1);
     };
-    const storage = () => {
+    const storage = async () => {
       if (!config.standalone || !config.storageKey) return;
       try {
+        if (config.viewMode === "published") {
+          const published = await browserPublished({
+            catalog: config.fallbackCatalog || config.catalog,
+            design: { texts: {}, images: {} },
+          });
+          config.catalog = published.catalog;
+          config.design = published.design;
+          refresh((n) => n + 1);
+          return;
+        }
         const catalog = JSON.parse(
           localStorage.getItem(config.storageKey) || "null",
         );
@@ -397,7 +408,17 @@ function App() {
       />
     </VisualContext.Provider>
   );
-  if(config.heatmap) return <HeatmapMessageLayer>{shop}</HeatmapMessageLayer>;
-  return <>{shop}{config.standalone && <PreviewAnalyticsRecorder path={route.pathname} revision={config.revision || 'preview'}/>}</>;
+  if (config.heatmap) return <HeatmapMessageLayer>{shop}</HeatmapMessageLayer>;
+  return (
+    <>
+      {shop}
+      {config.standalone && (
+        <PreviewAnalyticsRecorder
+          path={route.pathname}
+          revision={config.revision || "preview"}
+        />
+      )}
+    </>
+  );
 }
 createRoot(document.getElementById("root")!).render(<App />);

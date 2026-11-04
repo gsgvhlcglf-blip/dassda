@@ -51,6 +51,16 @@ async function main() {
       },
     ],
   });
+  const versionLibrary = await build({
+    entryPoints: ["src/lib/browser-versions.ts"],
+    bundle: true,
+    write: false,
+    format: "iife",
+    globalName: "KZ_VERSIONS",
+    platform: "browser",
+    target: ["es2022"],
+    minify: true,
+  });
   const analyticsBundle = await build({
     entryPoints: ["quick-panel/analytics/entry.tsx"],
     bundle: true,
@@ -86,6 +96,8 @@ async function main() {
     .update(result.outputFiles[0].contents)
     .update(styles.css)
     .update(analyticsBundle.outputFiles[0].contents)
+    .update(versionLibrary.outputFiles[0].contents)
+    .update(readFileSync("quick-panel/studio/host.js"))
     .update(readFileSync("quick-panel/analytics/host.js"))
     .update(readFileSync("quick-panel/site/host.js"))
     .update(readFileSync("quick-panel/site/host.css"))
@@ -134,6 +146,8 @@ async function main() {
     .replace(
       "/*__SITE_PREVIEW_HOST__*/",
       () =>
+        Buffer.from(versionLibrary.outputFiles[0].contents).toString() +
+        "\n" +
         readFileSync("quick-panel/design.mjs", "utf8").replace(
           /^export /gm,
           "",
@@ -143,15 +157,24 @@ async function main() {
         "\n" +
         readFileSync("quick-panel/site/host.js", "utf8") +
         "\n" +
-        readFileSync("quick-panel/analytics/host.js", "utf8"),
+        readFileSync("quick-panel/analytics/host.js", "utf8") +
+        "\n" +
+        readFileSync("quick-panel/studio/host.js", "utf8"),
     );
   writeFileSync("docs/panel.html", template);
   const { analyticsJs: _analyticsJs, ...customerPreview } = preview;
   const customerScript = readFileSync("quick-panel/site/customer.js", "utf8")
     .replace("__SEED__", () => json(data))
     .replace("__SITE_PREVIEW__", () => json(customerPreview))
-    .replace("/*__DESIGN_VALIDATOR__*/", () =>
-      readFileSync("quick-panel/design.mjs", "utf8").replace(/^export /gm, ""),
+    .replace(
+      "/*__DESIGN_VALIDATOR__*/",
+      () =>
+        Buffer.from(versionLibrary.outputFiles[0].contents).toString() +
+        "\n" +
+        readFileSync("quick-panel/design.mjs", "utf8").replace(
+          /^export /gm,
+          "",
+        ),
     )
     .replace("/*__CATALOG_UPDATES__*/", () =>
       readFileSync("quick-panel/catalog-updates.mjs", "utf8").replace(

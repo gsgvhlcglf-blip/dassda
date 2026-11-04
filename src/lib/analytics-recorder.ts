@@ -117,6 +117,10 @@ export function createAnalyticsRecorder(
     clearTimeout(timer);
     timer = setTimeout(flushDepth, 600);
   };
+  const cartAdded = () => {
+    if (/^\/urunler\/[a-zA-Z0-9_-]+$/.test(clean)) send("cart_add");
+  };
+  document.addEventListener("kz-cart-added", cartAdded);
   document.addEventListener("click", click, true);
   window.addEventListener("scroll", scroll, { passive: true });
   window.addEventListener("pagehide", flushDepth);
@@ -124,6 +128,7 @@ export function createAnalyticsRecorder(
     clearTimeout(timer);
     flushDepth();
     document.removeEventListener("click", click, true);
+    document.removeEventListener("kz-cart-added", cartAdded);
     window.removeEventListener("scroll", scroll);
     window.removeEventListener("pagehide", flushDepth);
   };

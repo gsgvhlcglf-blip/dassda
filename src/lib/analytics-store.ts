@@ -112,7 +112,11 @@ export async function getAnalyticsReport(days: number) {
     await supabase()
   ).rpc("admin_analytics_summary", { requested_days: days });
   if (error) throw Error("ANALYTICS_SETUP_REQUIRED");
-  return data;
+  const funnel = await (
+    await supabase()
+  ).rpc("admin_analytics_funnel", { requested_days: days });
+  if (funnel.error) throw Error("ANALYTICS_FUNNEL_SETUP_REQUIRED");
+  return { ...data, funnel: funnel.data };
 }
 export async function getAnalyticsHeatmap(
   days: number,

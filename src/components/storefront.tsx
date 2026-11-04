@@ -1,4 +1,5 @@
 "use client";
+import { ProductPhoto, PhotoCaption } from "./product-photo";
 import {
   useEffect,
   useMemo,
@@ -7,7 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
-import {AnalyticsTracker} from "./analytics-tracker";
+import { AnalyticsTracker } from "./analytics-tracker";
 import Image from "next/image";
 import {
   ArrowUpRight,
@@ -186,6 +187,7 @@ export function Storefront({
           )
         : [...old, { productId: p.id, variantId, quantity }];
     });
+    document.dispatchEvent(new Event("kz-cart-added"));
     setToast(t("added"));
   };
   const update = (id: string, n: number) =>
@@ -207,7 +209,16 @@ export function Storefront({
     );
   const productCard = (p: Product) => (
     <Link className="product-card" href={href(`/urunler/${p.slug}`)} key={p.id}>
-      <div className="product-visual">
+      <ProductPhoto
+        className="product-visual"
+        imageKey={
+          c.product_images
+            .filter((i) => i.product_id === p.id)
+            .sort((a, b) => a.position - b.position)[0]
+            ? `image:${c.product_images.filter((i) => i.product_id === p.id).sort((a, b) => a.position - b.position)[0].id}`
+            : `product:${p.id}`
+        }
+      >
         <Art
           src={
             c.product_images
@@ -223,7 +234,7 @@ export function Storefront({
         <span className="product-open">
           <ArrowUpRight size={20} />
         </span>
-      </div>
+      </ProductPhoto>
       <div className="product-heading">
         <h3 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h3>
         <span data-edit-text={`products:${p.id}:price`}>
@@ -880,7 +891,7 @@ export function Storefront({
         <p className="demo-notice">
           {!live || c.products.some((p) => p.demo) ? t("demo") : t("orderNote")}
         </p>
-        <AnalyticsTracker path={"/"+s.join("/")} preview={preview}/>
+        <AnalyticsTracker path={"/" + s.join("/")} preview={preview} />
       </footer>
       {toast && (
         <div role="status" className="toast">
@@ -1063,7 +1074,12 @@ function ProductDetail({
       </nav>
       <div className="product-detail">
         <div>
-          <div className="detail-main-image">
+          <ProductPhoto
+            className="detail-main-image"
+            imageKey={
+              images[image] ? `image:${images[image].id}` : `product:${p.id}`
+            }
+          >
             <Art
               src={images[image]?.url || "/images/part-0.svg"}
               alt={images[image]?.alt[lang] || p.title[lang]}
@@ -1072,7 +1088,7 @@ function ProductDetail({
               }
             />
             <span className="product-label">{p.demo ? "DEMO" : p.sku}</span>
-          </div>
+          </ProductPhoto>
           <div className="thumbnails">
             {images.map((img, i) => (
               <button
@@ -1086,6 +1102,7 @@ function ProductDetail({
                   alt={img.alt[lang]}
                   visualId={`image:${img.id}`}
                 />
+                <PhotoCaption imageKey={`image:${img.id}`} />
               </button>
             ))}
           </div>

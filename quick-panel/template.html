@@ -892,6 +892,8 @@
           clone = (v) => JSON.parse(JSON.stringify(v));
         const sections = {
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
+          releases: ["Yayın & sürümler", "Taslağı inceleyin, yayımlayın veya önceki sürüme dönün.", "↻"],
+          photography: ["Fotoğraf düzeni", "Ürün fotoğraflarında ortak kadraj, arka plan ve ölçek.", "▣"],
           analytics: ["Analitik & Isı Haritası", "Ziyaretleri, tıklamaları ve kaydırmayı inceleyin.", "▥"],
           sitePreview: [
             "Sayfa önizlemeleri",
@@ -1194,6 +1196,8 @@
             ? action("+ Yeni kayıt", "new")
             : "";
           const view = $("#view");
+          if (section === "releases") { void renderReleaseWorkspace(view); return; }
+          if (section === "photography") { renderPhotoWorkspace(view); return; }
           if (section === "analytics") {
             renderAnalyticsPreview(view);
             return;

@@ -217,7 +217,7 @@ function directEditorHTML() {
   if (!b)
     return "<p>Bu alanın içeriği seçime göre hesaplanır. Ayrıntılı kaydı düzenleyebilir veya yerleşim isteğinizi aşağıya yazabilirsiniz.</p>";
   if (b.type === "image")
-    return `<section class="site-direct-editor"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
+    return `<section class="site-direct-editor"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
   const number = b.key.endsWith(":price");
   return `<section class="site-direct-editor"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label><p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
 }
@@ -306,19 +306,8 @@ function saveDirect(binding, value, inline = false) {
     }
   }
 }
-function customerPreviewURL() {
-  const path =
-    sitePath +
-    (siteLang === "tr" || sitePath.includes("lang=")
-      ? ""
-      : (sitePath.includes("?") ? "&" : "?") + "lang=" + siteLang);
-  return location.hostname === "htmlpreview.github.io"
-    ? "https://htmlpreview.github.io/?https://raw.githubusercontent.com/gsgvhlcglf-blip/dassda/main/docs/store.html?v=" +
-        PREVIEW.version +
-        "#" +
-        path
-    : new URL("store.html#" + path, location.href).href;
-}
+function customerPreviewURL() { return studioCustomerURL('draft'); }
+
 document.addEventListener("input", (event) => {
   if (event.target.id === "site-logo-scale") {
     saveLogoScale(event.target.value);

@@ -39,3 +39,11 @@ node scripts/test-analytics-app.mjs
 ```
 
 Son komut geçici, izole bir SQLite veritabanı ve rastgele test kimlik bilgileriyle üretim sunucusunu başlatır. Chromium gerektirir. Gerçek panel kayıtlarını değiştirmez.
+
+## Alışveriş akışı
+
+`004_analytics_funnel.sql` göçü ile alışveriş akışı raporu eklenir. Mevcut gerçek Supabase kurulumunda 003'ten sonra uygulanmalıdır. Yerel uygulama ve tarayıcı testi aynı hesaplamayı kullanır.
+
+Akış: **Marka seçimi ekranı → Marka seçildi → Model seçildi → Uyumlu ürünler → Ürün incelendi → Başarıyla sepete eklendi**. Sayaçlar bu adımları sırayla tamamlayan sekme oturumlarını gösterir. Mobil, tablet ve masaüstü filtresi oturumun akışa başladığı ekran ölçüsüne göre çalışır. Bir aşamaya dönüp tekrar tıklamak oturum sayısını şişirmez. Ürüne doğrudan girenler ayrı toplam olarak gösterilir; zorunlu motosiklet seçimi hunisine dahil edilmez.
+
+Her adımın bir önceki adımdan geçiş oranı ve o adıma henüz ulaşmayan oturum sayısı görünür. “Ulaşmadı” sayısı kesin vazgeçme sebebi değildir: dönem sonunda ziyaretine devam edenler ve farklı bir gezinme yolu kullananlar da buna dahildir. Sepete ekleme ödeme veya satış değildir. Hesap, sepet ve ödeme sayfalarının izlenmeme kuralı korunur; yeni olay yalnızca genel ürün sayfasındaki başarılı sepete ekleme işlemidir. Form değerleri ve ürün miktarları olaya eklenmez.

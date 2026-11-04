@@ -1,4 +1,5 @@
 "use client";
+import { AnalyticsFunnel } from "./analytics-funnel";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type {
   AnalyticsReport,
@@ -7,9 +8,7 @@ import type {
   HeatPoint,
 } from "@/lib/analytics";
 export type AnalyticsSource = {
-  report: (
-    days: number,
-  ) => Promise<{
+  report: (days: number) => Promise<{
     settings: AnalyticsSettings;
     report: AnalyticsReport;
     storage: string;
@@ -334,6 +333,7 @@ export function AnalyticsDashboard({
           </p>
         )}
       </section>
+      <AnalyticsFunnel report={data?.report.funnel} />
       <div className="analytics-two">
         <section className="analytics-card">
           <h3>Sayfalar</h3>

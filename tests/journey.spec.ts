@@ -217,6 +217,15 @@ test("owner can visually create a model, generation, year, product, variant, ima
   await page.getByLabel("İlk uyumlu yıl", { exact: true }).fill("2024");
   await page.getByLabel("Son uyumlu yıl", { exact: true }).fill("2026");
   await save();
+  await section("Yayın & sürümler");
+  const publication = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/api/admin/studio") && r.request().method() === "POST",
+  );
+  await page
+    .getByRole("button", { name: "Taslağı yayınla", exact: true })
+    .click();
+  expect((await publication).ok()).toBeTruthy();
   await page.goto(`/motosikletler/yamaha/${slug}/2024`);
   await expect(page.locator(".product-card")).toHaveCount(1);
   await expect(page.locator(".product-card")).toContainText(
@@ -303,4 +312,8 @@ test.afterAll(async ({ request }) => {
         await request.post("/api/admin", {
           data: { table, action: "delete", record: { id: r.id } },
         });
+  const workspace = await (await request.get("/api/admin/studio")).json();
+  await request.post("/api/admin/studio", {
+    data: { action: "publish", expectedRevision: workspace.revision },
+  });
 });

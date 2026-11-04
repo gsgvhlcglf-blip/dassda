@@ -2,6 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { TrackingSettings } from "./tracking-settings";
+import { SiteStudio } from "./site-studio";
 import { AnalyticsDashboard } from "./analytics-dashboard";
 import type { Content } from "@/lib/types";
 import {
@@ -144,6 +145,8 @@ const sections = [
   ["overview", "Genel bakış", LayoutDashboard],
   ["settings", "Yapılandırma", Settings],
   ["analytics", "Analitik & Isı Haritası", BarChart3],
+  ["releases", "Yayın & sürümler", Layers],
+  ["photography", "Fotoğraf düzeni", Images],
   ["models", "Motosiklet modelleri", Bike],
   ["generations", "Nesiller", Layers],
   ["model_years", "Üretim yılları", CalendarDays],
@@ -279,13 +282,26 @@ export function Admin({
       const r = await fetch("/api/admin", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ table: section, action, record }),
+          body: JSON.stringify({
+            table: section,
+            action,
+            record,
+            expectedRevision: data._workspace?.[0]?.revision,
+            inventoryChanged:
+              ["products", "variants"].includes(section) &&
+              data[section]?.find((r) => r.id === record?.id)?.stock !==
+                record?.stock,
+          }),
         }),
         d = await r.json();
       if (!r.ok) throw new Error(d.error);
       setEditing(null);
       setMessage(
-        action === "delete" ? "Kayıt silindi." : "Değişiklikler kaydedildi.",
+        action === "delete"
+          ? "Kayıt silindi."
+          : section === "orders"
+            ? "Sipariş güncellendi."
+            : "Taslak kaydedildi. Yayın & sürümler bölümünden yayımlayın.",
       );
       await load();
     } catch (e) {
@@ -429,15 +445,33 @@ export function Admin({
             <p className="eyebrow">KOLEKSİYONUNUZUN KONTROLÜ SİZDE.</p>
             <h1>{title}</h1>
           </div>
-          {!["overview", "orders", "settings", "analytics"].includes(
-            section,
-          ) && (
+          {![
+            "overview",
+            "orders",
+            "settings",
+            "analytics",
+            "releases",
+            "photography",
+          ].includes(section) && (
             <button className="button" onClick={openNew}>
               <Plus size={16} />
               Yeni kayıt
             </button>
           )}
         </div>
+        {!["orders", "analytics", "releases", "photography"].includes(
+          section,
+        ) && (
+          <p className="draft-preview-notice">
+            İçerik değişiklikleri taslakta saklanır.{" "}
+            <button
+              className="under-link"
+              onClick={() => setSection("releases")}
+            >
+              Yayın & sürümler →
+            </button>
+          </p>
+        )}
         {section === "content" && (
           <button className="button" onClick={newBlog}>
             Blog yazısı ekle
@@ -461,6 +495,12 @@ export function Admin({
           <div className="empty-state" aria-busy="true">
             Yükleniyor…
           </div>
+        ) : ["releases", "photography"].includes(section) ? (
+          <SiteStudio
+            mode={section as "releases" | "photography"}
+            role={role}
+            onSaved={load}
+          />
         ) : section === "analytics" && role === "admin" ? (
           <AnalyticsDashboard />
         ) : section === "settings" ? (

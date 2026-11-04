@@ -10,6 +10,8 @@ export type SiteConfig = {
   design?: import("../../src/lib/visual").VisualDesign;
   standalone?: boolean;
   storageKey?: string;
+  viewMode?: "draft"|"published";
+  fallbackCatalog?: Catalog;
   heatmap?: boolean;
   revision?: string;
 };

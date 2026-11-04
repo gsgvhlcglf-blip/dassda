@@ -51,6 +51,16 @@ test("local launcher supports browser-only editing with Internet requests blocke
       .fill("Yerel düzenleme testi: bu metin internet olmadan kaydedildi.");
     await page.getByRole("button", { name: "Kaydet", exact: true }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
+    const workspace = await (
+      await page.request.get("/api/admin/studio")
+    ).json();
+    expect(
+      (
+        await page.request.post("/api/admin/studio", {
+          data: { action: "publish", expectedRevision: workspace.revision },
+        })
+      ).ok(),
+    ).toBeTruthy();
     await page.goto("/iletisim");
     await expect(page.locator(".content-body")).toContainText(
       "Yerel düzenleme testi",
@@ -64,6 +74,14 @@ test("local launcher supports browser-only editing with Internet requests blocke
       data: { table: "content", action: "update", record: original },
     });
     expect(result.ok()).toBeTruthy();
+    const restored = await (await page.request.get("/api/admin/studio")).json();
+    expect(
+      (
+        await page.request.post("/api/admin/studio", {
+          data: { action: "publish", expectedRevision: restored.revision },
+        })
+      ).ok(),
+    ).toBeTruthy();
   }
   expect(external).toEqual([]);
 });

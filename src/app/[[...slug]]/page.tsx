@@ -1,3 +1,5 @@
+import { publishedDesign } from "@/lib/site-version-store";
+import { VisualStorefront } from "@/components/visual-storefront";
 import { resolveStoreLanguage, supportedLanguages } from "@/lib/settings";
 import { getCatalog } from "@/lib/catalog";
 import { isLive } from "@/lib/database";
@@ -163,13 +165,14 @@ export default async function Page({ params, searchParams }: Props) {
   )
     notFound();
   return (
-    <Storefront
+    <VisualStorefront
+      design={await publishedDesign()}
       catalog={catalog}
-      segments={slug}
+      path={"/" + slug.join("/")}
       lang={lang}
       live={isLive}
       customer={customer}
-      previewQuery={"?" + new URLSearchParams(await searchParams).toString()}
+      query={"?" + new URLSearchParams(await searchParams).toString()}
     />
   );
 }

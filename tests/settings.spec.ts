@@ -37,6 +37,16 @@ test("configuration requires login and edits the real homepage without exposing 
       .fill("Yapılandırma testi");
     await page.getByRole("button", { name: "Kaydet", exact: true }).click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
+    const workspace = await (
+      await page.request.get("/api/admin/studio")
+    ).json();
+    expect(
+      (
+        await page.request.post("/api/admin/studio", {
+          data: { action: "publish", expectedRevision: workspace.revision },
+        })
+      ).ok(),
+    ).toBeTruthy();
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "Yapılandırma testi",
@@ -46,5 +56,13 @@ test("configuration requires login and edits the real homepage without exposing 
       data: { table: "content", action: "update", record: original },
     });
     expect(response.ok()).toBeTruthy();
+    const restored = await (await page.request.get("/api/admin/studio")).json();
+    expect(
+      (
+        await page.request.post("/api/admin/studio", {
+          data: { action: "publish", expectedRevision: restored.revision },
+        })
+      ).ok(),
+    ).toBeTruthy();
   }
 });

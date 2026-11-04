@@ -2,7 +2,8 @@ import { getRole } from "@/lib/auth";
 import { getCatalog } from "@/lib/catalog";
 import { analyticsPath } from "@/lib/analytics";
 import { notFound } from "next/navigation";
-import { Storefront } from "@/components/storefront";
+import { VisualStorefront } from "@/components/visual-storefront";
+import { publishedDesign } from "@/lib/site-version-store";
 import { HeatmapMessageLayer } from "@/components/analytics-heatmap";
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -19,9 +20,10 @@ export default async function AnalyticsPreview({
   if (!path) notFound();
   return (
     <HeatmapMessageLayer>
-      <Storefront
+      <VisualStorefront
         catalog={await getCatalog()}
-        segments={path.split("/").filter(Boolean)}
+        design={await publishedDesign()}
+        path={path}
         lang="tr"
         live={false}
         preview

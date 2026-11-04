@@ -35,7 +35,7 @@ export function TrackingSettings({
         },
         !record,
       );
-      setMessage("Kargo takip ayarları kaydedildi.");
+      setMessage("Kargo takip ayarları taslağa kaydedildi. Yayın & sürümler bölümünden yayımlayın.");
     } catch {
       setMessage("Ayarlar kaydedilemedi. Tekrar deneyin.");
     } finally {

@@ -58,7 +58,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         error:
-          "Analitik verisi yüklenemedi. Supabase için 003_analytics.sql kurulumu gerekebilir.",
+          "Analitik verisi yüklenemedi. Supabase için 003_analytics.sql ve 004_analytics_funnel.sql kurulumu gerekebilir.",
       },
       { status: 503 },
     );

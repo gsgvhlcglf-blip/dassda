@@ -1,7 +1,19 @@
-/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, logoScales: Record<string, number>, logoOffsets: Record<string,{x:number,y:number}>}} */
+/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, logoScales: Record<string, number>, logoOffsets: Record<string,{x:number,y:number}>, photography: import("../src/lib/photography").Photography, photoFrames: Record<string,import("../src/lib/photography").PhotoFrame>}} */
 export function validateDesign(value) {
   if (value == null)
-    return { texts: {}, images: {}, logoScales: {}, logoOffsets: {} };
+    return {
+      texts: {},
+      images: {},
+      logoScales: {},
+      logoOffsets: {},
+      photography: {
+        aspect: "square",
+        background: "dark",
+        fit: "contain",
+        scale: 90,
+      },
+      photoFrames: {},
+    };
   if (
     typeof value !== "object" ||
     Array.isArray(value) ||
@@ -9,7 +21,19 @@ export function validateDesign(value) {
     !value.images
   )
     throw Error("Görsel taslak geçersiz.");
-  const result = { texts: {}, images: {}, logoScales: {}, logoOffsets: {} };
+  const result = {
+    texts: {},
+    images: {},
+    logoScales: {},
+    logoOffsets: {},
+    photography: {
+      aspect: "square",
+      background: "dark",
+      fit: "contain",
+      scale: 90,
+    },
+    photoFrames: {},
+  };
   for (const lang of ["tr", "en", "ru"]) {
     const entries = value.texts[lang] || {};
     result.texts[lang] = {};
@@ -65,6 +89,53 @@ export function validateDesign(value) {
     )
       throw Error("Logo hizalama ayarı geçersiz.");
     result.logoOffsets[key] = { x: offset.x, y: offset.y };
+  }
+  const photo = value.photography;
+  if (photo != null) {
+    if (
+      !photo ||
+      !["square", "portrait", "landscape"].includes(photo.aspect) ||
+      !["dark", "light", "original"].includes(photo.background) ||
+      !["contain", "cover"].includes(photo.fit) ||
+      !Number.isInteger(photo.scale) ||
+      photo.scale < 60 ||
+      photo.scale > 120
+    )
+      throw Error("Fotoğraf düzeni geçersiz.");
+    result.photography = {
+      aspect: photo.aspect,
+      background: photo.background,
+      fit: photo.fit,
+      scale: photo.scale,
+    };
+  }
+  if (
+    value.photoFrames != null &&
+    (typeof value.photoFrames !== "object" || Array.isArray(value.photoFrames))
+  )
+    throw Error("Fotoğraf kadrajları geçersiz.");
+  for (const [key, frame] of Object.entries(value.photoFrames || {})) {
+    if (
+      !/^(image|product):[a-zA-Z0-9_-]+$/.test(key) ||
+      !frame ||
+      !Number.isInteger(frame.scale) ||
+      frame.scale < 50 ||
+      frame.scale > 160 ||
+      !Number.isFinite(frame.x) ||
+      frame.x < 0 ||
+      frame.x > 100 ||
+      !Number.isFinite(frame.y) ||
+      frame.y < 0 ||
+      frame.y > 100 ||
+      !["overview", "texture", "finish"].includes(frame.role)
+    )
+      throw Error("Fotoğraf kadrajı geçersiz.");
+    result.photoFrames[key] = {
+      scale: frame.scale,
+      x: frame.x,
+      y: frame.y,
+      role: frame.role,
+    };
   }
   return result;
 }

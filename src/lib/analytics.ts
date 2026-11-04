@@ -1,3 +1,4 @@
+import { summarizeFunnel, type FunnelReport } from "./analytics-funnel";
 import { z } from "zod";
 const publicPath =
   /^\/(?:|motosikletler(?:\/[a-zA-Z0-9_-]{1,120}){0,3}|urunler(?:\/[a-zA-Z0-9_-]{1,120})?|blog(?:\/[a-zA-Z0-9_-]{1,120})?|hakkimizda|iletisim|sss|teslimat-iade|gizlilik|kosullar|kargo-takip)$/;
@@ -13,7 +14,7 @@ export const analyticsEventSchema = z
   .object({
     id: z.uuid(),
     session_id: z.uuid(),
-    kind: z.enum(["pageview", "click", "scroll"]),
+    kind: z.enum(["pageview", "click", "scroll", "cart_add"]),
     path: z.string().max(400).regex(publicPath),
     viewport_width: z.number().int().min(240).max(7680),
     viewport_height: z.number().int().min(200).max(4320),
@@ -33,6 +34,9 @@ export const analyticsEventSchema = z
       .regex(/^[a-zA-Z0-9_-]+$/),
   })
   .strict()
+  .refine(
+    (e) => e.kind !== "cart_add" || /^\/urunler\/[a-zA-Z0-9_-]+$/.test(e.path),
+  )
   .refine((e) =>
     e.kind === "click"
       ? e.x !== null && e.y !== null
@@ -42,6 +46,7 @@ export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
 export type StoredAnalyticsEvent = AnalyticsEvent & { created_at: string };
 export type AnalyticsSettings = { enabled: boolean; retentionDays: number };
 export type AnalyticsReport = {
+  funnel?: FunnelReport;
   totals: {
     sessions: number;
     pageviews: number;
@@ -149,6 +154,7 @@ export function summarizeAnalytics(
     return [...counts].sort((a, b) => b[1] - a[1]);
   };
   return {
+    funnel: summarizeFunnel(rows),
     totals: {
       sessions: new Set(views.map((e) => e.session_id)).size,
       pageviews: views.length,
