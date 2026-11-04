@@ -549,15 +549,16 @@ export function Storefront({
             : "К содержимому"}
       </a>
       <header className="site-header">
-        <Link className="logo" href={href("/")} aria-label="KUZMIN">
-          <svg viewBox="0 0 32 36" aria-hidden="true">
-            <path
-              d="M6 2h5v14L24 2h7L17 17l15 17h-7L11 19v15H6z"
-              fill="currentColor"
-            />
-          </svg>
-          <span data-visual-text="slot:brand.name">
-            {copy("brand.name", "KUZMIN")}
+        <Link
+          className="wordmark header-wordmark"
+          href={href("/")}
+          aria-label="KUZMIN"
+        >
+          <b data-visual-text="slot:header.brand">
+            {copy("header.brand", "KUZMIN")}
+          </b>
+          <span data-visual-text="slot:header.tagline">
+            {copy("header.tagline", "CARBON MOTORCYCLE PARTS")}
           </span>
         </Link>
         <nav

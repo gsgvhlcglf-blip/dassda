@@ -10,7 +10,7 @@ import type {} from "./types";
 const config = window.__KZ_SITE__;
 let inspect = config.inspect;
 const regions: [string, string, string][] = [
-  [".site-header .logo", "header.logo", "Üst menü · Logo"],
+  [".site-header .header-wordmark", "header.logo", "Üst menü · Logo"],
   [".primary-nav", "header.navigation", "Üst menü · Sayfa bağlantıları"],
   [".nav-actions", "header.actions", "Üst menü · Hesabım ve sepet"],
   [".site-header", "header", "Üst menü"],

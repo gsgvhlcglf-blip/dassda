@@ -2638,3 +2638,8 @@ footer {
 @media(max-width:1150px){.primary-nav{display:none;position:absolute;top:88px;left:0;right:0;background:#101010;padding:28px var(--space);border-bottom:1px solid #333;}.primary-nav.open{display:flex;flex-direction:column;align-items:flex-start;gap:20px;}.primary-nav a,.member-links a{font-size:12px;}.menu-toggle{display:flex;}.nav-actions{margin-left:auto;}}
 @media(max-width:760px){.primary-nav{top:73px;}.account-layout{grid-template-columns:1fr;gap:32px;padding:0 0 30px;}.account-layout .muted{max-width:none;}.member-form,.tracking-card{padding:24px;}.tracking-card form{display:block;}.tracking-card .button{margin-top:20px;width:100%;}.blog-grid{grid-template-columns:1fr;}.blog-card{padding:28px;}.member-orders article{grid-template-columns:1fr 1fr;}.nav-actions{gap:13px;}.member-links{flex-direction:column;gap:5px;align-items:flex-start;}.site-header{gap:13px;}.member-gate{padding-top:50px;}}
 @media(max-width:480px){.site-header .logo>span{display:none;}}
+
+.header-wordmark {display:block;flex-shrink:0;font-size:31px;}
+.header-wordmark b {font:inherit;}
+.header-wordmark span {font-size:6px;letter-spacing:0.16em;}
+@media (max-width:360px) {.site-header {gap:9px;}}
