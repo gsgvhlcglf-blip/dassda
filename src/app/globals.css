@@ -542,10 +542,12 @@ label {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: clip;
+  overflow: visible;
   filter: grayscale(1);
 }
 .brand-logo-art {
+  transform: scale(var(--brand-scale, 1));
+  transform-origin: center;
   flex: 0 0 112px;
   width: 112px;
   height: 112px;
@@ -2128,7 +2130,7 @@ footer {
     font-size: 7px;
   }
   .brand-word { height: 104px; }
-  .brand-logo-art { transform: scale(0.62); }
+  .brand-logo-art { transform: scale(calc(0.62 * var(--brand-scale, 1))); }
   .brand-discover {
     font-size: 7px;
     line-height: 18px;
@@ -2661,4 +2663,4 @@ footer {
 .header-wordmark span {font-size:6px;letter-spacing:0.16em;}
 @media (max-width:360px) {.site-header {gap:9px;}}
 
-@media (max-width:360px) { .brand-logo-art { transform:scale(0.54); } }
+@media (max-width:360px) { .brand-logo-art { transform:scale(calc(0.54 * var(--brand-scale, 1))); } }

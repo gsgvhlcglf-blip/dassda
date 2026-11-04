@@ -52,17 +52,85 @@ function sendSiteConfig() {
 function directValue(binding) {
   if (binding.type === "text")
     return siteDesign.texts[binding.lang]?.[binding.key] ?? siteSelection.text;
-  if (binding.type === "image") return siteSelection.text;
+  if (binding.type === "image") {
+    const [kind, id] = binding.key.split(":");
+    if (kind === "brand") return siteDesign.images[binding.key] || "";
+    if (kind === "model")
+      return state.models.find((model) => model.id === id)?.image || "";
+    if (kind === "image")
+      return state.product_images.find((image) => image.id === id)?.url || "";
+    if (kind === "product")
+      return (
+        state.product_images
+          .filter((image) => image.product_id === id)
+          .sort((a, b) => a.position - b.position)[0]?.url || ""
+      );
+    const defaults = {
+      "home.hero": "/images/hero.webp",
+      "home.collection.body": "/images/carbon.svg",
+      "home.collection.details": "/images/hero.webp",
+      "home.craft": "/images/carbon.svg",
+    };
+    return (
+      siteDesign.images[binding.key] ||
+      PREVIEW.assets[defaults[binding.key]] ||
+      ""
+    );
+  }
   const [table, id, field] = binding.key.split(":");
   const value = state[table].find((r) => r.id === id)?.[field];
   return typeof value === "object" ? value[binding.lang] : value;
+}
+function logoScaleHTML(binding) {
+  if (!binding.key.startsWith("brand:")) return "";
+  const scale = siteDesign.logoScales?.[binding.key] ?? 100;
+  return `<div class="site-logo-scale"><p class="eyebrow">${esc(state.brands.find((brand) => "brand:" + brand.id === binding.key)?.name || "")}</p><label for="site-logo-scale">Logo ölçeği <output id="site-logo-scale-value" for="site-logo-scale">%${scale}</output></label><input id="site-logo-scale" data-logo-key="${esc(binding.key)}" aria-label="Logo ölçeği" type="range" min="50" max="125" step="1" value="${scale}"><div class="site-scale-limits"><span>%50</span><span>%125</span></div><button class="ghost" type="button" data-action="site-logo-scale-reset">Varsayılan boyuta dön</button><p>Bu logonun boyutunu ayarlar. Alt yazı sabit kalır. Değişiklik otomatik kaydedilir.</p></div>`;
+}
+function saveLogoScale(value) {
+  const binding = directBinding(siteSelection?.binding);
+  if (
+    binding?.type !== "image" ||
+    !binding.key.startsWith("brand:") ||
+    !state.brands.some((brand) => "brand:" + brand.id === binding.key)
+  )
+    return;
+  try {
+    const scale = Number(value);
+    const design = validateDesign({
+      ...siteDesign,
+      logoScales: { ...siteDesign.logoScales, [binding.key]: scale },
+    });
+    localStorage.setItem(KEY + ".design", JSON.stringify(design));
+    siteDesign = design;
+    siteDirectDirty = false;
+    sendSiteConfig();
+    const output = $("#site-logo-scale-value"),
+      slider = $("#site-logo-scale"),
+      status = $("#site-direct-status");
+    if (output) output.textContent = "%" + scale;
+    if (slider) slider.value = String(scale);
+    if (status) {
+      status.setAttribute("role", "status");
+      status.textContent = "✓ Kaydedildi · Logo ölçeği güncel";
+    }
+  } catch (error) {
+    siteDirectDirty = true;
+    const status = $("#site-direct-status");
+    if (status) {
+      status.setAttribute("role", "alert");
+      status.textContent =
+        error.name === "QuotaExceededError"
+          ? "Tarayıcı alanı dolu. Önce taslağınızı yedekleyin."
+          : error.message;
+    }
+  }
 }
 function directEditorHTML() {
   const b = directBinding(siteSelection?.binding);
   if (!b)
     return "<p>Bu alanın içeriği seçime göre hesaplanır. Ayrıntılı kaydı düzenleyebilir veya yerleşim isteğinizi aşağıya yazabilirsiniz.</p>";
   if (b.type === "image")
-    return `<section class="site-direct-editor"><h3>Fotoğrafı değiştir</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
+    return `<section class="site-direct-editor"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
   const number = b.key.endsWith(":price");
   return `<section class="site-direct-editor"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label><p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
 }
@@ -165,6 +233,10 @@ function customerPreviewURL() {
     : new URL("store.html#" + path, location.href).href;
 }
 document.addEventListener("input", (event) => {
+  if (event.target.id === "site-logo-scale") {
+    saveLogoScale(event.target.value);
+    return;
+  }
   if (event.target.id !== "site-direct-text") return;
   siteDirectDirty = true;
   saveDirect(siteSelection?.binding, event.target.value);
@@ -197,6 +269,10 @@ document.addEventListener("change", async (event) => {
   }
 });
 document.addEventListener("click", (event) => {
+  if (event.target.closest('[data-action="site-logo-scale-reset"]')) {
+    saveLogoScale(100);
+    return;
+  }
   if (event.target.closest('[data-action="site-customer"]'))
     window.open(customerPreviewURL(), "_blank", "noopener");
 });

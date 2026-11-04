@@ -1,5 +1,11 @@
 "use client";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -23,6 +29,7 @@ import {
   useVisualTranslate,
   useVisualImage,
   useVisualCopy,
+  useVisualLogoScale,
 } from "@/lib/visual";
 import { useCart } from "@/lib/cart-store";
 import {
@@ -71,8 +78,12 @@ function BrandVisual({
   children: React.ReactNode;
 }) {
   const image = useVisualImage(`brand:${id}`, undefined);
+  const scale = useVisualLogoScale(`brand:${id}`);
   return (
-    <div className="brand-logo-art">
+    <div
+      className="brand-logo-art"
+      style={{ "--brand-scale": scale } as CSSProperties}
+    >
       {image ? (
         <img className="brand-logo-image" src={image} alt={name} />
       ) : (

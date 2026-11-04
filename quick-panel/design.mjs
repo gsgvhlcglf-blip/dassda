@@ -1,5 +1,6 @@
+/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, logoScales: Record<string, number>}} */
 export function validateDesign(value) {
-  if (value == null) return { texts: {}, images: {} };
+  if (value == null) return { texts: {}, images: {}, logoScales: {} };
   if (
     typeof value !== "object" ||
     Array.isArray(value) ||
@@ -7,7 +8,7 @@ export function validateDesign(value) {
     !value.images
   )
     throw Error("Görsel taslak geçersiz.");
-  const result = { texts: {}, images: {} };
+  const result = { texts: {}, images: {}, logoScales: {} };
   for (const lang of ["tr", "en", "ru"]) {
     const entries = value.texts[lang] || {};
     result.texts[lang] = {};
@@ -30,6 +31,21 @@ export function validateDesign(value) {
     )
       throw Error("Görsel taslak fotoğrafı geçersiz.");
     result.images[key] = url;
+  }
+  if (
+    value.logoScales != null &&
+    (typeof value.logoScales !== "object" || Array.isArray(value.logoScales))
+  )
+    throw Error("Logo ölçek ayarları geçersiz.");
+  for (const [key, scale] of Object.entries(value.logoScales || {})) {
+    if (
+      !/^brand:[a-z0-9_-]+$/.test(key) ||
+      !Number.isInteger(scale) ||
+      scale < 50 ||
+      scale > 125
+    )
+      throw Error("Logo ölçeği %50 ile %125 arasında olmalıdır.");
+    result.logoScales[key] = scale;
   }
   return result;
 }

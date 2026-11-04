@@ -350,3 +350,45 @@
     max-height: none;
   }
 }
+
+.site-logo-scale {
+  margin: 22px 0;
+  padding: 16px;
+  background: #222;
+  border: 1px solid #414141;
+  border-radius: 5px;
+}
+.site-logo-scale label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: 12px;
+}
+.site-logo-scale output {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4f4;
+}
+.site-logo-scale input[type="range"] {
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  accent-color: #cf5747;
+  cursor: ew-resize;
+  border: 0;
+  background: transparent;
+}
+.site-scale-limits {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #aaa;
+  margin: 5px 0 12px;
+}
+.site-logo-scale .ghost {
+  font-size: 11px;
+  padding: 5px 0;
+}
