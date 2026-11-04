@@ -392,3 +392,20 @@
   font-size: 11px;
   padding: 5px 0;
 }
+
+.site-logo-scale .site-guide-toggle {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  margin-top: 20px;
+}
+.site-guide-toggle input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #8ac9d3;
+}
+.site-logo-scale #site-logo-align {
+  margin-top: 8px;
+}

@@ -546,7 +546,7 @@ label {
   filter: grayscale(1);
 }
 .brand-logo-art {
-  transform: scale(var(--brand-scale, 1));
+  transform: scale(var(--brand-scale, 1)) translate(var(--logo-x, 0px), var(--logo-y, 0px));
   transform-origin: center;
   flex: 0 0 112px;
   width: 112px;
@@ -2130,7 +2130,7 @@ footer {
     font-size: 7px;
   }
   .brand-word { height: 104px; }
-  .brand-logo-art { transform: scale(calc(0.62 * var(--brand-scale, 1))); }
+  .brand-logo-art { transform: scale(calc(0.62 * var(--brand-scale, 1))) translate(var(--logo-x, 0px), var(--logo-y, 0px)); }
   .brand-discover {
     font-size: 7px;
     line-height: 18px;
@@ -2663,4 +2663,4 @@ footer {
 .header-wordmark span {font-size:6px;letter-spacing:0.16em;}
 @media (max-width:360px) {.site-header {gap:9px;}}
 
-@media (max-width:360px) { .brand-logo-art { transform:scale(calc(0.54 * var(--brand-scale, 1))); } }
+@media (max-width:360px) { .brand-logo-art { transform:scale(calc(0.54 * var(--brand-scale, 1))) translate(var(--logo-x, 0px), var(--logo-y, 0px)); } }

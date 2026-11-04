@@ -4,6 +4,12 @@ import { Storefront } from "../../src/components/storefront";
 import { VisualContext } from "../../src/lib/visual";
 import { messageEntries } from "../../src/lib/i18n";
 import { resolveStoreLanguage } from "../../src/lib/settings";
+import {
+  selectLogoGuide,
+  setLogoGuideEditing,
+  handleLogoGuideMessage,
+  initializeLogoGuides,
+} from "./logo-guides";
 import { setNavigator } from "./routing";
 import type { Lang } from "../../src/lib/types";
 import type {} from "./types";
@@ -26,6 +32,7 @@ const regions: [string, string, string][] = [
   [".bike-section", "home.brands", "Ana sayfa · Marka kartları"],
   [".featured-section", "home.featured", "Ana sayfa · Öne çıkan ürünler"],
   [".craft-section", "home.story", "Ana sayfa · İşçilik ve hikâye"],
+  [".brand-word", "motorcycles.logo", "Marka kartı · Logo"],
   [".brand-page", "motorcycles.brands", "Motosiklet · Marka seçimi"],
   [".model-card", "motorcycles.model-card", "Motosiklet · Model kartı"],
   [".model-grid", "motorcycles.models", "Motosiklet · Model listesi"],
@@ -197,7 +204,12 @@ function stopInline() {
 document.addEventListener(
   "click",
   (event) => {
-    if (!inspect || !(event.target instanceof Element)) return;
+    if (
+      !inspect ||
+      !(event.target instanceof Element) ||
+      event.target.closest("[data-kz-logo-guides]")
+    )
+      return;
     if (activeInline?.contains(event.target)) return;
     event.preventDefault();
     event.stopPropagation();
@@ -205,6 +217,11 @@ document.addEventListener(
     const match = findRegion(event.target);
     if (!match) return;
     const field = bindingFor(event.target);
+    selectLogoGuide(
+      field?.binding.type === "image" && field.binding.key.startsWith("brand:")
+        ? field.binding.key
+        : null,
+    );
     highlight(field?.element || event.target);
     const text =
       field?.element ||
@@ -270,8 +287,10 @@ document.addEventListener(
 );
 window.addEventListener("message", (event) => {
   if (event.source !== window.parent) return;
+  handleLogoGuideMessage(event.data || {});
   if (event.data?.type === "kz-site-inspect") {
     inspect = Boolean(event.data.enabled);
+    setLogoGuideEditing(inspect);
     overlay.style.display = "none";
     if (!inspect) stopInline();
   }
@@ -310,6 +329,7 @@ function App() {
     );
   }
   useEffect(() => {
+    const disposeGuides = initializeLogoGuides();
     setNavigator(navigate);
     const update = (event: MessageEvent) => {
       if (
@@ -346,6 +366,7 @@ function App() {
     window.addEventListener("focus", storage);
     window.parent.postMessage({ type: "kz-site-ready" }, "*");
     return () => {
+      disposeGuides();
       window.removeEventListener("message", update);
       window.removeEventListener("storage", storage);
       window.removeEventListener("hashchange", hash);

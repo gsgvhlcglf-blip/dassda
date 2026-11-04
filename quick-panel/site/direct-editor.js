@@ -5,6 +5,8 @@ try {
   );
 } catch {}
 let siteDirectDirty = false;
+let logoAlignmentRequest = "";
+let logoAlignmentSequence = 0;
 function directBinding(binding) {
   if (
     !binding ||
@@ -84,7 +86,92 @@ function directValue(binding) {
 function logoScaleHTML(binding) {
   if (!binding.key.startsWith("brand:")) return "";
   const scale = siteDesign.logoScales?.[binding.key] ?? 100;
-  return `<div class="site-logo-scale"><p class="eyebrow">${esc(state.brands.find((brand) => "brand:" + brand.id === binding.key)?.name || "")}</p><label for="site-logo-scale">Logo ölçeği <output id="site-logo-scale-value" for="site-logo-scale">%${scale}</output></label><input id="site-logo-scale" data-logo-key="${esc(binding.key)}" aria-label="Logo ölçeği" type="range" min="50" max="200" step="1" value="${scale}"><div class="site-scale-limits"><span>%50</span><span>%200</span></div><button class="ghost" type="button" data-action="site-logo-scale-reset">Varsayılan boyuta dön</button><p>Bu logonun boyutunu ayarlar. Alt yazı sabit kalır. Değişiklik otomatik kaydedilir.</p></div>`;
+  return `<div class="site-logo-scale"><p class="eyebrow">${esc(state.brands.find((brand) => "brand:" + brand.id === binding.key)?.name || "")}</p><label for="site-logo-scale">Logo ölçeği <output id="site-logo-scale-value" for="site-logo-scale">%${scale}</output></label><input id="site-logo-scale" data-logo-key="${esc(binding.key)}" aria-label="Logo ölçeği" type="range" min="50" max="200" step="1" value="${scale}"><div class="site-scale-limits"><span>%50</span><span>%200</span></div><label class="site-guide-toggle"><input type="checkbox" id="site-logo-guides" ${siteLogoGuides ? "checked" : ""}>Hizalama kılavuzu</label><button class="button" type="button" id="site-logo-align" data-action="site-logo-align">Hepsini hizala</button><p>Seçili logonun görünen yüksekliğini baz alır; tüm logoları ortalar.</p><button class="ghost" type="button" data-action="site-logo-scale-reset">Varsayılan boyuta dön</button><p>Bu logonun boyutunu ayarlar. Alt yazı sabit kalır. Değişiklik otomatik kaydedilir.</p></div>`;
+}
+function setLogoGuidesEnabled(enabled) {
+  siteLogoGuides = Boolean(enabled);
+  saveSiteUi();
+  if ($("#site-logo-guides")) $("#site-logo-guides").checked = siteLogoGuides;
+  $("#site-frame")?.contentWindow.postMessage(
+    { type: "kz-site-logo-guides", enabled: siteLogoGuides },
+    "*",
+  );
+}
+function requestLogoAlignment() {
+  const binding = directBinding(siteSelection?.binding),
+    frame = $("#site-frame");
+  if (
+    !siteInspect ||
+    binding?.type !== "image" ||
+    !binding.key.startsWith("brand:") ||
+    !frame
+  )
+    return;
+  logoAlignmentRequest = "logo-align-" + ++logoAlignmentSequence;
+  if ($("#site-logo-align")) $("#site-logo-align").disabled = true;
+  if ($("#site-direct-status"))
+    $("#site-direct-status").textContent = "Logolar hizalanıyor…";
+  frame.contentWindow.postMessage(
+    {
+      type: "kz-site-logo-align",
+      referenceKey: binding.key,
+      requestId: logoAlignmentRequest,
+    },
+    "*",
+  );
+}
+function receiveLogoAlignment(data) {
+  if (!logoAlignmentRequest || data.requestId !== logoAlignmentRequest) return;
+  logoAlignmentRequest = "";
+  const status = $("#site-direct-status");
+  try {
+    if (data.error) throw Error(String(data.error));
+    const keys = state.brands.map((brand) => "brand:" + brand.id);
+    if (
+      !data.scales ||
+      !data.offsets ||
+      Object.keys(data.scales).length !== keys.length ||
+      Object.keys(data.offsets).length !== keys.length ||
+      !keys.every(
+        (key) =>
+          Object.hasOwn(data.scales, key) && Object.hasOwn(data.offsets, key),
+      )
+    )
+      throw Error("Logo hizalama verileri alınamadı.");
+    const next = validateDesign({
+      ...siteDesign,
+      logoScales: { ...siteDesign.logoScales, ...data.scales },
+      logoOffsets: { ...siteDesign.logoOffsets, ...data.offsets },
+    });
+    localStorage.setItem(KEY + ".design", JSON.stringify(next));
+    siteDesign = next;
+    siteDirectDirty = false;
+    sendSiteConfig();
+    const key = siteSelection?.binding?.key,
+      scale = siteDesign.logoScales[key] ?? 100;
+    if ($("#site-logo-scale")) $("#site-logo-scale").value = String(scale);
+    if ($("#site-logo-scale-value"))
+      $("#site-logo-scale-value").textContent = "%" + scale;
+    if (status) {
+      status.setAttribute("role", "status");
+      status.textContent = data.limited
+        ? data.sizesMatched === false
+          ? "Logolar ortalandı; %50–%200 sınırı nedeniyle yükseklikler tam eşitlenemedi."
+          : "Logolar ortak yüksekliğe hizalandı ve kaydedildi. Ölçek sınırları dikkate alındı."
+        : "✓ Tüm logolar hizalandı ve kaydedildi.";
+    }
+  } catch (error) {
+    siteDirectDirty = true;
+    if (status) {
+      status.setAttribute("role", "alert");
+      status.textContent =
+        error.name === "QuotaExceededError"
+          ? "Tarayıcı alanı dolu. Önce taslağınızı yedekleyin."
+          : error.message;
+    }
+  } finally {
+    if ($("#site-logo-align")) $("#site-logo-align").disabled = false;
+  }
 }
 function saveLogoScale(value) {
   const binding = directBinding(siteSelection?.binding);
@@ -242,6 +329,10 @@ document.addEventListener("input", (event) => {
   saveDirect(siteSelection?.binding, event.target.value);
 });
 document.addEventListener("change", async (event) => {
+  if (event.target.id === "site-logo-guides") {
+    setLogoGuidesEnabled(event.target.checked);
+    return;
+  }
   if (event.target.id !== "site-photo") return;
   const binding = siteSelection?.binding;
   try {
@@ -269,6 +360,10 @@ document.addEventListener("change", async (event) => {
   }
 });
 document.addEventListener("click", (event) => {
+  if (event.target.closest('[data-action="site-logo-align"]')) {
+    requestLogoAlignment();
+    return;
+  }
   if (event.target.closest('[data-action="site-logo-scale-reset"]')) {
     saveLogoScale(100);
     return;
@@ -278,6 +373,10 @@ document.addEventListener("click", (event) => {
 });
 window.addEventListener("message", (event) => {
   if (event.source !== $("#site-frame")?.contentWindow) return;
+  if (event.data?.type === "kz-site-logo-guides-close")
+    setLogoGuidesEnabled(false);
+  if (event.data?.type === "kz-site-logo-aligned")
+    receiveLogoAlignment(event.data);
   if (event.data?.type === "kz-site-edit")
     saveDirect(event.data.binding, event.data.value, true);
   if (event.data?.type === "kz-site-inline-end") {

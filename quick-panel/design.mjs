@@ -1,6 +1,7 @@
-/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, logoScales: Record<string, number>}} */
+/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, logoScales: Record<string, number>, logoOffsets: Record<string,{x:number,y:number}>}} */
 export function validateDesign(value) {
-  if (value == null) return { texts: {}, images: {}, logoScales: {} };
+  if (value == null)
+    return { texts: {}, images: {}, logoScales: {}, logoOffsets: {} };
   if (
     typeof value !== "object" ||
     Array.isArray(value) ||
@@ -8,7 +9,7 @@ export function validateDesign(value) {
     !value.images
   )
     throw Error("Görsel taslak geçersiz.");
-  const result = { texts: {}, images: {}, logoScales: {} };
+  const result = { texts: {}, images: {}, logoScales: {}, logoOffsets: {} };
   for (const lang of ["tr", "en", "ru"]) {
     const entries = value.texts[lang] || {};
     result.texts[lang] = {};
@@ -46,6 +47,24 @@ export function validateDesign(value) {
     )
       throw Error("Logo ölçeği %50 ile %200 arasında olmalıdır.");
     result.logoScales[key] = scale;
+  }
+  if (
+    value.logoOffsets != null &&
+    (typeof value.logoOffsets !== "object" || Array.isArray(value.logoOffsets))
+  )
+    throw Error("Logo hizalama ayarı geçersiz.");
+  for (const [key, offset] of Object.entries(value.logoOffsets || {})) {
+    if (
+      !/^brand:[a-z0-9_-]+$/.test(key) ||
+      !offset ||
+      typeof offset !== "object" ||
+      !Number.isFinite(offset.x) ||
+      !Number.isFinite(offset.y) ||
+      Math.abs(offset.x) > 112 ||
+      Math.abs(offset.y) > 112
+    )
+      throw Error("Logo hizalama ayarı geçersiz.");
+    result.logoOffsets[key] = { x: offset.x, y: offset.y };
   }
   return result;
 }

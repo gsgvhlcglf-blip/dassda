@@ -30,6 +30,7 @@ import {
   useVisualImage,
   useVisualCopy,
   useVisualLogoScale,
+  useVisualLogoOffset,
 } from "@/lib/visual";
 import { useCart } from "@/lib/cart-store";
 import {
@@ -79,10 +80,17 @@ function BrandVisual({
 }) {
   const image = useVisualImage(`brand:${id}`, undefined);
   const scale = useVisualLogoScale(`brand:${id}`);
+  const offset = useVisualLogoOffset(`brand:${id}`);
   return (
     <div
       className="brand-logo-art"
-      style={{ "--brand-scale": scale } as CSSProperties}
+      style={
+        {
+          "--brand-scale": scale,
+          "--logo-x": offset.x + "px",
+          "--logo-y": offset.y + "px",
+        } as CSSProperties
+      }
     >
       {image ? (
         <img className="brand-logo-image" src={image} alt={name} />

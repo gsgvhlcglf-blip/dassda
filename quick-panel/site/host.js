@@ -30,6 +30,7 @@ let sitePage = "home",
   siteProduct = state.products[0]?.id || "",
   siteLang = "tr",
   siteInspect = true,
+  siteLogoGuides = true,
   siteCart = [],
   siteCartMode = "sample",
   siteSelection = null,
@@ -51,6 +52,8 @@ try {
     if (typeof saved.product === "string") siteProduct = saved.product;
     if (saved.editorVersion === 2 && typeof saved.inspect === "boolean")
       siteInspect = saved.inspect;
+    if (typeof saved.logoGuides === "boolean")
+      siteLogoGuides = saved.logoGuides;
     if (typeof saved.note === "string") siteNote = saved.note.slice(0, 8000);
     if (saved.selection && typeof saved.selection.id === "string")
       siteSelection = {
@@ -75,6 +78,7 @@ function saveSiteUi() {
         year: siteYear,
         product: siteProduct,
         inspect: siteInspect,
+        logoGuides: siteLogoGuides,
         editorVersion: 2,
         selection: siteSelection,
         note: siteNote,
@@ -219,6 +223,7 @@ function loadSiteFrame() {
     lang: siteLang,
     assets: PREVIEW.assets,
     inspect: siteInspect,
+    logoGuides: siteLogoGuides,
     cart: siteCart,
   };
   const safe = JSON.stringify(config).replaceAll(
@@ -600,9 +605,18 @@ async function checkSiteDesign() {
       !/^[a-f0-9]{16}$/.test(metadata.version)
     )
       throw Error("Invalid version");
-    const publishedAt = typeof metadata.built_at === "string" ? Date.parse(metadata.built_at) : NaN;
-    const loadedAt = typeof PREVIEW.built_at === "string" ? Date.parse(PREVIEW.built_at) : NaN;
-    if (Number.isFinite(publishedAt) && Number.isFinite(loadedAt) && publishedAt < loadedAt) return;
+    const publishedAt =
+      typeof metadata.built_at === "string"
+        ? Date.parse(metadata.built_at)
+        : NaN;
+    const loadedAt =
+      typeof PREVIEW.built_at === "string" ? Date.parse(PREVIEW.built_at) : NaN;
+    if (
+      Number.isFinite(publishedAt) &&
+      Number.isFinite(loadedAt) &&
+      publishedAt < loadedAt
+    )
+      return;
     if (metadata.version !== PREVIEW.version) {
       sitePendingVersion = metadata.version;
       const status = $("#site-update-status");

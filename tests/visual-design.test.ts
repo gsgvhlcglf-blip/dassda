@@ -35,3 +35,26 @@ test("logo scaling rejects invalid bounds, nonnumeric values and unrelated image
   for (const logoScales of [[], 42, { "home.hero": 100 }])
     assert.throws(() => validateDesign({ texts: {}, images: {}, logoScales }));
 });
+
+test("alignment offsets round trip in backups without changing legacy drafts", () => {
+  const draft = validateDesign({
+    texts: {},
+    images: {},
+    logoOffsets: { "brand:ducati": { x: 12.5, y: -8 } },
+  });
+  assert.deepEqual(validateDesign(JSON.parse(JSON.stringify(draft))), draft);
+  assert.deepEqual(validateDesign({ texts: {}, images: {} }).logoOffsets, {});
+  for (const offset of [
+    { x: 113, y: 0 },
+    { x: 0, y: NaN },
+    { x: "1", y: 0 },
+    null,
+  ])
+    assert.throws(() =>
+      validateDesign({
+        texts: {},
+        images: {},
+        logoOffsets: { "brand:ducati": offset },
+      }),
+    );
+});

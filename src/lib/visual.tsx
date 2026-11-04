@@ -6,6 +6,7 @@ export type VisualDesign = {
   texts: Partial<Record<Lang, Record<string, string>>>;
   images: Record<string, string>;
   logoScales?: Record<string, number>;
+  logoOffsets?: Record<string, { x: number; y: number }>;
 };
 export const VisualContext = createContext<VisualDesign>({
   texts: {},
@@ -36,4 +37,16 @@ export function useVisualLogoScale(key: string) {
   return Number.isInteger(value) && value >= 50 && value <= 200
     ? value / 100
     : 1;
+}
+
+export function useVisualLogoOffset(key: string) {
+  const design = useContext(VisualContext),
+    offset = design.logoOffsets?.[key];
+  return offset &&
+    Number.isFinite(offset.x) &&
+    Number.isFinite(offset.y) &&
+    Math.abs(offset.x) <= 112 &&
+    Math.abs(offset.y) <= 112
+    ? offset
+    : { x: 0, y: 0 };
 }

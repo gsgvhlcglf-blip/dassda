@@ -5,6 +5,7 @@ export type SiteConfig = {
   lang: Lang;
   assets: Record<string, string>;
   inspect: boolean;
+  logoGuides?: boolean;
   cart: CartLine[];
   design?: import("../../src/lib/visual").VisualDesign;
   standalone?: boolean;
