@@ -71,14 +71,14 @@ function BrandVisual({
   children: React.ReactNode;
 }) {
   const image = useVisualImage(`brand:${id}`, undefined);
-  return image ? (
-    <img
-      src={image}
-      alt={name}
-      style={{ maxWidth: "80%", maxHeight: 130, objectFit: "contain" }}
-    />
-  ) : (
-    children
+  return (
+    <div className="brand-logo-art">
+      {image ? (
+        <img className="brand-logo-image" src={image} alt={name} />
+      ) : (
+        children
+      )}
+    </div>
   );
 }
 export function Storefront({

@@ -505,21 +505,24 @@ label {
 }
 .brand-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 .brand-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 140px 20px;
+  row-gap: 20px;
+  align-content: center;
+  justify-items: center;
   align-items: center;
-  justify-content: center;
+  min-width: 0;
+  padding: 40px 24px;
   background: #141513;
   height: 330px;
   border: 1px solid transparent;
-  transition:
-    background 0.4s,
-    border-color 0.4s;
+  transition: background 0.4s, border-color 0.4s;
 }
 .brand-card:hover {
   background: #1b1d19;
@@ -534,39 +537,55 @@ label {
   letter-spacing: 0.13em;
 }
 .brand-word {
-  height: 150px;
+  width: 100%;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: clip;
+  filter: grayscale(1);
+}
+.brand-logo-art {
+  flex: 0 0 112px;
+  width: 112px;
+  height: 112px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  filter: grayscale(1);
-  transition: transform 0.5s;
 }
-.brand-card:hover .brand-word {
-  transform: translateY(-6px);
+.brand-logo-art > * { flex-shrink: 0; }
+.brand-logo-image {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
 }
 .brand-discover {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
   font-size: 8px;
   font-weight: 600;
+  line-height: 20px;
   text-transform: uppercase;
   letter-spacing: 0.13em;
   display: flex;
-  gap: 13px;
+  justify-content: center;
   align-items: center;
-  margin-top: 24px;
+  text-align: center;
+  white-space: nowrap;
 }
 .brand-discover svg {
+  position: absolute;
+  right: 0;
   opacity: 0;
-  transform: translate(-7px, 7px);
-  transition: 0.3s;
+  transition: opacity 0.3s;
 }
-.brand-card:hover .brand-discover svg {
-  opacity: 1;
-  transform: none;
-}
+.brand-card:hover .brand-discover svg { opacity: 1; }
 .bmw-ring {
-  height: 96px;
-  width: 96px;
+  height: 108px;
+  width: 108px;
   border: 2px solid #ddd;
   border-radius: 50%;
   display: flex;
@@ -598,8 +617,8 @@ label {
   margin-top: 14px;
 }
 .ducati-shield {
-  width: 106px;
-  height: 112px;
+  width: 100px;
+  height: 106px;
   clip-path: polygon(
     3% 3%,
     50% 0,
@@ -618,7 +637,7 @@ label {
   color: #141513;
   position: absolute;
   top: 12px;
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.07em;
   left: 9px;
@@ -635,11 +654,11 @@ label {
   border-radius: 100% 0 0 0;
 }
 .yamaha-icon {
-  font-size: 89px;
+  font-size: 75px;
   border: 2px solid #ccc;
   line-height: 0.97;
-  height: 91px;
-  width: 91px;
+  height: 80px;
+  width: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -648,8 +667,9 @@ label {
     inset 0 0 0 4px #141513,
     inset 0 0 0 6px #ccc;
 }
-.yamaha > b {
-  font-size: 22px;
+.yamaha .brand-logo-art > b {
+  line-height: 1;
+  font-size: 20px;
   font-weight: 900;
   letter-spacing: -0.06em;
   margin-top: 8px;
@@ -2098,23 +2118,20 @@ footer {
   }
   .brand-card {
     height: 210px;
+    padding: 32px 10px;
+    grid-template-rows: 104px 18px;
+    row-gap: 16px;
   }
   .brand-index {
     top: 13px;
     left: 14px;
     font-size: 7px;
   }
-  .brand-word {
-    transform: scale(0.7);
-    height: 120px;
-  }
-  .brand-card:hover .brand-word {
-    transform: scale(0.7) translateY(-5px);
-  }
+  .brand-word { height: 104px; }
+  .brand-logo-art { transform: scale(0.62); }
   .brand-discover {
-    font-size: 6px;
-    gap: 0;
-    margin-top: 4px;
+    font-size: 7px;
+    line-height: 18px;
     letter-spacing: 0.06em;
   }
   .brand-discover svg {
@@ -2643,3 +2660,5 @@ footer {
 .header-wordmark b {font:inherit;}
 .header-wordmark span {font-size:6px;letter-spacing:0.16em;}
 @media (max-width:360px) {.site-header {gap:9px;}}
+
+@media (max-width:360px) { .brand-logo-art { transform:scale(0.54); } }
