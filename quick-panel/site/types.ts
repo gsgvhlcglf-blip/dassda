@@ -10,6 +10,8 @@ export type SiteConfig = {
   design?: import("../../src/lib/visual").VisualDesign;
   standalone?: boolean;
   storageKey?: string;
+  heatmap?: boolean;
+  revision?: string;
 };
 declare global {
   interface Window {

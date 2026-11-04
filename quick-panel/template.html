@@ -892,6 +892,7 @@
           clone = (v) => JSON.parse(JSON.stringify(v));
         const sections = {
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
+          analytics: ["Analitik & Isı Haritası", "Ziyaretleri, tıklamaları ve kaydırmayı inceleyin.", "▥"],
           sitePreview: [
             "Sayfa önizlemeleri",
             "Tüm sayfaları görün, bölümleri seçin ve değişiklik notu hazırlayın.",
@@ -1193,6 +1194,10 @@
             ? action("+ Yeni kayıt", "new")
             : "";
           const view = $("#view");
+          if (section === "analytics") {
+            renderAnalyticsPreview(view);
+            return;
+          }
           if (section === "sitePreview") {
             renderSitePreview(view);
             return;

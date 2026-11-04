@@ -74,6 +74,11 @@ export function localDB() {
   db.exec(
     "CREATE TABLE IF NOT EXISTS customers(id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL)",
   );
+  db.exec(`CREATE TABLE IF NOT EXISTS analytics_settings(id TEXT PRIMARY KEY CHECK(id='site'),enabled INTEGER NOT NULL DEFAULT 0,retention_days INTEGER NOT NULL DEFAULT 30 CHECK(retention_days IN(7,30,90)));
+  INSERT OR IGNORE INTO analytics_settings(id) VALUES('site');
+  CREATE TABLE IF NOT EXISTS analytics_events(id TEXT PRIMARY KEY,session_id TEXT NOT NULL,kind TEXT NOT NULL,path TEXT NOT NULL,viewport_width INTEGER NOT NULL,viewport_height INTEGER NOT NULL,document_width INTEGER NOT NULL,document_height INTEGER NOT NULL,x REAL,y REAL,depth REAL,referrer_host TEXT NOT NULL,revision TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS analytics_event_time ON analytics_events(created_at);
+  CREATE INDEX IF NOT EXISTS analytics_event_path ON analytics_events(path,viewport_width,viewport_height,created_at);`);
   const orderColumns = db.prepare("PRAGMA table_info(orders)").all() as {
     name: string;
   }[];

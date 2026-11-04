@@ -1,3 +1,5 @@
+import { PreviewAnalyticsRecorder } from './analytics';
+import { HeatmapMessageLayer } from '../../src/components/analytics-heatmap';
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Storefront } from "../../src/components/storefront";
@@ -381,7 +383,7 @@ function App() {
         <p>Önizleme araç çubuğundan başka bir sayfa seçin.</p>
       </main>
     );
-  return (
+  const shop = (
     <VisualContext.Provider value={config.design || { texts: {}, images: {} }}>
       <Storefront
         key={route.pathname + route.search}
@@ -395,5 +397,7 @@ function App() {
       />
     </VisualContext.Provider>
   );
+  if(config.heatmap) return <HeatmapMessageLayer>{shop}</HeatmapMessageLayer>;
+  return <>{shop}{config.standalone && <PreviewAnalyticsRecorder path={route.pathname} revision={config.revision || 'preview'}/>}</>;
 }
 createRoot(document.getElementById("root")!).render(<App />);

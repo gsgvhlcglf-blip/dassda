@@ -51,6 +51,17 @@ async function main() {
       },
     ],
   });
+  const analyticsBundle = await build({
+    entryPoints: ["quick-panel/analytics/entry.tsx"],
+    bundle: true,
+    write: false,
+    format: "iife",
+    platform: "browser",
+    target: ["es2022"],
+    minify: true,
+    jsx: "automatic",
+    define: { "process.env.NODE_ENV": '\"production\"' },
+  });
   const styles = await postcss([
     tailwindcss({ base: process.cwd(), optimize: true }),
   ]).process(
@@ -74,6 +85,8 @@ async function main() {
   const version = createHash("sha256")
     .update(result.outputFiles[0].contents)
     .update(styles.css)
+    .update(analyticsBundle.outputFiles[0].contents)
+    .update(readFileSync("quick-panel/analytics/host.js"))
     .update(readFileSync("quick-panel/site/host.js"))
     .update(readFileSync("quick-panel/site/host.css"))
     .update(readFileSync("quick-panel/site/direct-editor.js"))
@@ -94,6 +107,9 @@ async function main() {
     version,
     updates,
     js: Buffer.from(result.outputFiles[0].contents).toString("base64"),
+    analyticsJs: Buffer.from(analyticsBundle.outputFiles[0].contents).toString(
+      "base64",
+    ),
     css: Buffer.from(styles.css).toString("base64"),
     assets,
   };
@@ -125,12 +141,15 @@ async function main() {
         "\n" +
         readFileSync("quick-panel/site/direct-editor.js", "utf8") +
         "\n" +
-        readFileSync("quick-panel/site/host.js", "utf8"),
+        readFileSync("quick-panel/site/host.js", "utf8") +
+        "\n" +
+        readFileSync("quick-panel/analytics/host.js", "utf8"),
     );
   writeFileSync("docs/panel.html", template);
+  const { analyticsJs: _analyticsJs, ...customerPreview } = preview;
   const customerScript = readFileSync("quick-panel/site/customer.js", "utf8")
     .replace("__SEED__", () => json(data))
-    .replace("__SITE_PREVIEW__", () => json(preview))
+    .replace("__SITE_PREVIEW__", () => json(customerPreview))
     .replace("/*__DESIGN_VALIDATOR__*/", () =>
       readFileSync("quick-panel/design.mjs", "utf8").replace(/^export /gm, ""),
     )

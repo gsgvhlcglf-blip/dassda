@@ -7,6 +7,7 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
+import {AnalyticsTracker} from "./analytics-tracker";
 import Image from "next/image";
 import {
   ArrowUpRight,
@@ -879,6 +880,7 @@ export function Storefront({
         <p className="demo-notice">
           {!live || c.products.some((p) => p.demo) ? t("demo") : t("orderNote")}
         </p>
+        <AnalyticsTracker path={"/"+s.join("/")} preview={preview}/>
       </footer>
       {toast && (
         <div role="status" className="toast">

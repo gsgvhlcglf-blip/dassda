@@ -32,6 +32,7 @@
     cart: [],
     standalone: true,
     storageKey: KEY,
+    revision: PREVIEW.version,
   };
   const code = new TextDecoder().decode(
     Uint8Array.from(atob(PREVIEW.js), (c) => c.charCodeAt(0)),

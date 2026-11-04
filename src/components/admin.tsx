@@ -2,6 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { TrackingSettings } from "./tracking-settings";
+import { AnalyticsDashboard } from "./analytics-dashboard";
 import type { Content } from "@/lib/types";
 import {
   Plus,
@@ -24,6 +25,7 @@ import {
   Trash2,
   ChevronRight,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import type { Row } from "@/lib/types";
 import { money } from "@/lib/i18n";
@@ -141,6 +143,7 @@ const fields: Record<string, Field[]> = {
 const sections = [
   ["overview", "Genel bakış", LayoutDashboard],
   ["settings", "Yapılandırma", Settings],
+  ["analytics", "Analitik & Isı Haritası", BarChart3],
   ["models", "Motosiklet modelleri", Bike],
   ["generations", "Nesiller", Layers],
   ["model_years", "Üretim yılları", CalendarDays],
@@ -371,23 +374,25 @@ export function Admin({
           KUZMIN<span>STUDIO / YÖNETİM</span>
         </Link>
         <nav>
-          {sections.map(([key, label, Icon]) => (
-            <button
-              aria-label={label}
-              className={section === key ? "active" : ""}
-              key={key}
-              onClick={() => {
-                setSection(key);
-                setSearch("");
-                setError("");
-                setMessage("");
-              }}
-            >
-              <Icon size={17} />
-              {label}
-              {key === "orders" && <span>{data.orders?.length || 0}</span>}
-            </button>
-          ))}
+          {sections
+            .filter(([key]) => key !== "analytics" || role === "admin")
+            .map(([key, label, Icon]) => (
+              <button
+                aria-label={label}
+                className={section === key ? "active" : ""}
+                key={key}
+                onClick={() => {
+                  setSection(key);
+                  setSearch("");
+                  setError("");
+                  setMessage("");
+                }}
+              >
+                <Icon size={17} />
+                {label}
+                {key === "orders" && <span>{data.orders?.length || 0}</span>}
+              </button>
+            ))}
         </nav>
         <div className="admin-sidebar-bottom">
           <span>
@@ -424,7 +429,9 @@ export function Admin({
             <p className="eyebrow">KOLEKSİYONUNUZUN KONTROLÜ SİZDE.</p>
             <h1>{title}</h1>
           </div>
-          {!["overview", "orders", "settings"].includes(section) && (
+          {!["overview", "orders", "settings", "analytics"].includes(
+            section,
+          ) && (
             <button className="button" onClick={openNew}>
               <Plus size={16} />
               Yeni kayıt
@@ -454,6 +461,8 @@ export function Admin({
           <div className="empty-state" aria-busy="true">
             Yükleniyor…
           </div>
+        ) : section === "analytics" && role === "admin" ? (
+          <AnalyticsDashboard />
         ) : section === "settings" ? (
           <div className="settings-grid">
             <TrackingSettings

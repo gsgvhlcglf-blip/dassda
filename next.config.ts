@@ -16,6 +16,14 @@ const config: NextConfig = {
           },
         ],
       },
+      {
+        source: "/analitik-onizleme",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
     ];
   },
 };
