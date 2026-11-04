@@ -33,7 +33,7 @@ export function useVisualCopy(lang: Lang) {
 export function useVisualLogoScale(key: string) {
   const design = useContext(VisualContext);
   const value = design.logoScales?.[key] ?? 100;
-  return Number.isInteger(value) && value >= 50 && value <= 125
+  return Number.isInteger(value) && value >= 50 && value <= 200
     ? value / 100
     : 1;
 }

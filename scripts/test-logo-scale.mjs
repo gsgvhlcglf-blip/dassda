@@ -124,15 +124,15 @@ try {
   assert.equal(snapshot.texts.tr["ui:chooseBrand"], "Sahibin marka başlığı");
   await page.getByRole("button", { name: "Mobil", exact: true }).click();
   const mobile = await metrics("ducati");
-  await change(125);
-  await waitScale("ducati", 125);
+  await page.getByRole("slider", { name: "Logo ölçeği" }).press("End");
+  await waitScale("ducati", 200);
   assert.equal((await metrics("ducati")).labelY, mobile.labelY);
   await page.reload();
   await frame().locator(".brand-card").first().waitFor();
   await choose("ducati");
   assert.equal(
     await page.getByRole("slider", { name: "Logo ölçeği" }).inputValue(),
-    "125",
+    "200",
   );
   const popup = context.waitForEvent("page");
   await page.getByRole("button", { name: "Müşteri önizlemesi ↗" }).click();

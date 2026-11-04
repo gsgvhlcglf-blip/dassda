@@ -42,9 +42,9 @@ export function validateDesign(value) {
       !/^brand:[a-z0-9_-]+$/.test(key) ||
       !Number.isInteger(scale) ||
       scale < 50 ||
-      scale > 125
+      scale > 200
     )
-      throw Error("Logo ölçeği %50 ile %125 arasında olmalıdır.");
+      throw Error("Logo ölçeği %50 ile %200 arasında olmalıdır.");
     result.logoScales[key] = scale;
   }
   return result;

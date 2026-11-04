@@ -84,7 +84,7 @@ function directValue(binding) {
 function logoScaleHTML(binding) {
   if (!binding.key.startsWith("brand:")) return "";
   const scale = siteDesign.logoScales?.[binding.key] ?? 100;
-  return `<div class="site-logo-scale"><p class="eyebrow">${esc(state.brands.find((brand) => "brand:" + brand.id === binding.key)?.name || "")}</p><label for="site-logo-scale">Logo ölçeği <output id="site-logo-scale-value" for="site-logo-scale">%${scale}</output></label><input id="site-logo-scale" data-logo-key="${esc(binding.key)}" aria-label="Logo ölçeği" type="range" min="50" max="125" step="1" value="${scale}"><div class="site-scale-limits"><span>%50</span><span>%125</span></div><button class="ghost" type="button" data-action="site-logo-scale-reset">Varsayılan boyuta dön</button><p>Bu logonun boyutunu ayarlar. Alt yazı sabit kalır. Değişiklik otomatik kaydedilir.</p></div>`;
+  return `<div class="site-logo-scale"><p class="eyebrow">${esc(state.brands.find((brand) => "brand:" + brand.id === binding.key)?.name || "")}</p><label for="site-logo-scale">Logo ölçeği <output id="site-logo-scale-value" for="site-logo-scale">%${scale}</output></label><input id="site-logo-scale" data-logo-key="${esc(binding.key)}" aria-label="Logo ölçeği" type="range" min="50" max="200" step="1" value="${scale}"><div class="site-scale-limits"><span>%50</span><span>%200</span></div><button class="ghost" type="button" data-action="site-logo-scale-reset">Varsayılan boyuta dön</button><p>Bu logonun boyutunu ayarlar. Alt yazı sabit kalır. Değişiklik otomatik kaydedilir.</p></div>`;
 }
 function saveLogoScale(value) {
   const binding = directBinding(siteSelection?.binding);

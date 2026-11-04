@@ -15,7 +15,7 @@ test("legacy visual drafts and backups retain copy/images when logo scaling is a
   assert.deepEqual(normalized.logoScales, {});
   const scaled = validateDesign({
     ...normalized,
-    logoScales: { "brand:ducati": 85, "brand:bmw": 120 },
+    logoScales: { "brand:ducati": 85, "brand:bmw": 200 },
   });
   assert.deepEqual(validateDesign(JSON.parse(JSON.stringify(scaled))), scaled);
   assert.deepEqual(old, {
@@ -24,7 +24,7 @@ test("legacy visual drafts and backups retain copy/images when logo scaling is a
   });
 });
 test("logo scaling rejects invalid bounds, nonnumeric values and unrelated image slots", () => {
-  for (const value of [49, 126, NaN, Infinity, 75.5, "100", null])
+  for (const value of [49, 201, NaN, Infinity, 75.5, "100", null])
     assert.throws(() =>
       validateDesign({
         texts: {},
