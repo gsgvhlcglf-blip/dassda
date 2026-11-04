@@ -600,6 +600,9 @@ async function checkSiteDesign() {
       !/^[a-f0-9]{16}$/.test(metadata.version)
     )
       throw Error("Invalid version");
+    const publishedAt = typeof metadata.built_at === "string" ? Date.parse(metadata.built_at) : NaN;
+    const loadedAt = typeof PREVIEW.built_at === "string" ? Date.parse(PREVIEW.built_at) : NaN;
+    if (Number.isFinite(publishedAt) && Number.isFinite(loadedAt) && publishedAt < loadedAt) return;
     if (metadata.version !== PREVIEW.version) {
       sitePendingVersion = metadata.version;
       const status = $("#site-update-status");

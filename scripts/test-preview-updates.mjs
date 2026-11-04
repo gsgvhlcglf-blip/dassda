@@ -25,7 +25,8 @@ function versioned(version, updates = []) {
   return source.replace(previewMatch[1], () => JSON.stringify(next));
 }
 let activeSource = source,
-  activeVersion = original.version;
+  activeVersion = original.version,
+  activeBuiltAt = original.built_at;
 // Test-only transport, not a live-service availability check. It reproduces the provider's single-inline-script lifecycle.
 const loader = `<html><body><p>Loading test preview</p><script>(async()=>{const url=location.search.slice(1);const html=await(await fetch(url)).text();const doc=new DOMParser().parseFromString(html,'text/html');const scripts=[...doc.scripts].map(s=>s.textContent);doc.querySelectorAll('script').forEach(s=>s.remove());document.open();document.write(doc.documentElement.outerHTML);document.close();for(const text of scripts){const script=document.createElement('script');script.textContent=text;document.body.appendChild(script);}})().catch(e=>{document.body.textContent=e.message})</script></body></html>`;
 const browser = await chromium.launch({
@@ -69,7 +70,7 @@ try {
         ? "application/json"
         : "text/plain",
       body: url.includes("panel-version.json")
-        ? JSON.stringify({ version: activeVersion })
+        ? JSON.stringify({ version: activeVersion, built_at: activeBuiltAt })
         : activeSource,
     });
   });
@@ -82,6 +83,15 @@ try {
   const frame = () => page.frameLocator("#site-frame");
   await frame().locator(".product-copy h1").waitFor();
   assert.equal(await page.locator("#site-page").inputValue(), "product");
+  const stableURL=page.url();
+  activeVersion="0".repeat(16);activeBuiltAt="2000-01-01T00:00:00.000Z";
+  const staleResponse=page.waitForResponse(response=>response.url().includes("panel-version.json"));
+  await page.evaluate(()=>window.dispatchEvent(new Event("focus")));
+  await staleResponse;await page.waitForTimeout(100);
+  assert.equal(page.url(),stableURL,"An older CDN response must not roll back an already loaded preview");
+  activeVersion=original.version;activeBuiltAt=new Date(Date.now()+60000).toISOString();
+  console.log("PASS: stale publication metadata cannot roll back the current preview.");
+
   await page.locator("#site-inspect").check();
   await frame().locator(".product-copy h1").click();
   await page.locator(".site-change-note summary").click();

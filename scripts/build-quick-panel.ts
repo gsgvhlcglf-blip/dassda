@@ -87,7 +87,9 @@ async function main() {
     .update(JSON.stringify(updates))
     .digest("hex")
     .slice(0, 16);
+  const builtAt = new Date().toISOString();
   const preview = {
+    built_at: builtAt,
     languages: supportedLanguages,
     version,
     updates,
@@ -148,7 +150,7 @@ async function main() {
   );
   writeFileSync(
     "docs/panel-version.json",
-    JSON.stringify({ version, built_at: new Date().toISOString() }) + "\n",
+    JSON.stringify({ version, built_at: builtAt }) + "\n",
   );
   console.log(
     "Self-contained catalog + real storefront preview built: docs/panel.html",
