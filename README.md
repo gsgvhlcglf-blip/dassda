@@ -58,7 +58,7 @@ The local relational database is `.data/store.sqlite`. Image uploads go to ignor
 - `/motosikletler/yamaha/mt-25/2024`: shareable compatibility selections, breadcrumb navigation and remembered motorcycle.
 - Relational many-to-many fitment, including optional generation and inclusive year ranges. Only registered model years can be selected. One product can match multiple brands/models.
 - Searchable catalog with category, material, availability and price sorting; product galleries, finish variants, inventory limits, specifications and compatibility details.
-- Cart persists locally, including across language changes and tabs. Checkout records an order **request**, with authoritative variant prices and stock validation on the server. It takes no payment and reserves no stock.
+- Cart persists locally, including across language changes and tabs. With payment disabled, checkout records an order **request**, with authoritative variant prices and stock validation on the server. Enabled hosted payments reserve inventory and require verified provider results, as described in the payment guide.
 - Password-protected visual administration: models/photos, generations/years, products/translations, variants/prices/stock, multiple image records/uploads, compatibility, categories, featured status, page copy and order status.
 - `admin` and `editor` roles; editors manage content, administrators additionally delete records and manage orders. Roles cannot be self-assigned through the website.
 - About, Contact, FAQ, Shipping & Returns, Privacy and Terms are database-driven editable pages. They contain explicit content placeholders until the owner supplies approved text.
@@ -109,7 +109,7 @@ The five Playwright tests exercise the full customer journey, language/cart pers
 - `src/app/api/*`: server-side input validation, cookie authentication, role checks and same-origin mutation checks. No private credentials are bundled into clients. API traffic and session data must stay HTTPS in production.
 - `src/lib/settings.ts`: central currency/default-language settings; currently TRY. Adding currencies also requires updating the database/RPC currency constraints and money precision policy together.
 - Login/order API burst limits are in-process; the hosted RPC also limits requests by email. Configure platform/WAF distributed rate limiting and monitoring before a public launch. Order-request totals exclude unprovided shipping/tax charges and are subject to business confirmation.
-- Card payments are deliberately not implemented without a selected merchant provider. A future provider integration must use server-created payment sessions, verified webhook signatures and idempotent fulfillment; do not mark orders paid from client redirects. No fake payment-success flow exists.
+- PayTR and iyzico hosted-checkout adapters are implemented and disabled by default. Apply migration 006, configure server-only merchant credentials and the Supabase service role, then use the authenticated payment settings. Payment results require provider verification; client redirects cannot mark an order paid. See [payment setup](docs/ODEME.md). Actual provider sandbox acceptance still requires merchant credentials.
 - Optional video and 360° fields open provided HTTPS media in a new tab; no viewer/media is fabricated.
 - No customer account, email notifications, tax/shipping engine or analytics integration is included; none is presented as configured.
 
@@ -130,3 +130,5 @@ For local workflow verification after a build, run `node scripts/test-local-offl
 Analitik ve ısı haritası: tarayıcı panelindeki test kaydı, gerçek uygulamada izin temelli kayıt, Supabase göçü ve saklama ayarları için [Analitik kılavuzu](docs/ANALITIK.md).
 
 Draft → publish → restore, unified product photography and ordered/device-filtered shopping analytics are implemented in both the browser workspace and the authenticated app. Apply migrations **004 and 005 after 001–003** for an existing Supabase installation. [Turkish publication and photography guide](docs/YAYIN-FOTOGRAF.md). Catalog writes now save private drafts; administrators explicitly publish. Operational stock and order status updates remain immediate, and restoring content never rewinds existing inventory. Browser publications stay in IndexedDB on that browser/origin and do not deploy a public website.
+
+Motorcycle image containers now have a transparent background. Uploaded transparent PNG/WebP keeps its alpha channel; opaque backgrounds inside a source photo are retained. Product photography styling remains independently configurable.

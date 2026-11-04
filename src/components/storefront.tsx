@@ -1,4 +1,5 @@
 "use client";
+import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
 import {
   useEffect,
@@ -841,6 +842,7 @@ export function Storefront({
               href={href}
               clear={() => setCart([])}
               preview={preview}
+              customerId={member.id}
             />
           ) : (
             <MemberGate lang={lang} href={href} />
@@ -1267,6 +1269,7 @@ function ProductDetail({
   );
 }
 function Checkout({
+  customerId,
   lang,
   cart,
   total,
@@ -1275,6 +1278,7 @@ function Checkout({
   preview = false,
 }: {
   preview?: boolean;
+  customerId: string;
   lang: Lang;
   cart: CartLine[];
   total: number;
@@ -1287,6 +1291,7 @@ function Checkout({
       null,
     ),
     [busy, setBusy] = useState(false);
+  const payment = useHostedPayment(preview, customerId, cart);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (preview) {
@@ -1303,11 +1308,19 @@ function Checkout({
     setStatus("");
     const form = new FormData(e.currentTarget);
     try {
+      if (payment.config.ready && payment.reference) {
+        await payment.open(payment.reference, form);
+        return;
+      }
       const res = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ...Object.fromEntries(form),
+            ...Object.fromEntries(
+              ["customer_name", "email", "phone", "address", "note"].map(
+                (key) => [key, form.get(key)],
+              ),
+            ),
             consent: form.get("consent") === "on",
             locale: lang,
             lines: cart,
@@ -1315,18 +1328,30 @@ function Checkout({
         }),
         data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      if (payment.config.ready) {
+        await payment.open(data.reference, form);
+        return;
+      }
       setResult(data);
       clear();
     } catch (e) {
       setStatus(
         e instanceof Error && e.message === "OUT_OF_STOCK"
           ? t("stockError")
-          : t("error"),
+          : e instanceof Error && e.message === "BUYER_DETAILS_REQUIRED"
+            ? "Ödeme için ad soyad, şehir, ülke ve kimlik bilgilerinizi tamamlayın."
+            : e instanceof Error && e.message === "DEMO_PAYMENT_BLOCKED"
+              ? "Demo ürünler gerçek ödemeye kapalıdır."
+              : e instanceof Error && e.message === "ORDER_EXPIRED"
+                ? "Siparişin ödeme süresi doldu. Yeniden deneyin."
+                : t("error"),
       );
     } finally {
       setBusy(false);
     }
   }
+  if (payment.session)
+    return <HostedPayment session={payment.session} frame={payment.frame} />;
   return (
     <section className="page-section checkout-page">
       <p className="eyebrow">KUZMIN / {t("checkout")}</p>
@@ -1351,7 +1376,13 @@ function Checkout({
       ) : (
         <div className="cart-layout">
           <form className="checkout-form" onSubmit={submit}>
-            <p className="demo-box">{t("orderNote")}</p>
+            <p className="demo-box">
+              {payment.config.ready
+                ? payment.config.mode === "test"
+                  ? "Test ödeme modu · Gerçek tahsilat yapılmaz."
+                  : "Kart bilgileriniz sağlayıcının güvenli ödeme ekranına girilir."
+                : t("orderNote")}
+            </p>
             {(
               ["customer_name", "email", "phone", "address", "note"] as const
             ).map((key, i) => (
@@ -1395,6 +1426,51 @@ function Checkout({
                 )}
               </label>
             ))}
+            {payment.config.ready && payment.config.provider === "iyzico" && (
+              <>
+                <label>
+                  Şehir
+                  <input
+                    name="buyer_city"
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    autoComplete="address-level2"
+                  />
+                </label>
+                <label>
+                  Ülke
+                  <input
+                    name="buyer_country"
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    autoComplete="country-name"
+                  />
+                </label>
+                <label>
+                  T.C. kimlik / pasaport numarası
+                  <input
+                    name="buyer_identity"
+                    required
+                    minLength={5}
+                    maxLength={32}
+                    pattern="[A-Za-z0-9]+"
+                    autoComplete="off"
+                  />
+                </label>
+                <p className="micro muted">
+                  Kimlik bilgisi iyzico doğrulaması için iletilir; mağaza
+                  veritabanında saklanmaz.
+                </p>
+              </>
+            )}
+            {preview && (
+              <p className="micro muted">
+                PayTR / iyzico bağlantısı canlı uygulamada yapılandırılır.
+                Önizlemede ödeme ve kişisel bilgi gönderimi kapalıdır.
+              </p>
+            )}
             <label className="consent">
               <input
                 type="checkbox"
@@ -1429,7 +1505,11 @@ function Checkout({
                   : undefined
               }
             >
-              {busy ? t("sending") : t("submit")}
+              {busy
+                ? t("sending")
+                : payment.config.ready
+                  ? "Güvenli ödemeye geç"
+                  : t("submit")}
               <ArrowRight size={16} />
             </button>
           </form>

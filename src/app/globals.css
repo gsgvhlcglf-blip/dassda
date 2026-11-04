@@ -926,7 +926,7 @@ footer {
 .model-art {
   height: 290px;
   position: relative;
-  background: linear-gradient(135deg, #1c1f19, #10120f);
+  background: transparent;
   overflow: hidden;
 }
 .model-art img {
@@ -2742,3 +2742,10 @@ footer {
 
 .photo-caption{position:absolute;bottom:0;left:0;right:0;padding:5px 2px;background:#080808d0;font-size:9px;color:#ddd;z-index:1;}
 @media(min-width:761px){.admin-sidebar nav{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;}.admin-sidebar nav button{flex-shrink:0;}.admin-sidebar .wordmark,.admin-sidebar-bottom{flex-shrink:0;}}
+.payment-gateway-frame{width:100%;min-height:780px;border:1px solid #333;background:white;margin:25px 0;display:block;}
+.payment-result{max-width:1000px;min-height:80vh;display:grid;align-content:center;gap:24px;}
+.payment-result h1{font-size:clamp(30px,5vw,58px);letter-spacing:-.05em;}
+.payment-settings code{font-size:12px;overflow-wrap:anywhere;color:#ddd;}
+.payment-settings h2{font-size:30px;letter-spacing:-.04em;margin-bottom:18px;}
+.payment-settings p{color:#aaa;line-height:1.7;margin:18px 0;}
+.account-payment-status{display:block;font-size:10px;color:#aaa;margin-top:8px;font-weight:400;}

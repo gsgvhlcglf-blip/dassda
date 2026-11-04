@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { paymentStatusLabel } from "@/lib/payments/types";
+import { PaymentSettings } from "./payment-settings";
 import { TrackingSettings } from "./tracking-settings";
 import { SiteStudio } from "./site-studio";
 import { AnalyticsDashboard } from "./analytics-dashboard";
@@ -27,6 +29,7 @@ import {
   ChevronRight,
   Settings,
   BarChart3,
+  CreditCard,
 } from "lucide-react";
 import type { Row } from "@/lib/types";
 import { money } from "@/lib/i18n";
@@ -147,6 +150,7 @@ const sections = [
   ["analytics", "Analitik & Isı Haritası", BarChart3],
   ["releases", "Yayın & sürümler", Layers],
   ["photography", "Fotoğraf düzeni", Images],
+  ["payments", "Ödeme altyapısı", CreditCard],
   ["models", "Motosiklet modelleri", Bike],
   ["generations", "Nesiller", Layers],
   ["model_years", "Üretim yılları", CalendarDays],
@@ -391,7 +395,10 @@ export function Admin({
         </Link>
         <nav>
           {sections
-            .filter(([key]) => key !== "analytics" || role === "admin")
+            .filter(
+              ([key]) =>
+                !["analytics", "payments"].includes(key) || role === "admin",
+            )
             .map(([key, label, Icon]) => (
               <button
                 aria-label={label}
@@ -452,6 +459,7 @@ export function Admin({
             "analytics",
             "releases",
             "photography",
+            "payments",
           ].includes(section) && (
             <button className="button" onClick={openNew}>
               <Plus size={16} />
@@ -459,9 +467,13 @@ export function Admin({
             </button>
           )}
         </div>
-        {!["orders", "analytics", "releases", "photography"].includes(
-          section,
-        ) && (
+        {![
+          "orders",
+          "analytics",
+          "releases",
+          "photography",
+          "payments",
+        ].includes(section) && (
           <p className="draft-preview-notice">
             İçerik değişiklikleri taslakta saklanır.{" "}
             <button
@@ -501,6 +513,8 @@ export function Admin({
             role={role}
             onSaved={load}
           />
+        ) : section === "payments" && role === "admin" ? (
+          <PaymentSettings />
         ) : section === "analytics" && role === "admin" ? (
           <AnalyticsDashboard />
         ) : section === "settings" ? (
@@ -898,6 +912,35 @@ export function Admin({
                       </p>
                     ))}
                   <strong>{money(Number(editing.total))}</strong>
+                  <p>
+                    Ödeme:{" "}
+                    {paymentStatusLabel(
+                      String(editing.payment_status || "request_only"),
+                    )}{" "}
+                    {editing.payment_provider
+                      ? " / " + String(editing.payment_provider)
+                      : ""}
+                  </p>
+                  {data.payment_attempts
+                    ?.filter((p) => p.order_id === editing.id)
+                    .map((p) => (
+                      <div key={p.id} className="payment-admin-summary">
+                        <p>Sağlayıcı referansı: {String(p.merchant_ref)}</p>
+                        <p>
+                          İşlem:{" "}
+                          {String(
+                            p.provider_payment_id || "Henüz doğrulanmadı",
+                          )}{" "}
+                          · {String(p.mode) === "test" ? "Test modu" : "Canlı"}
+                        </p>
+                        {p.state === "review" && (
+                          <p className="form-error">
+                            Otomatik onay durduruldu. Sağlayıcı panelinden
+                            tutarı ve işlem durumunu inceleyin.
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   {!!editing.demo && (
                     <p className="demo-box">
                       Demo talebi. Gerçek sipariş veya ödeme değildir.

@@ -17,6 +17,9 @@ const schema = z.object({
   consent: z.boolean().optional(),
 });
 export async function GET() {
+  await import("@/lib/payments/store")
+    .then((m) => m.getPaymentSettings())
+    .catch(() => {});
   const user = await getCustomer();
   if (!user)
     return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
@@ -25,7 +28,9 @@ export async function GET() {
       await supabase()
     )
       .from("orders")
-      .select("reference,status,total,currency,created_at")
+      .select(
+        "reference,status,total,currency,created_at,payment_status,payment_provider",
+      )
       .eq("customer_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -44,7 +49,7 @@ export async function GET() {
       user,
       orders: localDB()
         .prepare(
-          "SELECT reference,status,total,currency,created_at FROM orders WHERE customer_id=? ORDER BY created_at DESC LIMIT 50",
+          "SELECT reference,status,total,currency,created_at,payment_status,payment_provider FROM orders WHERE customer_id=? ORDER BY created_at DESC LIMIT 50",
         )
         .all(user.id),
     },

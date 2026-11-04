@@ -5,6 +5,7 @@ import { ArrowUpRight, ArrowLeft, UserRound, PackageCheck } from "lucide-react";
 import { useVisualTranslate } from "@/lib/visual";
 import { money } from "@/lib/i18n";
 import { trackingConfiguration, trackingLink } from "@/lib/tracking";
+import { paymentStatusLabel } from "@/lib/payments/types";
 import { safeNext } from "@/lib/customer-navigation";
 import type { Catalog, Lang } from "@/lib/types";
 export type CustomerView = { id: string; email: string };
@@ -52,7 +53,13 @@ export function CustomerPage({
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [orders, setOrders] = useState<
-      { reference: string; status: string; total: number; created_at: string }[]
+      {
+        reference: string;
+        status: string;
+        total: number;
+        created_at: string;
+        payment_status?: string;
+      }[]
     >([]);
   const go = (path: string) =>
     onNavigate ? onNavigate(path) : window.location.assign(path);
@@ -177,7 +184,15 @@ export function CustomerPage({
                     } as Record<string, string>
                   )[order.status] || order.status}
                 </span>
-                <strong>{money(order.total, lang)}</strong>
+                <strong>
+                  {money(order.total, lang)}
+                  {order.payment_status &&
+                    order.payment_status !== "request_only" && (
+                      <small className="account-payment-status">
+                        {paymentStatusLabel(order.payment_status)}
+                      </small>
+                    )}
+                </strong>
               </article>
             ))}
           </div>

@@ -1,3 +1,4 @@
+import { paymentLedger } from "@/lib/payments/store";
 import { NextResponse } from "next/server";
 import { getRole, sameOrigin } from "@/lib/auth";
 import { isLive, updateLocal } from "@/lib/database";
@@ -19,6 +20,7 @@ export async function GET() {
         ...(role === "admin"
           ? {
               orders: await getRows("orders"),
+              payment_attempts: await paymentLedger().catch(() => []),
               order_items: await getRows("order_items"),
             }
           : {}),
@@ -66,6 +68,15 @@ export async function POST(req: Request) {
           ? { id: String(record.id) }
           : (schema.parse(record) as Row);
     if (table === "orders") {
+      const current = (await getRows("orders")).find((o) => o.id === row.id);
+      if (
+        current?.payment_provider &&
+        ["confirmed", "shipped"].includes(String(row.status)) &&
+        current.payment_status !== "paid"
+      )
+        throw Error(
+          "Kartlı siparişte ödeme doğrulanmadan onay veya gönderim yapılamaz.",
+        );
       if (action !== "update") throw Error("Sipariş yalnızca güncellenebilir.");
       if (isLive) {
         const { error } = await (

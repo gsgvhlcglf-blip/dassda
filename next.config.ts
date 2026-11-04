@@ -17,6 +17,13 @@ const config: NextConfig = {
         ],
       },
       {
+        source: "/odeme/donus",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
+      {
         source: "/:preview(analitik-onizleme|taslak-onizleme)",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },

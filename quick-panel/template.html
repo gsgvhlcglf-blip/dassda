@@ -893,6 +893,7 @@
         const sections = {
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
           releases: ["Yayın & sürümler", "Taslağı inceleyin, yayımlayın veya önceki sürüme dönün.", "↻"],
+          payments: ["Ödeme altyapısı", "PayTR / iyzico tercihi ve canlı kurulum bilgileri.", "▱"],
           photography: ["Fotoğraf düzeni", "Ürün fotoğraflarında ortak kadraj, arka plan ve ölçek.", "▣"],
           analytics: ["Analitik & Isı Haritası", "Ziyaretleri, tıklamaları ve kaydırmayı inceleyin.", "▥"],
           sitePreview: [
@@ -1197,6 +1198,7 @@
             : "";
           const view = $("#view");
           if (section === "releases") { void renderReleaseWorkspace(view); return; }
+          if (section === "payments") { renderPaymentWorkspace(view); return; }
           if (section === "photography") { renderPhotoWorkspace(view); return; }
           if (section === "analytics") {
             renderAnalyticsPreview(view);

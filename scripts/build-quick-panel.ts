@@ -98,6 +98,7 @@ async function main() {
     .update(analyticsBundle.outputFiles[0].contents)
     .update(versionLibrary.outputFiles[0].contents)
     .update(readFileSync("quick-panel/studio/host.js"))
+    .update(readFileSync("quick-panel/studio/payments.js"))
     .update(readFileSync("quick-panel/analytics/host.js"))
     .update(readFileSync("quick-panel/site/host.js"))
     .update(readFileSync("quick-panel/site/host.css"))
@@ -159,7 +160,9 @@ async function main() {
         "\n" +
         readFileSync("quick-panel/analytics/host.js", "utf8") +
         "\n" +
-        readFileSync("quick-panel/studio/host.js", "utf8"),
+        readFileSync("quick-panel/studio/host.js", "utf8") +
+        "\n" +
+        readFileSync("quick-panel/studio/payments.js", "utf8"),
     );
   writeFileSync("docs/panel.html", template);
   const { analyticsJs: _analyticsJs, ...customerPreview } = preview;

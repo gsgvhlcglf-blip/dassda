@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { createServer } from "node:net";
-export async function testAppServer() {
+export async function testAppServer(overrides = {}) {
   const root = process.cwd(),
     directory = mkdtempSync(join(tmpdir(), "kuzmin-studio-"));
   for (const file of [
@@ -42,10 +42,18 @@ export async function testAppServer() {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
         NEXT_PUBLIC_SITE_URL: "",
         NEXT_TELEMETRY_DISABLED: "1",
+        ...overrides,
       },
-      stdio: ["ignore", "ignore", "ignore"],
+      stdio: ["ignore", "pipe", "pipe"],
     },
   );
+  let diagnosticLog = "";
+  child.stdout.on("data", (chunk) => {
+    diagnosticLog = (diagnosticLog + chunk.toString()).slice(-20000);
+  });
+  child.stderr.on("data", (chunk) => {
+    diagnosticLog = (diagnosticLog + chunk.toString()).slice(-20000);
+  });
   const origin = "http://127.0.0.1:" + port;
   for (let i = 0; i < 150; i++) {
     try {
@@ -60,6 +68,7 @@ export async function testAppServer() {
   }
   return {
     origin,
+    diagnostics: () => diagnosticLog,
     password,
     directory,
     async stop() {
