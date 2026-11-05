@@ -58,7 +58,7 @@ export function localDB() {
   db.exec("PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;");
   db.exec(`
  CREATE TABLE IF NOT EXISTS brands(id TEXT PRIMARY KEY,slug TEXT NOT NULL UNIQUE CHECK(slug IN ('ducati','bmw','yamaha')),name TEXT NOT NULL,position INTEGER NOT NULL);
- CREATE TABLE IF NOT EXISTS models(id TEXT PRIMARY KEY,brand_id TEXT NOT NULL REFERENCES brands(id) ON DELETE RESTRICT,slug TEXT NOT NULL,name TEXT NOT NULL,image TEXT NOT NULL DEFAULT '', UNIQUE(brand_id,slug));
+ CREATE TABLE IF NOT EXISTS models(id TEXT PRIMARY KEY,brand_id TEXT NOT NULL REFERENCES brands(id) ON DELETE RESTRICT,slug TEXT NOT NULL,name TEXT NOT NULL,image TEXT NOT NULL DEFAULT '',published INTEGER NOT NULL DEFAULT 1, UNIQUE(brand_id,slug));
  CREATE TABLE IF NOT EXISTS generations(id TEXT PRIMARY KEY,model_id TEXT NOT NULL REFERENCES models(id) ON DELETE CASCADE,name TEXT NOT NULL,start_year INTEGER NOT NULL,end_year INTEGER NOT NULL,CHECK(start_year<=end_year));
  CREATE TABLE IF NOT EXISTS model_years(id TEXT PRIMARY KEY,model_id TEXT NOT NULL REFERENCES models(id) ON DELETE CASCADE,generation_id TEXT NOT NULL REFERENCES generations(id) ON DELETE CASCADE,year INTEGER NOT NULL,UNIQUE(model_id,year));
  CREATE TABLE IF NOT EXISTS categories(id TEXT PRIMARY KEY,slug TEXT NOT NULL UNIQUE,name TEXT NOT NULL);
@@ -71,6 +71,14 @@ export function localDB() {
  CREATE TABLE IF NOT EXISTS order_items(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,product_id TEXT NOT NULL REFERENCES products(id),variant_id TEXT NOT NULL REFERENCES variants(id),title TEXT NOT NULL,sku TEXT NOT NULL,quantity INTEGER NOT NULL,unit_price REAL NOT NULL);
  CREATE INDEX IF NOT EXISTS fitment_lookup ON compatibility(model_id,year_from,year_to);
  `);
+  if (
+    !(db.prepare("PRAGMA table_info(models)").all() as { name: string }[]).some(
+      (column) => column.name === "published",
+    )
+  )
+    db.exec(
+      "ALTER TABLE models ADD COLUMN published INTEGER NOT NULL DEFAULT 1",
+    );
   db.exec(
     "CREATE TABLE IF NOT EXISTS customers(id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL)",
   );

@@ -1072,6 +1072,9 @@
               throw Error("Ürün görseli geçersiz.");
           const has = (t, id) => c[t].some((r) => r.id === id);
           for (const m of c.models) {
+            if (m.published === undefined) m.published = true;
+            if (typeof m.published !== "boolean")
+              throw Error("Model görünürlüğü geçersiz.");
             if (!has("brands", m.brand_id) || typeof m.name !== "string")
               throw Error("Model markası geçersiz.");
           }
@@ -1318,13 +1321,13 @@
               rows
                 .map(
                   (p) =>
-                    `<tr><td><div class="row-name">${imageTag(imageFor(p), p.title.tr)}<div><strong>${esc(p.title.tr)}</strong><small>${esc(p.sku)}</small></div></div></td><td>${money(p.price)}<small>Toplam stok: ${p.stock}</small></td><td><span class="pill">${p.published ? "Gösteriliyor" : "Taslak"}${p.featured ? " · Öne çıkan" : ""}</span></td><td>${action("Düzenle ↗", "edit", p.id, "ghost")}</td></tr>`,
+                    `<tr><td><div class="row-name">${imageTag(imageFor(p), p.title.tr)}<div><strong>${esc(p.title.tr)}</strong><small>${esc(p.sku)}</small></div></div></td><td>${money(p.price)}<small>Toplam stok: ${p.stock}</small></td><td><span class="pill">${p.published ? "Yayında" : "Yayında değil"}${p.featured ? " · Öne çıkan" : ""}</span></td><td>${action("Düzenle ↗", "edit", p.id, "ghost")}</td></tr>`,
                 )
                 .join(""),
             );
           if (section === "models")
             body = table(
-              ["Model", "Marka", "Üretim yılları", "İşlem"],
+              ["Model", "Marka", "Üretim yılları", "Görünürlük", "İşlem"],
               rows
                 .map(
                   (m) =>
@@ -1334,7 +1337,7 @@
                       .sort()
                       .join(
                         " · ",
-                      )}</td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
+                      )}</td><td><span class="pill">${m.published !== false ? "Yayında" : "Yayında değil"}</span></td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
                 )
                 .join(""),
             );
@@ -1465,7 +1468,7 @@
                 record?.specifications.tr || "",
               ) +
               photoField(newPhoto) +
-              `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published ? "checked" : ""}>Koleksiyonda göster</label><label><input type="checkbox" name="featured" ${record?.featured ? "checked" : ""}>Ana sayfada öne çıkar</label></div>`;
+              `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published ? "checked" : ""}>Yayında</label><label><input type="checkbox" name="featured" ${record?.featured ? "checked" : ""}>Ana sayfada öne çıkar</label></div><p class="help span-2">Yayında işaretini kaldırınca parça panelde korunur; müşteri görünümünden ve ürün bağlantısından kaldırılır. Kaydettikten sonra Yayın & sürümler bölümünden taslağı yayınlayın.</p>`;
           }
           if (table === "models") {
             const g = state.generations.find((g) => g.model_id === id);
@@ -1502,6 +1505,7 @@
                 'required placeholder="2024, 2025, 2026"',
               ) +
               photoField(newPhoto) +
+              `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published !== false ? "checked" : ""}>Yayında</label></div><p class="help span-2">İşareti kaldırınca model, yılları ve uyumlulukları panelde korunur; müşteri görünümünde model ve yıl bağlantıları kapanır. Uyumlu parçalar diğer modeller ve genel katalog için korunur. Kaydettikten sonra Yayın & sürümler bölümünden taslağı yayınlayın.</p>` +
               `<p class="help span-2">Bu hızlı form modelin yıllarını tek bir nesilde toplar. Mevcut uyumlulukların dışında yıl bırakan değişiklikler kaydedilmez.</p>`;
           }
           if (table === "compatibility")
@@ -1671,40 +1675,53 @@
                 years.some((y) => !Number.isInteger(y) || y < 1900 || y > 2100)
               )
                 throw Error("Yılları 2024, 2025 şeklinde girin.");
-              if (next.generations.filter((g) => g.model_id === id).length > 1)
-                throw Error(
-                  "Bu model birden fazla nesil içeriyor; hızlı form bu modeli yeniden yapılandıramaz.",
-                );
-              const old = next.generations.find((g) => g.model_id === id),
-                g = {
-                  id: old?.id || uid(),
-                  model_id: id,
-                  name: str("generation_name"),
-                  start_year: years[0],
-                  end_year: years.at(-1),
-                };
+              const existingYears = next.model_years
+                .filter((y) => y.model_id === id)
+                .map((y) => y.year)
+                .sort((a, b) => a - b);
               if (
-                next.compatibility.some(
-                  (f) =>
-                    f.model_id === id &&
-                    (f.year_from < g.start_year || f.year_to > g.end_year),
+                isNew ||
+                JSON.stringify(years) !== JSON.stringify(existingYears) ||
+                str("generation_name") !==
+                  next.generations.find((g) => g.model_id === id)?.name
+              ) {
+                if (
+                  next.generations.filter((g) => g.model_id === id).length > 1
                 )
-              )
-                throw Error(
-                  "Mevcut uyumluluklar bu yılların dışına çıkıyor. Önce uyumlulukları düzenleyin.",
+                  throw Error(
+                    "Bu model birden fazla nesil içeriyor; hızlı form bu modeli yeniden yapılandıramaz.",
+                  );
+                const old = next.generations.find((g) => g.model_id === id),
+                  g = {
+                    id: old?.id || uid(),
+                    model_id: id,
+                    name: str("generation_name"),
+                    start_year: years[0],
+                    end_year: years.at(-1),
+                  };
+                if (
+                  next.compatibility.some(
+                    (f) =>
+                      f.model_id === id &&
+                      (f.year_from < g.start_year || f.year_to > g.end_year),
+                  )
+                )
+                  throw Error(
+                    "Mevcut uyumluluklar bu yılların dışına çıkıyor. Önce uyumlulukları düzenleyin.",
+                  );
+                if (old) Object.assign(old, g);
+                else next.generations.push(g);
+                next.model_years = next.model_years.filter(
+                  (y) => y.model_id !== id,
                 );
-              if (old) Object.assign(old, g);
-              else next.generations.push(g);
-              next.model_years = next.model_years.filter(
-                (y) => y.model_id !== id,
-              );
-              for (const year of years)
-                next.model_years.push({
-                  id: uid(),
-                  model_id: id,
-                  generation_id: g.id,
-                  year,
-                });
+                for (const year of years)
+                  next.model_years.push({
+                    id: uid(),
+                    model_id: id,
+                    generation_id: g.id,
+                    year,
+                  });
+              }
               r = {
                 ...(current || {
                   id,
@@ -1712,6 +1729,7 @@
                 }),
                 brand_id: str("brand_id"),
                 name: str("name"),
+                published: form.has("published"),
                 image: photoDirty ? newPhoto : current?.image || "",
               };
             }

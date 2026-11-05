@@ -7,6 +7,7 @@ export type Model = Row & {
   slug: string;
   name: string;
   image: string;
+  published: boolean;
 };
 export type Generation = Row & {
   model_id: string;

@@ -2,6 +2,7 @@ import "server-only";
 import { isLive, rowsLocal } from "./database";
 import { supabase } from "./supabase";
 import type { Catalog, Table } from "./types";
+import { publicCatalog } from "./catalog-visibility";
 export async function getRows(table: Table) {
   if (!isLive) return rowsLocal(table);
   const db = await supabase();
@@ -33,10 +34,5 @@ export async function getCatalog(): Promise<Catalog> {
   ] as (keyof Catalog)[];
   const values = await Promise.all(keys.map((k) => getRows(k)));
   const c = Object.fromEntries(keys.map((k, i) => [k, values[i]])) as Catalog;
-  c.products = c.products.filter((p) => p.published);
-  const visible = new Set(c.products.map((p) => p.id));
-  c.variants = c.variants.filter((v) => visible.has(v.product_id));
-  c.product_images = c.product_images.filter((i) => visible.has(i.product_id));
-  c.compatibility = c.compatibility.filter((f) => visible.has(f.product_id));
-  return c;
+  return publicCatalog(c);
 }

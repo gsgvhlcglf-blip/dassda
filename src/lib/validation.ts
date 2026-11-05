@@ -32,6 +32,7 @@ export const schemas = {
     slug,
     name: z.string().min(1).max(100),
     image: asset,
+    published: z.boolean().default(true),
   }),
   generations: z
     .object({

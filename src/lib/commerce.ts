@@ -4,6 +4,8 @@ export function compatibleProducts(
   modelId: string,
   year: number,
 ): Product[] {
+  if (!c.models.some((m) => m.id === modelId && m.published !== false))
+    return [];
   const y = c.model_years.find(
     (y) => y.model_id === modelId && y.year === year,
   );

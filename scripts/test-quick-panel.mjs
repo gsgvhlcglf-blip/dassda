@@ -31,7 +31,7 @@ try {
   await page.getByLabel("Görünen fiyat (TRY)", { exact: true }).fill("4500");
   await page.getByLabel("Toplam stok", { exact: true }).fill("10");
   await page.getByLabel("Parlak yüzey stoku", { exact: true }).fill("5");
-  await page.getByLabel("Koleksiyonda göster", { exact: true }).check();
+  await page.getByLabel("Yayında", { exact: true }).check();
   await page.locator("#photo-file").setInputFiles("public/images/hero.webp");
   await page.waitForFunction(() =>
     document

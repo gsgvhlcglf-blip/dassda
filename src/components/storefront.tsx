@@ -27,6 +27,7 @@ import {
   MoveDown,
 } from "lucide-react";
 import type { Catalog, Product, CartLine, Lang } from "@/lib/types";
+import { publicCatalog } from "@/lib/catalog-visibility";
 import { money, type MessageKey } from "@/lib/i18n";
 import {
   useVisualTranslate,
@@ -104,7 +105,7 @@ function BrandVisual({
   );
 }
 export function Storefront({
-  catalog: c,
+  catalog,
   segments: s,
   lang: requestedLang,
   live,
@@ -122,6 +123,7 @@ export function Storefront({
   lang: Lang;
   live: boolean;
 }) {
+  const c = useMemo(() => publicCatalog(catalog), [catalog]);
   const lang = resolveStoreLanguage(requestedLang);
   const copy = useVisualCopy(lang);
   const t = useVisualTranslate(lang),
@@ -305,6 +307,7 @@ export function Storefront({
   const renderMotorcycles = () => {
     const b = c.brands.find((b) => b.slug === s[1]),
       m = c.models.find((m) => m.slug === s[2] && m.brand_id === b?.id);
+    if ((s[1] && !b) || (s[2] && !m)) return unavailable("/motosikletler");
     if (!b)
       return (
         <section className="page-section brand-page">
@@ -442,7 +445,8 @@ export function Storefront({
     );
   };
   const renderProduct = () => {
-    const p = c.products.find((p) => p.slug === s[1])!;
+    const p = c.products.find((p) => p.slug === s[1]);
+    if (!p) return unavailable("/urunler");
     return (
       <ProductDetail key={p.id} p={p} c={c} lang={lang} href={href} add={add} />
     );
@@ -537,6 +541,14 @@ export function Storefront({
           </aside>
         </div>
       )}
+    </section>
+  );
+  const unavailable = (url: string) => (
+    <section className="page-section empty-state">
+      <h1>{t("notPublished")}</h1>
+      <Link className="button" href={href(url)}>
+        {t("back")}
+      </Link>
     </section>
   );
   const renderContent = () => {

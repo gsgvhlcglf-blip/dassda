@@ -18,7 +18,7 @@ Mevcut yıllar veya uyumluluk kayıtları nesil aralığının dışına düşec
 4. **Varyantlar & stok**: her yüzey için ayrı varyant, benzersiz SKU, gerçek satış fiyatı ve stok ekleyin. Sepette varyant fiyatı kullanılır; ürün kartındaki fiyatı buna uygun tutun. Varyant oluşturulmadan ürün sepete eklenemez.
 5. **Ürün fotoğrafları**: aynı ürün için birden fazla kayıt ekleyebilirsiniz. Sıra 0 kapak görselidir. Yüklenen fotoğraflar herkese açık mağaza görselleridir; kişisel belge yüklemeyin.
 6. **Uyumluluk**: ürün ve motosiklet modelini seçin. Nesli ve kapsanan yıl aralığını girin. Başka model/markalara da uyuyorsa yeni uyumluluk kayıtları ekleyin. Bir ürün için ayrı sayfa veya koleksiyon açmanız gerekmez.
-7. Üründe **Mağazada göster** seçeneğini açın. **Ana sayfada öne çıkar** seçeneği ana sayfada gösterir. **Örnek ürün** işaretini yalnızca bilgileriniz ve ürününüz gerçek satışa hazırsa kaldırın.
+7. Üründe **Yayında** seçeneğini açın. **Ana sayfada öne çıkar** seçeneği ana sayfada gösterir. **Örnek ürün** işaretini yalnızca bilgileriniz ve ürününüz gerçek satışa hazırsa kaldırın.
 8. Müşteri görünümünden marka → model → yıl akışını izleyerek sonucu kontrol edin.
 
 ## Sipariş talepleri

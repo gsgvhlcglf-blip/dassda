@@ -55,6 +55,7 @@ const fields: Record<string, Field[]> = {
     { key: "name", label: "Model adı" },
     { key: "slug", label: "URL adı (küçük harf, tire)" },
     { key: "image", label: "Model fotoğrafı", type: "image" },
+    { key: "published", label: "Yayında", type: "checkbox" },
   ],
   generations: [
     { key: "model_id", label: "Motosiklet modeli", relation: "models" },
@@ -91,7 +92,7 @@ const fields: Record<string, Field[]> = {
     { key: "video_url", label: "Video HTTPS adresi", optional: true },
     { key: "viewer_url", label: "360° görüntü HTTPS adresi", optional: true },
     { key: "featured", label: "Ana sayfada öne çıkar", type: "checkbox" },
-    { key: "published", label: "Mağazada göster", type: "checkbox" },
+    { key: "published", label: "Yayında", type: "checkbox" },
     { key: "demo", label: "Örnek ürün (gerçek satış değil)", type: "checkbox" },
   ],
   variants: [
@@ -798,9 +799,16 @@ export function Admin({
                               {labels[String(r.status)] || String(r.status)}
                             </span>
                           </>
-                        ) : r.published !== undefined ? (
+                        ) : section === "models" ||
+                          r.published !== undefined ? (
                           <span className="status-tag">
-                            {r.published ? "Yayında" : "Taslak"}
+                            {(
+                              section === "models"
+                                ? r.published !== false
+                                : r.published
+                            )
+                              ? "Yayında"
+                              : "Yayında değil"}
                             {r.demo ? " · Demo" : ""}
                           </span>
                         ) : r.model_id ? (
@@ -949,7 +957,10 @@ export function Admin({
                 </div>
               )}
               {fields[section]?.map((f) => {
-                const value = editing[f.key];
+                const value =
+                  f.key === "published" && section === "models"
+                    ? editing[f.key] !== false
+                    : editing[f.key];
                 const set = (v: unknown) =>
                   setEditing({ ...editing, [f.key]: v });
                 if (f.type === "checkbox")
@@ -957,10 +968,18 @@ export function Admin({
                     <label className="checkbox-field" key={f.key}>
                       <input
                         type="checkbox"
+                        aria-label={f.label}
                         checked={!!value}
                         onChange={(e) => set(e.target.checked)}
                       />
                       {f.label}
+                      {f.key === "published" && (
+                        <span className="micro muted">
+                          İşareti kaldırınca kayıt panelde korunur. Kaydedip
+                          taslağı yayınladığınızda müşteri görünümünden
+                          kaldırılır.
+                        </span>
+                      )}
                     </label>
                   );
                 if (f.type === "localized")

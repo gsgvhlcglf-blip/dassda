@@ -191,17 +191,17 @@ try {
   await page
     .getByRole("button", { name: "Ürün kaydını düzenle ↗", exact: true })
     .click();
-  await page.getByLabel("Koleksiyonda göster", { exact: true }).uncheck();
+  await page.getByLabel("Yayında", { exact: true }).uncheck();
   await page
     .getByRole("button", { name: "Değişiklikleri kaydet ✓", exact: true })
     .click();
-  await frame().locator(".product-copy h1").waitFor();
+  await frame().getByRole("heading", { name: "Bu sayfa şu anda yayında değil." }).waitFor();
   assert.match(
     await page.locator("#site-product option:checked").innerText(),
     /Taslak/,
   );
   console.log(
-    "PASS: unpublished drafts can be visually reviewed without publishing them.",
+    "PASS: unpublished products stay editable in the panel and close their preview detail page.",
   );
   assert.deepEqual(apiCalls, []);
   assert.deepEqual(errors, []);

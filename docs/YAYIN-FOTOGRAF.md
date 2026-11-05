@@ -13,6 +13,12 @@ Mevcut ürünler, metinler, fotoğraflar ve logo ayarları taslakta korunur. Dü
 
 Son 12 sürüm IndexedDB'de tutulur; büyük görselleri her sürüm için localStorage'a çoğaltmaz. Tarayıcı verileri silinirse sürümler kaybolur. “Taslak & yedek” dışa aktarımı o anki katalog ve görsel ayarları içerir; tüm sürüm geçmişini içermez. Dosyayı içe aktarmak taslağı günceller; yayımlanan görünümü değiştirmek için ayrıca Yayınla kullanın. Sürümler görsel yerleşim ayarları ve katalog içeriğidir; uygulama kodu sürümleri GitHub geçmişindedir.
 
+## Bir parça veya modeli silmeden yayından kaldırma
+
+**Veri paneli → Ürünler / Motosikletler → Düzenle → Yayında** işaretini kaldırıp **Değişiklikleri kaydet** düğmesine basın. Taslak müşteri önizlemesi hemen güncellenir. Son yayımlanan görünümü güncellemek için **Yayın & sürümler → Taslağı yayınla** kullanın.
+
+Kayıt panelde **Yayında değil** olarak korunur. Modelin fotoğrafı, yılları ve uyumlulukları silinmez. Bir modeli kapatmak o modele bağlı parçaları genel katalogdan veya diğer modellerden kaldırmaz. Tekrar göstermek için aynı kutucuğu işaretleyip kaydedin ve yayınlayın. Canlı Supabase kurulumunda `007_model_visibility.sql` göçünü önceki göçlerden sonra uygulayın.
+
 ## Fotoğraf düzeni
 
 **Veri paneli → Fotoğraf düzeni** bölümünde:

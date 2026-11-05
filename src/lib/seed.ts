@@ -17,6 +17,7 @@ const models = brands.flatMap((b) =>
     name,
     brand_id: b.id,
     image: "/images/model.svg",
+    published: true,
   })),
 );
 const generations = models.map((m) => ({

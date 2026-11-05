@@ -365,6 +365,11 @@ const messages = {
     "Для этой марки пока не добавлены модели.",
   ],
   notFound: ["Bu sayfa bulunamadı.", "Page not found.", "Страница не найдена."],
+  notPublished: [
+    "Bu sayfa şu anda yayında değil.",
+    "This page is currently unavailable.",
+    "Эта страница сейчас недоступна.",
+  ],
   video: ["Ürün videosu", "Product video", "Видео товара"],
   viewer: ["360° görünüm", "360° viewer", "Обзор 360°"],
   copyright: [

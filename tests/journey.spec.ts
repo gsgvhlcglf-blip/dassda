@@ -176,7 +176,7 @@ test("owner can visually create a model, generation, year, product, variant, ima
   await page.getByLabel("Kategori", { exact: true }).selectOption("body");
   await page.getByLabel("Görünen fiyat (TRY)", { exact: true }).fill("1234");
   await page.getByLabel("Toplam stok", { exact: true }).fill("5");
-  await page.getByLabel("Mağazada göster", { exact: true }).check();
+  await page.getByLabel("Yayında", { exact: true }).check();
   await save();
   await section("Varyantlar & stok");
   await create();
