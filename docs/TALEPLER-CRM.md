@@ -16,6 +16,12 @@ Başarı mesajı ancak kayıt tamamlanınca referans numarası gösterir. Fiyat/
 
 Gerçek uygulamada **/admin → Talepler & CRM** yalnızca yöneticiye açıktır. Editör ve müşteriler başvuruları veya fotoğrafları okuyamaz.
 
+**Talep → CRM → analitik aynı kayıt zinciridir.** Formun görünümü korunur. Başvuru, oluşturulma geçmişi ve özel fotoğraf bağlantıları tek veritabanı işlemi içinde kaydolur; başarı ancak işlem tamamlanınca döner. Aynı gönderim anahtarıyla tekrar denemede ikinci başvuru oluşmaz. Canlı veritabanı kaydettiği halde RPC yanıtı kaybolursa gönderim anahtarı ve içerik özetiyle ilk referans kurtarılır. Hata temizliği CRM'e bağlı fotoğrafları silmez; bağlantı doğrulanamazsa temizlik ertelenir ve sunucuda `WORK_REQUEST_CLEANUP_DEFERRED` kaydı oluşur.
+
+**Başvurular** ve **İş analitiği** 15 saniyede bir ve sekmeye dönüldüğünde yenilenir. **Talepleri yenile** düğmesi de vardır. Talep detayı veya koşul formu açıkken otomatik liste yenilemesi durur; yazılmakta olan yönetici notları ve koşullar korunur. Yeni başvurular mevcut arama/dönem filtrelerini karşılamıyorsa listede görünmez; filtreleri temizleyin.
+
+**Analitik & Isı Haritası → Talep & CRM analitiği**, aynı kayıtların dönem özetini gösterir. CRM'in iş analitiğiyle aynı hesaplama kullanılır: toplam/yeni başvuru, özel üretim/yeni ürün, farklı iletişim sayısı; marka/model, karbon tercihi, üretim yöntemi, parça, aşama ve kaynak sayfa dağılımları. Katalogda olmayan müşteri marka/modelleri de sayılır. Özet API'si yalnızca yöneticilere açıktır; ham iletişim bilgisi, fotoğraf veya talep nesnesi dönmez. Ziyaretçi takibi kapalı veya reddedilmiş olsa bile müşteri başvurusu CRM'e kaydolur; ziyaretçi analitiği temizlemek başvuruları silmez. Teklif toplamları tahsilat veya ciro sayılmaz.
+
 - **Başvurular:** kişi, referans, parça veya modelle arama; tür, dönem ve aşama filtreleri; takip tarihi ve geciken takipler.
 - **Talep detayı:** iletişim, motosiklet/kategori, teknik tercihler, referans fotoğrafları ve kaynak sayfa.
 - **Aşama ve takip:** her talep türünün kendi aşamaları vardır. İleri/geri geçişler açıklama, tarih ve yönetici kaydıyla tarihçeye yazılır.
@@ -41,6 +47,7 @@ Takip değişiklikleri eski/yeni değerlerle geçmişe kaydedilir. Sonraki metin
 1. 001–007'den sonra **008_work_requests.sql**, ardından **009_simple_work_requests.sql** dosyalarını uygulayın. 009, talep markasını/modelini katalogdan bağımsız hale getirir; ölçü sütunlarını ve üç fotoğraf kuralını ekler. Eski başvurular silinmez, bilinmeyen ölçüler uydurulmaz.
 2. Sunucuda `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` ve yalnızca sunucuya ait `SUPABASE_SERVICE_ROLE_KEY` bulunmalı. Servis anahtarını panel formuna, müşteri tarayıcısına veya GitHub'a koymayın.
 3. Göç; korumalı talep, olay, dosya ve koşul sürümü tablolarını, **work-requests** adlı özel Storage bucket'ını oluşturur. Bucket'ı herkese açık yapmayın. Doğrudan misafir tablo/RPC yazımı kapalıdır; başvurular doğrulanan sunucu rotasından alınır.
+   Form hizmeti kontrolü ayrıca 009 sütunlarını ve bucket'ın özel olmasını doğrular. Eksik kurulum başarı taklidi yapmaz; form hizmeti kapalı görünür. Kalıcı sunucu/Supabase ve özel depolama yapılandırılmadan HTMLPreview üzerinden gerçek müşteri başvurusu alınmaz.
 4. Formları, yönetici rolünü ve dosya erişimini gerçek Supabase kurulumunda deneyin. Yapılandırma eksikse başarı taklidi yapılmaz; hizmetin açılmadığı gösterilir.
 
 Sunucuda boyut/tür doğrulaması, honeypot, kaynak/iletişim bazlı veritabanı hız sınırı, gönderim anahtarıyla idempotency ve motosiklet ilişkisi doğrulaması uygulanır. Reverse proxy istemciden gelen sahte `X-Forwarded-For` başlığını geçirmemelidir; kaynak sınırı güvenilir proxy bilgisine dayanır, iletişim sınırı ayrıca uygulanır. Başarısız kayıtların yüklemeleri temizlenir. Yönetici düzenlemelerinde sürüm kontrolü sekmelerin birbirini ezmesini önler.
@@ -56,5 +63,6 @@ Tasarım önizlemesindeki müşteri formu gerçek talep göndermez, iletişim bi
 ## Kontroller
 
 - `node --import tsx --test tests/requests.test.ts`: doğrulama, iş akışı, teklif/onay geçmişi, PostgreSQL göçü ve RLS.
+- `node --import tsx --test tests/request-persistence.test.ts`: kesilen RPC yanıtından referans kurtarma, bağlı fotoğrafları koruma, güvenli bucket ve şema kontrolü; Supabase taşıması izole olarak taklit edilir.
 - `node scripts/test-requests.mjs`: önizleme, bağlam aktarımı, boş stok, örnek CRM, mobil form ve kapalı gerçek gönderim.
-- `node scripts/test-requests.mjs --app`: misafir kayıt, özel fotoğraflar, idempotency, admin aşama/teklif/onay/teslim alma ve eşzamanlı düzenleme koruması.
+- `node scripts/test-requests.mjs --app`: misafir kayıt, açık CRM'e yeni başvuru gelmesi, ortak CRM/analitik sayıları, ziyaretçi analitiğinden bağımsızlık, zorlanmış veritabanı hatasında geri alma, özel fotoğraflar, idempotency, admin aşama/teklif/onay/teslim alma ve eşzamanlı düzenleme koruması.

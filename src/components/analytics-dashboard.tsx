@@ -1,5 +1,9 @@
 "use client";
 import { AnalyticsFunnel } from "./analytics-funnel";
+import {
+  RequestAnalyticsPanel,
+  type RequestAnalyticsSource,
+} from "./request-insights";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type {
   AnalyticsReport,
@@ -72,11 +76,13 @@ export function AnalyticsDashboard({
   preview = false,
   renderFrame,
   onOpenCustomer,
+  requestSource,
 }: {
   source?: AnalyticsSource;
   preview?: boolean;
   renderFrame?: (selection: HeatmapSelection) => ReactNode;
   onOpenCustomer?: () => void;
+  requestSource?: RequestAnalyticsSource;
 }) {
   const [days, setDays] = useState(7),
     [data, setData] = useState<Awaited<
@@ -240,6 +246,11 @@ export function AnalyticsDashboard({
           </select>
         </label>
       </header>
+      <RequestAnalyticsPanel
+        days={days}
+        source={requestSource}
+        preview={preview}
+      />
       {error && (
         <p className="form-error" role="alert">
           {error}

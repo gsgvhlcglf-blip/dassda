@@ -26,6 +26,11 @@ export function requestDemo(c: Catalog): CRMTransport {
   }
   function save() {
     localStorage.setItem(key, JSON.stringify(data));
+    window.dispatchEvent(new Event("kz-requests-changed"));
+  }
+  function reload() {
+    const current = JSON.parse(localStorage.getItem(key) || "null");
+    if (current?.records && current.terms) data = current;
   }
   function add() {
     const model = c.models.find(
@@ -93,13 +98,20 @@ export function requestDemo(c: Catalog): CRMTransport {
     };
   };
   return {
-    load: async () => ({
-      records: structuredClone(data.records),
-      terms: structuredClone(data.terms),
-      demo: true,
-    }),
-    detail: async (id) => detail(id),
+    load: async () => {
+      reload();
+      return {
+        records: structuredClone(data.records),
+        terms: structuredClone(data.terms),
+        demo: true,
+      };
+    },
+    detail: async (id) => {
+      reload();
+      return detail(id);
+    },
     act: async (record, action) => {
+      reload();
       const current = data.records.find((r) => r.id === record.id)!;
       if (record.revision !== current.revision)
         throw Error("Kayıt değişti. Yeniden açın.");
@@ -115,6 +127,7 @@ export function requestDemo(c: Catalog): CRMTransport {
       return detail(next.id);
     },
     terms: async (terms) => {
+      reload();
       const parsed = termsSchema.parse(terms);
       if (parsed.version !== data.terms.version)
         throw Error("Koşullar değişti. Yeniden açın.");
@@ -123,6 +136,7 @@ export function requestDemo(c: Catalog): CRMTransport {
       return structuredClone(data.terms);
     },
     sample: async () => {
+      reload();
       add();
     },
   };

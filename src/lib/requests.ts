@@ -534,6 +534,13 @@ export function changeRequest(
   };
   return { next, event };
 }
+export function requestPeriod(rows: WorkRequest[], days = 0, now = Date.now()) {
+  const since = days ? now - days * 86400000 : 0;
+  return rows.filter((r) => {
+    const time = Date.parse(r.created_at);
+    return Number.isFinite(time) && time >= since && time <= now;
+  });
+}
 export function requestInsights(rows: WorkRequest[]) {
   const group = (key: (r: WorkRequest) => string) => {
     const map = new Map<
@@ -566,7 +573,27 @@ export function requestInsights(rows: WorkRequest[]) {
     custom: rows.filter((r) => r.kind === "custom").length,
     demand: rows.filter((r) => r.kind === "demand").length,
     technical: rows.filter((r) => r.technical_review).length,
+    new: rows.filter((r) => r.status === "new").length,
+    customers: new Set(
+      rows.map(
+        (r) =>
+          r.input.email.trim().toLowerCase() ||
+          r.input.phone.replace(/\D/g, ""),
+      ),
+    ).size,
+    byBrand: group((r) => r.snapshot.brand),
     byModel: group((r) => `${r.snapshot.brand} ${r.snapshot.model}`),
+    byMaterial: group(
+      (r) => requestMaterialLabels[r.input.material] || "Belirtilmedi",
+    ),
+    byMethod: group(
+      (r) =>
+        requestMethodLabels[r.input.manufacturing_method || "unspecified"] ||
+        "Belirtilmedi",
+    ),
+    bySource: group(
+      (r) => r.input.source_path.split("?")[0] || "/parcani-urettir",
+    ),
     byPart: group((r) => r.input.part_name.toLocaleLowerCase("tr").trim()),
     byStatus: group(
       (r) => (requestStages[r.kind] as Record<string, string>)[r.status],
@@ -574,6 +601,7 @@ export function requestInsights(rows: WorkRequest[]) {
     quoteTotal: rows.reduce((s, r) => s + (r.quotes.at(-1)?.amount || 0), 0),
   };
 }
+export type RequestInsights = ReturnType<typeof requestInsights>;
 export function requestLink(
   kind: RequestKind,
   context: Record<string, string | number | undefined> = {},

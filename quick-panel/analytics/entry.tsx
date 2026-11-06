@@ -6,6 +6,8 @@ import {
 } from "../../src/components/analytics-dashboard";
 import { previewAnalyticsSource } from "../../src/lib/analytics-preview";
 import type { Catalog } from "../../src/lib/types";
+import { requestDemo } from "../request-demo";
+import { requestInsights, requestPeriod } from "../../src/lib/requests";
 type Configuration = {
   catalog: Catalog;
   design: unknown;
@@ -18,6 +20,13 @@ type Configuration = {
 };
 const config = (window as unknown as { __KZ_ANALYTICS__: Configuration })
   .__KZ_ANALYTICS__;
+const requestSource = async (days: number) => {
+  const data = await requestDemo(config.catalog).load();
+  return {
+    insights: requestInsights(requestPeriod(data.records, days)),
+    demo: true,
+  };
+};
 const json = (value: unknown) =>
   JSON.stringify(value).replaceAll("<", "\\u003c");
 function PreviewHeatmapFrame({ selection }: { selection: HeatmapSelection }) {
@@ -146,6 +155,7 @@ function App() {
       <AnalyticsDashboard
         preview
         source={previewAnalyticsSource}
+        requestSource={requestSource}
         onOpenCustomer={() =>
           window.open(config.customerURL, "_blank", "noopener")
         }

@@ -12,7 +12,12 @@ import {
   saveWorkTerms,
   saveWorkMutation,
 } from "@/lib/request-store";
-import { changeRequest, termsSchema, requestInsights } from "@/lib/requests";
+import {
+  changeRequest,
+  termsSchema,
+  requestInsights,
+  requestPeriod,
+} from "@/lib/requests";
 export async function GET(req: Request) {
   if ((await getRole()) !== "admin")
     return NextResponse.json(
@@ -20,7 +25,8 @@ export async function GET(req: Request) {
       { status: 401 },
     );
   try {
-    const id = new URL(req.url).searchParams.get("id");
+    const params = new URL(req.url).searchParams;
+    const id = params.get("id");
     if (id) {
       z.uuid().parse(id);
       return NextResponse.json(
@@ -33,6 +39,21 @@ export async function GET(req: Request) {
       );
     }
     const records = await allWorkRequests();
+    if (params.get("view") === "insights") {
+      const days = z.coerce
+        .number()
+        .int()
+        .min(0)
+        .max(90)
+        .parse(params.get("days") || 0);
+      return NextResponse.json(
+        {
+          insights: requestInsights(requestPeriod(records, days)),
+          demo: !isLive,
+        },
+        { headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
     return NextResponse.json(
       {
         records,

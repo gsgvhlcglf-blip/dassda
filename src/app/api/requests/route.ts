@@ -13,7 +13,7 @@ import {
   boundedForm,
   parseWorkPhotos,
   storeWorkPhotos,
-  removeWorkPhotos,
+  discardUnlinkedWorkPhotos,
   workTerms,
   submitWork,
   workFingerprint,
@@ -53,13 +53,13 @@ export async function POST(req: Request) {
       source,
       workFingerprint(input, photos),
     );
-    if (result.id !== record.id) await removeWorkPhotos(saved);
+    if (result.id !== record.id) await discardUnlinkedWorkPhotos(saved);
     return NextResponse.json(
       { reference: result.reference, demo: !isLive },
       { status: 201, headers: { "Cache-Control": "no-store" } },
     );
   } catch (e) {
-    await removeWorkPhotos(saved);
+    await discardUnlinkedWorkPhotos(saved);
     const message =
       e instanceof ZodError
         ? e.issues[0]?.message

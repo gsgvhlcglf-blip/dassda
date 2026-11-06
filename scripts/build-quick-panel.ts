@@ -86,7 +86,11 @@ async function main() {
     target: ["es2022"],
     minify: true,
     jsx: "automatic",
-    define: { "process.env.NODE_ENV": '\"production\"' },
+    define: {
+      "process.env.NODE_ENV": JSON.stringify("production"),
+      "process.env.ENABLE_INDEXING": JSON.stringify("false"),
+      "process.env.NEXT_PUBLIC_SITE_URL": JSON.stringify(""),
+    },
   });
   const styles = await postcss([
     tailwindcss({ base: process.cwd(), optimize: true }),

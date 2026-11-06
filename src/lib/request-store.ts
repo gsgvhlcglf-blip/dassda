@@ -50,6 +50,21 @@ export async function workTerms(): Promise<RequestTerms> {
   if (error) throw error;
   return data.body;
 }
+export async function workReadiness() {
+  const terms = await workTerms();
+  if (!isLive) return terms;
+  const db = privileged();
+  const [schema, bucket] = await Promise.all([
+    db
+      .from("work_requests")
+      .select("id,brand_name,model_name,length_cm,width_cm")
+      .limit(0),
+    db.storage.getBucket("work-requests"),
+  ]);
+  if (schema.error || bucket.error || !bucket.data || bucket.data.public)
+    throw Error("REQUEST_SETUP_REQUIRED");
+  return terms;
+}
 export async function saveWorkTerms(terms: RequestTerms) {
   if (isLive) {
     const { data, error } = await privileged().rpc("save_work_terms", {
@@ -205,7 +220,17 @@ export async function submitWork(
       submission: record.input.submission_key,
       digest: fingerprint,
     });
-    if (error) throw Error(error.message);
+    if (error) {
+      // An RPC response can be lost after commit. Recover the original receipt.
+      const recovered = await privileged()
+        .from("work_requests")
+        .select("id,reference,fingerprint")
+        .eq("submission_key", record.input.submission_key)
+        .maybeSingle();
+      if (recovered.data?.fingerprint === fingerprint)
+        return { id: recovered.data.id, reference: recovered.data.reference };
+      throw Error(error.message);
+    }
     return data as { id: string; reference: string };
   }
   const db = tables();
@@ -368,14 +393,47 @@ export async function storeWorkPhotos(
 export async function removeWorkPhotos(files: RequestFile[]) {
   if (!files.length) return;
   if (isLive) {
-    await privileged()
+    const { error } = await privileged()
       .storage.from("work-requests")
       .remove(files.map((f) => f.path));
+    if (error) throw error;
   } else
     for (const f of files)
       await unlink(
         path.join(process.cwd(), ".data/request-files", f.path),
       ).catch(() => {});
+}
+export async function discardUnlinkedWorkPhotos(files: RequestFile[]) {
+  if (!files.length) return;
+  try {
+    let linked: Set<string>;
+    if (isLive) {
+      const { data, error } = await privileged()
+        .from("work_request_files")
+        .select("id")
+        .in(
+          "id",
+          files.map((f) => f.id),
+        );
+      if (error) throw error;
+      linked = new Set(data.map((f) => f.id));
+    } else {
+      const db = tables();
+      linked = new Set(
+        files
+          .filter((f) =>
+            db
+              .prepare("SELECT id FROM work_request_files WHERE id=?")
+              .get(f.id),
+          )
+          .map((f) => f.id),
+      );
+    }
+    await removeWorkPhotos(files.filter((f) => !linked.has(f.id)));
+  } catch {
+    // An uncertain commit must never delete photographs already linked to a CRM record.
+    console.warn("WORK_REQUEST_CLEANUP_DEFERRED");
+  }
 }
 export async function attachWorkPhotos(
   files: RequestFile[],

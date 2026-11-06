@@ -8,7 +8,7 @@ import {
   boundedForm,
   parseWorkPhotos,
   storeWorkPhotos,
-  removeWorkPhotos,
+  discardUnlinkedWorkPhotos,
   attachWorkPhotos,
   findWorkRequest,
   workFiles,
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
       history: await workHistory(id),
     });
   } catch (e) {
-    if (!committed) await removeWorkPhotos(files);
+    if (!committed) await discardUnlinkedWorkPhotos(files);
     const message = e instanceof Error ? e.message : "Fotoğraf yüklenemedi.";
     return NextResponse.json(
       {

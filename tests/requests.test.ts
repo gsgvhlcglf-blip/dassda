@@ -10,6 +10,7 @@ import {
   blankTerms,
   changeRequest,
   requestInsights,
+  requestPeriod,
   termsSchema,
   requestLink,
   type RequestTerms,
@@ -44,6 +45,49 @@ function approved(): RequestTerms {
   }
   return t;
 }
+test("CRM and analytics derive the same saved requests, free motorcycles and production choices without contact details", () => {
+  const now = Date.now();
+  const a = newWorkRequest(
+    { ...input(), material: "forged", manufacturing_method: "lamination" },
+    seed,
+    blankTerms,
+    null,
+  );
+  const b = newWorkRequest(
+    {
+      ...input("demand"),
+      brand_name: "Honda",
+      model_name: "CBR650R",
+      material: "twill",
+      manufacturing_method: "infusion",
+    },
+    seed,
+    blankTerms,
+    null,
+  );
+  const old = structuredClone(a);
+  old.id = crypto.randomUUID();
+  old.created_at = new Date(now - 40 * 86400000).toISOString();
+  const future = structuredClone(a);
+  future.created_at = new Date(now + 86400000).toISOString();
+  const report = requestInsights(
+    requestPeriod([a, b, old, future], 30, now + 100),
+  );
+  assert.equal(report.total, 2);
+  assert.equal(report.new, 2);
+  assert.equal(report.byBrand.find((v) => v.name === "Honda")?.count, 1);
+  assert.equal(
+    report.byMaterial.find((v) => v.name === "Twill Carbon")?.count,
+    1,
+  );
+  assert.equal(
+    report.byMethod.find((v) => v.name.startsWith("İnfüzyon"))?.count,
+    1,
+  );
+  assert.equal(report.bySource[0].name.includes("?"), false);
+  assert.equal(JSON.stringify(report).includes(a.input.email), false);
+  assert.equal(requestPeriod([old], 0, now).length, 1);
+});
 test("public enquiries require a carbon style, production method, phone and email while legacy CRM records remain readable", () => {
   const valid = {
     ...input(),

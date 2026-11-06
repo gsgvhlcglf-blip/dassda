@@ -1,6 +1,8 @@
 import { chromium, expect } from "@playwright/test";
 import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
+import { DatabaseSync } from "node:sqlite";
 import assert from "node:assert/strict";
 import { testAppServer } from "./test-app-server.mjs";
 const app = process.argv.includes("--app"),
@@ -258,6 +260,33 @@ try {
         multipart: multipart(),
       });
     assert.equal(one.status(), 201, await one.text());
+    // The panel was already open when the third enquiry was submitted.
+    const freshReference = (await one.json()).reference;
+    await panel.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await panel.getByText(freshReference, { exact: false }).waitFor();
+    const analytics = await (
+      await admin.request.get(
+        origin + "/api/admin/requests?view=insights&days=30",
+      )
+    ).json();
+    assert.equal(analytics.insights.total, 3);
+    assert.equal(
+      analytics.insights.byMaterial.find((v) => v.name === "Twill Carbon")
+        .count,
+      2,
+    );
+    assert.equal(
+      analytics.insights.byMethod.find((v) => v.name.startsWith("İnfüzyon"))
+        .count,
+      2,
+    );
+    assert(!JSON.stringify(analytics).includes("custom-browser@example.test"));
+    assert.equal(
+      (
+        await context.request.get(origin + "/api/admin/requests?view=insights")
+      ).status(),
+      401,
+    );
     assert.equal((await one.json()).reference, (await two.json()).reference);
     const invalid = await context.request.post(origin + "/api/requests", {
       multipart: multipart(
@@ -282,6 +311,35 @@ try {
       }),
     });
     assert.equal(noMeasure.status(), 400);
+    // A database failure must roll back record/history/files and never return success.
+    const db = new DatabaseSync(server.directory + "/.data/store.sqlite");
+    const photoCount = () =>
+      readdirSync(server.directory + "/.data/request-files", {
+        recursive: true,
+      }).filter((p) => /\.(png|jpg|webp)$/.test(String(p))).length;
+    const countBeforeFailure = photoCount();
+    db.exec(
+      "CREATE TRIGGER test_request_failure BEFORE INSERT ON work_request_files BEGIN SELECT RAISE(ABORT, 'TEST_CRM_WRITE_FAILED'); END;",
+    );
+    try {
+      const failed = await context.request.post(origin + "/api/requests", {
+        multipart: multipart({
+          ...payload,
+          submission_key: crypto.randomUUID(),
+          email: "rollback@example.test",
+          phone: "+905551234567",
+        }),
+      });
+      assert.equal(failed.status(), 400);
+      assert.equal(
+        db.prepare("SELECT count(*) n FROM work_requests").get().n,
+        3,
+      );
+      assert.equal(photoCount(), countBeforeFailure);
+    } finally {
+      db.exec("DROP TRIGGER test_request_failure");
+      db.close();
+    }
     await panel
       .locator("tbody tr")
       .filter({ hasText: customRef })
@@ -426,6 +484,9 @@ try {
     await panel
       .getByRole("button", { name: "İş analitiği", exact: true })
       .click();
+    await expect(
+      panel.locator("[data-request-insights] .crm-stats > div").first(),
+    ).toContainText("3");
     await panel
       .getByRole("heading", {
         name: "En çok talep edilen modeller",
@@ -439,6 +500,26 @@ try {
     await panel.setViewportSize({ width: 390, height: 844 });
     await panel.screenshot({
       path: "/tmp/kuzmin-requests-crm-mobile.png",
+      fullPage: true,
+    });
+    await panel.setViewportSize({ width: 1440, height: 1000 });
+    await panel
+      .getByRole("button", { name: "Analitik & Isı Haritası", exact: true })
+      .click();
+    await expect(
+      panel.locator("[data-crm-analytics] .crm-stats > div").first(),
+    ).toContainText("3");
+    await admin.request.post(origin + "/api/admin/analytics", {
+      data: { action: "clear" },
+    });
+    await panel
+      .getByRole("button", { name: "Talep verisini yenile", exact: true })
+      .click();
+    await expect(
+      panel.locator("[data-crm-analytics] .crm-stats > div").first(),
+    ).toContainText("3");
+    await panel.screenshot({
+      path: "/tmp/kuzmin-request-analytics.png",
       fullPage: true,
     });
     await admin.close();
@@ -475,6 +556,24 @@ try {
       .getByRole("button", { name: "Aşamayı kaydet", exact: true })
       .click();
     await page.getByText(/Talep güncellendi/).waitFor();
+    await page
+      .getByRole("button", { name: "Analitik & Isı Haritası", exact: true })
+      .click();
+    const analyticsFrame = page.frameLocator("#analytics-panel-frame");
+    try {
+      await expect(
+        analyticsFrame.locator("[data-crm-analytics] .crm-stats > div").first(),
+      ).toContainText("2");
+    } catch (e) {
+      console.error("Analytics frame errors:", errors);
+      throw e;
+    }
+    await expect(analyticsFrame.locator("[data-crm-analytics]")).toContainText(
+      "Örnek CRM başvuruları",
+    );
+    await page
+      .getByRole("button", { name: "Talepler & CRM", exact: true })
+      .click();
     await page.evaluate((key) => {
       const c = JSON.parse(localStorage.getItem(key)) || null;
       if (c) {

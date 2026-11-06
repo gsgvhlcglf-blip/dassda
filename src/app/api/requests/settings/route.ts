@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { workTerms } from "@/lib/request-store";
+import { workReadiness } from "@/lib/request-store";
 import { isLive } from "@/lib/database";
 export async function GET() {
   try {
-    const terms = await workTerms();
+    const terms = await workReadiness();
     return NextResponse.json(
       {
         ready: true,

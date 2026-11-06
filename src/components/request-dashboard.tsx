@@ -1,5 +1,13 @@
 "use client";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  type FormEvent,
+} from "react";
+import { RequestInsightsView } from "./request-insights";
 import { ArrowLeft, ArrowUpRight, Plus } from "lucide-react";
 import { money } from "@/lib/i18n";
 import {
@@ -98,17 +106,45 @@ export function RequestDashboard({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
-  async function load() {
+  const loadVersion = useRef(0);
+  const [refreshing, setRefreshing] = useState(false),
+    [lastSync, setLastSync] = useState("");
+  const load = useCallback(async () => {
+    const version = ++loadVersion.current;
+    setRefreshing(true);
     try {
+      const next = await transport.load();
+      if (loadVersion.current !== version) return;
+      setData(next);
+      setLastSync(new Date().toISOString());
       setError("");
-      setData(await transport.load());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Talepler yüklenemedi.");
+      if (loadVersion.current === version)
+        setError(e instanceof Error ? e.message : "Talepler yüklenemedi.");
+    } finally {
+      if (loadVersion.current === version) setRefreshing(false);
     }
-  }
-  useEffect(() => {
-    void load();
   }, [transport]);
+  useEffect(() => {
+    if (selected || tab === "terms") return;
+    void load();
+    const refresh = () => {
+      if (!document.hidden) void load();
+    };
+    const timer = setInterval(refresh, 15000);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    window.addEventListener("kz-requests-changed", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      loadVersion.current++;
+      clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("kz-requests-changed", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [load, !!selected, tab === "terms"]);
   async function open(id: string) {
     setBusy(true);
     setError("");
@@ -183,6 +219,23 @@ export function RequestDashboard({
   }, [rows]);
   return (
     <section className="crm-workspace">
+      {!selected && tab !== "terms" && (
+        <div className="crm-sync-bar">
+          <p>
+            {lastSync
+              ? "Son güncelleme: " + stamp(lastSync)
+              : "CRM bağlantısı kontrol ediliyor…"}{" "}
+            · 15 saniyede bir yenilenir.
+          </p>
+          <button
+            className="button secondary"
+            disabled={refreshing}
+            onClick={() => void load()}
+          >
+            {refreshing ? "Yenileniyor…" : "Talepleri yenile"}
+          </button>
+        </div>
+      )}
       {data?.demo && (
         <p className="crm-notice">
           {transport.sample
@@ -800,49 +853,7 @@ export function RequestDashboard({
               )}
             </>
           )}
-          {tab === "insights" && (
-            <>
-              <div className="crm-stats">
-                <div>
-                  <span>Farklı iletişim kaydı</span>
-                  <strong>{customers.length}</strong>
-                </div>
-                <div>
-                  <span>Teknik değerlendirme</span>
-                  <strong>{insight.technical}</strong>
-                </div>
-                <div>
-                  <span>Son tekliflerin toplamı</span>
-                  <strong>{money(insight.quoteTotal)}</strong>
-                  <small>Tahsilat / ciro değildir.</small>
-                </div>
-              </div>
-              <div className="crm-insights">
-                {[
-                  ["En çok talep edilen modeller", insight.byModel],
-                  ["Talep edilen parçalar", insight.byPart],
-                  ["Aşama dağılımı", insight.byStatus],
-                ].map(([title, values]) => (
-                  <section className="crm-card" key={String(title)}>
-                    <h3>{String(title)}</h3>
-                    {(values as typeof insight.byPart).map((v) => (
-                      <div className="crm-ranking" key={v.name}>
-                        <span>{v.name}</span>
-                        <strong>{v.count}</strong>
-                        <small>{v.customers} farklı iletişim kaydı</small>
-                      </div>
-                    ))}
-                    {!(values as unknown[]).length && <p>Henüz veri yok.</p>}
-                  </section>
-                ))}
-              </div>
-              <p className="muted">
-                Sıralama seçilen dönemdeki gerçek başvurulardan hesaplanır. Aynı
-                iletişim bilgisinin tekrar başvuruları ayrıca sayılır; farklı
-                müşteri sayısı e-posta veya telefon üzerinden gruplanır.
-              </p>
-            </>
-          )}
+          {tab === "insights" && <RequestInsightsView insight={insight} />}
           {tab === "customers" && (
             <div className="crm-customer-grid">
               {customers.map((c) => (
