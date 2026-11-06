@@ -79,6 +79,12 @@ try {
     path: "/tmp/kuzmin-transparent-motorcycle.png",
     fullPage: true,
   });
+  await page.locator("#site-page").selectOption("years");
+  const yearImage = frame().locator(".year-image");
+  await yearImage.waitFor();
+  assert.equal(await yearImage.evaluate((e) => getComputedStyle(e).backgroundColor), "rgba(0, 0, 0, 0)");
+  assert.equal(await yearImage.evaluate((e) => getComputedStyle(e).backgroundImage), "none");
+  await page.screenshot({path:"/tmp/kuzmin-transparent-motorcycle-year.png",fullPage:true});
   await page.getByRole("button", { name: "Veri paneli", exact: true }).click();
   await page.locator('.nav [data-id="payments"]').click();
   await page.getByLabel("Planlanan ödeme sağlayıcısı").selectOption("paytr");

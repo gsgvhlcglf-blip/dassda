@@ -995,7 +995,7 @@ footer {
 .year-image {
   position: relative;
   aspect-ratio: 1;
-  background: #151812;
+  background: transparent;
 }
 .year-image img {
   object-fit: contain;
