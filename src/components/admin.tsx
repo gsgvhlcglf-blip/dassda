@@ -6,6 +6,11 @@ import { PaymentSettings } from "./payment-settings";
 import { TrackingSettings } from "./tracking-settings";
 import { SiteStudio } from "./site-studio";
 import { ModelGenerationsEditor } from "./model-generations-editor";
+import { ProductCompatibilityEditor } from "./product-compatibility-editor";
+import {
+  compatibilityInputs,
+  type CompatibilityInput,
+} from "@/lib/product-compatibility";
 import {
   generationInputs,
   type GenerationInput,
@@ -300,6 +305,11 @@ export function Admin({
               section === "models" && action !== "delete"
                 ? (record?.generationRows ??
                   generationInputs(data as unknown as Catalog, record!.id))
+                : undefined,
+            compatibilityRows:
+              section === "products" && action !== "delete"
+                ? (record?.compatibilityRows ??
+                  compatibilityInputs(data as unknown as Catalog, record!.id))
                 : undefined,
             expectedRevision: data._workspace?.[0]?.revision,
             inventoryChanged:
@@ -1116,6 +1126,19 @@ export function Admin({
                   }
                   onChange={(generationRows) =>
                     setEditing({ ...editing, generationRows })
+                  }
+                />
+              )}
+              {section === "products" && (
+                <ProductCompatibilityEditor
+                  catalog={data as unknown as Catalog}
+                  value={
+                    (editing.compatibilityRows as
+                      CompatibilityInput[] | undefined) ??
+                    compatibilityInputs(data as unknown as Catalog, editing.id)
+                  }
+                  onChange={(compatibilityRows) =>
+                    setEditing({ ...editing, compatibilityRows })
                   }
                 />
               )}

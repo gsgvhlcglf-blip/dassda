@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { getWorkspace, saveWorkspace } from "@/lib/site-version-store";
 import { editCatalog, validateCatalog } from "@/lib/site-version";
 import { applyModelGenerations } from "@/lib/model-generations";
+import { applyProductCompatibility } from "@/lib/product-compatibility";
 import type { Catalog, Row } from "@/lib/types";
 export async function GET() {
   const role = await getRole();
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
       expectedRevision,
       inventoryChanged,
       generationRows,
+      compatibilityRows,
     } = await req.json();
     if (
       !Object.hasOwn(schemas, table) ||
@@ -117,6 +119,14 @@ export async function POST(req: Request) {
     )
       catalog = validateCatalog(
         applyModelGenerations(catalog, row.id, generationRows),
+      );
+    if (
+      table === "products" &&
+      action !== "delete" &&
+      compatibilityRows !== undefined
+    )
+      catalog = validateCatalog(
+        applyProductCompatibility(catalog, row.id, compatibilityRows),
       );
     await saveWorkspace(
       workspace.revision,

@@ -939,7 +939,7 @@
           editing = null,
           newPhoto = "",
           photoDirty = false,
-          generationEditor = null,
+          recordEditor = null,
           toastTimer;
         /*__CATALOG_UPDATES__*/
         try {
@@ -1371,8 +1371,8 @@
           return `<label class="span-2 image-upload">Fotoğraf yükle<p>JPEG, PNG veya WebP · En fazla 5 MB · Bu tarayıcıda işlenir.</p><input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp">${imageTag(url, "Seçilen görsel", "photo-preview")}</label>`;
         }
         function openEditor(id, tableOverride = section) {
-          generationEditor?.unmount();
-          generationEditor = null;
+          recordEditor?.unmount();
+          recordEditor = null;
           const table = tableOverride;
           const record = id ? state[table].find((r) => r.id === id) : null;
           editing = { table, id: id || uid(), isNew: !id };
@@ -1465,6 +1465,7 @@
                 record?.specifications.tr || "",
               ) +
               photoField(newPhoto) +
+              `<div class="span-2" id="product-compatibility-fields"></div>` +
               `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published ? "checked" : ""}>Yayında</label><label><input type="checkbox" name="featured" ${record?.featured ? "checked" : ""}>Ana sayfada öne çıkar</label></div><p class="help span-2">Yayında işaretini kaldırınca parça panelde korunur; müşteri görünümünden ve ürün bağlantısından kaldırılır. Kaydettikten sonra Yayın & sürümler bölümünden taslağı yayınlayın.</p>`;
           }
           if (table === "models") {
@@ -1542,7 +1543,8 @@
                 )
                 .join("");
           $("#fields").innerHTML = html;
-          if (table === "models") generationEditor = KZ_MODELS.mountEditor($("#model-generation-fields"), state, editing.id);
+          if (table === "models") recordEditor = KZ_MODELS.mountEditor($("#model-generation-fields"), state, editing.id);
+          if (table === "products") recordEditor = KZ_MODELS.mountProductEditor($("#product-compatibility-fields"), state, editing.id);
           $("#editor").showModal();
         }
         function slugify(s) {
@@ -1713,7 +1715,7 @@
             if(table === "content" && isNew && next.content.some(row=>row.key===r.key)) throw Error("Bu blog adresi kullanılıyor. Farklı bir URL adı seçin.");
             if (isNew) next[table].push(r);
             else Object.assign(current, r);
-            commit(table === "models" ? KZ_MODELS.applyModelGenerations(next, id, generationEditor.read()) : next);
+            commit(table === "models" ? KZ_MODELS.applyModelGenerations(next, id, recordEditor.read()) : table === "products" ? KZ_MODELS.applyProductCompatibility(next, id, recordEditor.read()) : next);
             $("#editor").close();
             toast("Değişiklikler bu tarayıcıya kaydedildi.");
           } catch (error) {
@@ -1748,7 +1750,7 @@
               for (const key of ["generations", "model_years", "compatibility"])
                 next[key] = next[key].filter((r) => r.model_id !== id);
             }
-            commit(table === "models" ? KZ_MODELS.applyModelGenerations(next, id, generationEditor.read()) : next);
+            commit(next);
             $("#editor").close();
             toast("Kayıt silindi.");
           } catch (error) {

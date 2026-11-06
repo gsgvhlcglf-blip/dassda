@@ -259,9 +259,28 @@ try {
     12,
   );
   assert(!fresh.compatibility.some((f) => f.model_id === newModel.id));
+  // Deleting a model must not invoke the generation updater after removing it.
+  page.on("dialog", (dialog) => dialog.accept());
+  await page
+    .locator("tbody tr")
+    .filter({ hasText: "R25 · üç nesil test kaydı" })
+    .getByRole("button", { name: /Düzenle/ })
+    .click();
+  await page
+    .getByRole("button", { name: app ? "Sil" : "Kaydı sil", exact: true })
+    .click();
+  if (app)
+    await page
+      .getByRole("button", { name: "Silme işlemini onayla", exact: true })
+      .click();
+  await page.getByRole("dialog").waitFor({ state: "hidden" });
+  const removed = await catalog();
+  assert(!removed.models.some((m) => m.id === newModel.id));
+  for (const table of ["generations", "model_years", "compatibility"])
+    assert(!removed[table].some((r) => r.model_id === newModel.id));
   assert.deepEqual(errors, []);
   console.log(
-    `PASS (${app ? "production app" : "browser panel"}): three-generation create/edit, range validation, exact fitment preservation, publication, reload and mobile forms.`,
+    `PASS (${app ? "production app" : "browser panel"}): three-generation create/edit/delete, range validation, exact fitment preservation, publication, reload and mobile forms.`,
   );
 } finally {
   await browser.close();
