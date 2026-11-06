@@ -2,6 +2,8 @@ import { createRoot } from "react-dom/client";
 import { useState } from "react";
 import { ModelGenerationsEditor } from "../src/components/model-generations-editor";
 import { ProductCompatibilityEditor } from "../src/components/product-compatibility-editor";
+import { RequestDashboard } from "../src/components/request-dashboard";
+import { requestDemo } from "./request-demo";
 import {
   compatibilityInputs,
   type CompatibilityInput,
@@ -13,6 +15,13 @@ import {
 import type { Catalog } from "../src/lib/types";
 export { applyModelGenerations } from "../src/lib/model-generations";
 export { applyProductCompatibility } from "../src/lib/product-compatibility";
+
+export function mountCRM(host: HTMLElement, catalog: Catalog) {
+  const root = createRoot(host),
+    transport = requestDemo(catalog);
+  root.render(<RequestDashboard transport={transport} />);
+  return { unmount: () => root.unmount() };
+}
 
 export function mountEditor(
   host: HTMLElement,

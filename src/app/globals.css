@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../components/model-generations-editor.css";
+@import "../components/requests.css";
 @source not "../../docs/panel.html";
 @source not "../../docs/store.html";
 :root {

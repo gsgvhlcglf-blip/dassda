@@ -71,7 +71,11 @@ async function main() {
     target: ["es2022"],
     minify: true,
     jsx: "automatic",
-    define: { "process.env.NODE_ENV": '"production"' },
+    define: {
+      "process.env.NODE_ENV": '"production"',
+      "process.env.ENABLE_INDEXING": '"false"',
+      "process.env.NEXT_PUBLIC_SITE_URL": '""',
+    },
   });
   const analyticsBundle = await build({
     entryPoints: ["quick-panel/analytics/entry.tsx"],
@@ -111,6 +115,7 @@ async function main() {
     .update(versionLibrary.outputFiles[0].contents)
     .update(modelLibrary.outputFiles[0].contents)
     .update(readFileSync("src/components/model-generations-editor.css"))
+    .update(readFileSync("src/components/requests.css"))
     .update(readFileSync("quick-panel/studio/host.js"))
     .update(readFileSync("quick-panel/studio/payments.js"))
     .update(readFileSync("quick-panel/analytics/host.js"))
@@ -157,6 +162,7 @@ async function main() {
         "<style>" +
         readFileSync("quick-panel/site/host.css", "utf8") +
         readFileSync("src/components/model-generations-editor.css", "utf8") +
+        readFileSync("src/components/requests.css", "utf8") +
         "</style>",
     )
     .replace(

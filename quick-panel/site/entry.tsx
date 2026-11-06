@@ -306,6 +306,14 @@ function App() {
   const [language, setLanguage] = useState<Lang>(
     resolveStoreLanguage(config.lang),
   );
+  useEffect(() => {
+    if (route.hash) {
+      const id = route.hash.slice(1);
+      requestAnimationFrame(() =>
+        document.getElementById(id)?.scrollIntoView(),
+      );
+    }
+  }, [route]);
   function navigate(url: string, push = true) {
     const next = new URL(url, "https://kuzmin.preview");
     if (

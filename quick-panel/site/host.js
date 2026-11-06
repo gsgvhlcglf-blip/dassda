@@ -1,5 +1,6 @@
 const sitePages = {
   home: ["Ana sayfa", "/"],
+  custom: ["Parçanı ürettir", "/parcani-urettir"],
   brands: ["Marka seçimi", "/motosikletler"],
   models: ["Model seçimi", ""],
   years: ["Yıl seçimi", ""],

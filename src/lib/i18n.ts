@@ -1,6 +1,7 @@
 import { storeSettings } from "./settings";
 import type { Lang } from "./types";
 const messages = {
+  customCarbon: ["Parçanı ürettir", "Custom Carbon", "Изготовление на заказ"],
   orderPending: ["Talep alındı", "Request received", "Заявка получена"],
   orderReviewing: ["İnceleniyor", "Under review", "На рассмотрении"],
   orderConfirmed: ["Onaylandı", "Confirmed", "Подтверждён"],

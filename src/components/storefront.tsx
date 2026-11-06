@@ -1,4 +1,5 @@
 "use client";
+import { RequestCards, CustomCarbonPage } from "./request-pages";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
 import {
@@ -211,7 +212,26 @@ export function Storefront({
           ),
     );
   const productCard = (p: Product) => (
-    <Link className="product-card" href={href(`/urunler/${p.slug}`)} key={p.id}>
+    <Link
+      className="product-card"
+      href={href(
+        `/urunler/${p.slug}` +
+          (s[0] === "motosikletler" && s[3]
+            ? "?" +
+              new URLSearchParams({
+                brand: c.brands.find((b) => b.slug === s[1])?.id || "",
+                model:
+                  c.models.find(
+                    (m) =>
+                      m.slug === s[2] &&
+                      m.brand_id === c.brands.find((b) => b.slug === s[1])?.id,
+                  )?.id || "",
+                year: s[3],
+              }).toString()
+            : ""),
+      )}
+      key={p.id}
+    >
       <ProductPhoto
         className="product-visual"
         imageKey={
@@ -449,6 +469,13 @@ export function Storefront({
           c={c}
           lang={lang}
           card={productCard}
+          queryString={preview ? previewQuery : undefined}
+          requestContext={{
+            brand: b.id,
+            model: m.id,
+            year: s[3],
+            source: "/" + s.join("/") + (previewQuery || ""),
+          }}
         />
       </section>
     );
@@ -457,7 +484,17 @@ export function Storefront({
     const p = c.products.find((p) => p.slug === s[1]);
     if (!p) return unavailable("/urunler");
     return (
-      <ProductDetail key={p.id} p={p} c={c} lang={lang} href={href} add={add} />
+      <ProductDetail
+        key={p.id}
+        p={p}
+        c={c}
+        lang={lang}
+        href={href}
+        add={add}
+        requestContext={Object.fromEntries(
+          new URLSearchParams(previewQuery || "").entries(),
+        )}
+      />
     );
   };
   const cartItems = cart.map((l) => ({
@@ -622,6 +659,7 @@ export function Storefront({
             [
               ["/", "home"],
               ["/motosikletler", "motorcycles"],
+              ["/parcani-urettir", "customCarbon"],
               ["/hakkimizda", "about"],
               ["/blog", "blog"],
               ["/iletisim", "contact"],
@@ -830,6 +868,15 @@ export function Storefront({
               />
             </section>
           )
+        ) : s[0] === "parcani-urettir" ? (
+          <CustomCarbonPage
+            key={previewQuery || "custom"}
+            catalog={c}
+            lang={lang}
+            preview={preview}
+            query={previewQuery}
+            userEmail={member?.email}
+          />
         ) : s[0] === "sepet" ? (
           cartPage()
         ) : ["giris", "uye-ol", "hesabim"].includes(s[0]) ? (
@@ -935,7 +982,9 @@ function ProductListing({
   lang,
   card,
   queryString,
+  requestContext,
 }: {
+  requestContext?: Record<string, string | number | undefined>;
   queryString?: string;
   products: Product[];
   c: Catalog;
@@ -1044,7 +1093,7 @@ function ProductListing({
       </div>
       {list.length ? (
         <div className="product-grid catalog-grid">{list.map(card)}</div>
-      ) : (
+      ) : !products.length && requestContext ? null : (
         <div className="empty-state">
           <h2>{t("empty")}</h2>
           <button
@@ -1061,6 +1110,12 @@ function ProductListing({
           </button>
         </div>
       )}
+      {requestContext && (
+        <RequestCards
+          context={{ ...requestContext, category: category || undefined }}
+          empty={!products.length}
+        />
+      )}
     </>
   );
 }
@@ -1070,7 +1125,9 @@ function ProductDetail({
   lang,
   href,
   add,
+  requestContext = {},
 }: {
+  requestContext?: Record<string, string>;
   p: Product;
   c: Catalog;
   lang: Lang;
@@ -1286,6 +1343,21 @@ function ProductDetail({
           )}
         </div>
       </div>
+      <RequestCards
+        context={{
+          brand: requestContext.brand,
+          model: requestContext.model,
+          year: requestContext.year,
+          product: p.id,
+          category: p.category_id,
+          source:
+            "/urunler/" +
+            p.slug +
+            (requestContext.model
+              ? "?" + new URLSearchParams(requestContext).toString()
+              : ""),
+        }}
+      />
     </section>
   );
 }

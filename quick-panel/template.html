@@ -891,6 +891,7 @@
             }).format(v),
           clone = (v) => JSON.parse(JSON.stringify(v));
         const sections = {
+          requests: ["Talepler & CRM", "Özel üretim, ürün geliştirme, teklifler ve referans parça takibi.", "▱"],
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
           releases: ["Yayın & sürümler", "Taslağı inceleyin, yayımlayın veya önceki sürüme dönün.", "↻"],
           payments: ["Ödeme altyapısı", "PayTR / iyzico tercihi ve canlı kurulum bilgileri.", "▱"],
@@ -940,6 +941,7 @@
           newPhoto = "",
           photoDirty = false,
           recordEditor = null,
+          crmRoot = null,
           toastTimer;
         /*__CATALOG_UPDATES__*/
         try {
@@ -1189,6 +1191,7 @@
           return `<div class="searchbar"><span>⌕</span><input id="search" aria-label="Kayıtlarda ara" placeholder="İsim veya SKU ile ara…" value="${esc(query)}"><span id="result-count"></span></div><div id="table-area"></div>`;
         }
         function render() {
+          crmRoot?.unmount(); crmRoot = null;
           nav();
           $("#page-title").textContent = sections[section][0];
           $("#page-subtitle").textContent = sections[section][1];
@@ -1201,6 +1204,7 @@
             ? action("+ Yeni kayıt", "new")
             : "";
           const view = $("#view");
+          if (section === "requests") { view.innerHTML = ""; crmRoot = KZ_MODELS.mountCRM(view, state); return; }
           if (section === "releases") { void renderReleaseWorkspace(view); return; }
           if (section === "payments") { renderPaymentWorkspace(view); return; }
           if (section === "photography") { renderPhotoWorkspace(view); return; }

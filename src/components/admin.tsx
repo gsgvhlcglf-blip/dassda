@@ -16,6 +16,7 @@ import {
   type GenerationInput,
 } from "@/lib/model-generations";
 import { AnalyticsDashboard } from "./analytics-dashboard";
+import { RequestDashboard } from "./request-dashboard";
 import type { Catalog, Content } from "@/lib/types";
 import {
   Plus,
@@ -159,6 +160,7 @@ const sections = [
   ["overview", "Genel bakış", LayoutDashboard],
   ["settings", "Yapılandırma", Settings],
   ["analytics", "Analitik & Isı Haritası", BarChart3],
+  ["requests", "Talepler & CRM", FileText],
   ["releases", "Yayın & sürümler", Layers],
   ["photography", "Fotoğraf düzeni", Images],
   ["payments", "Ödeme altyapısı", CreditCard],
@@ -275,7 +277,8 @@ export function Admin({
         f.type === "localized"
           ? { tr: "", en: "", ru: "" }
           : f.type === "checkbox"
-            ? f.key === "demo"
+            ? f.key === "demo" ||
+              (section === "models" && f.key === "published")
             : f.type === "number"
               ? f.key.includes("year")
                 ? 2024
@@ -418,7 +421,8 @@ export function Admin({
           {sections
             .filter(
               ([key]) =>
-                !["analytics", "payments"].includes(key) || role === "admin",
+                !["analytics", "payments", "requests"].includes(key) ||
+                role === "admin",
             )
             .map(([key, label, Icon]) => (
               <button
@@ -481,6 +485,7 @@ export function Admin({
             "releases",
             "photography",
             "payments",
+            "requests",
           ].includes(section) && (
             <button className="button" onClick={openNew}>
               <Plus size={16} />
@@ -494,6 +499,7 @@ export function Admin({
           "releases",
           "photography",
           "payments",
+          "requests",
         ].includes(section) && (
           <p className="draft-preview-notice">
             İçerik değişiklikleri taslakta saklanır.{" "}
@@ -538,6 +544,8 @@ export function Admin({
           <PaymentSettings />
         ) : section === "analytics" && role === "admin" ? (
           <AnalyticsDashboard />
+        ) : section === "requests" && role === "admin" ? (
+          <RequestDashboard />
         ) : section === "settings" ? (
           <div className="settings-grid">
             <TrackingSettings
