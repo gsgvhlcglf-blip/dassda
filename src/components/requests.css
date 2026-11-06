@@ -760,6 +760,56 @@
   border: 0;
   padding: 0 0 24px;
 }
+.request-method-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.request-form .request-method-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid #414141;
+  cursor: pointer;
+}
+.request-form .request-method-option input[type="radio"] {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  padding: 0;
+  accent-color: #e9e9e2;
+}
+.request-method-option strong {
+  display: block;
+  color: #eee;
+  font-size: 14px;
+  font-weight: 500;
+}
+.request-method-option small {
+  display: block;
+  color: #999;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 5px;
+}
+.request-method-option:has(input:checked),
+.request-method-option:hover {
+  border-color: #e9e9e2;
+}
+.request-method-option:has(input:focus-visible) {
+  outline: 2px solid #eee;
+  outline-offset: 4px;
+}
+@media (max-width: 600px) {
+  .request-method-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
 .request-image-fieldset legend {
   font-size: 12px;
   letter-spacing: 0;

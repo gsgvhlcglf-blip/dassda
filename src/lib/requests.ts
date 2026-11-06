@@ -40,13 +40,13 @@ export const requestMaterialLabels = {
   full_carbon: "Tam karbon fiber",
   hybrid: "Karbon / cam elyaf",
   forged: "Forged Carbon",
-  twill: "Twill Karbon",
+  twill: "Twill Carbon",
   carbon_finish: "Karbon dış yüzey",
 };
 export const requestMethodLabels = {
   unspecified: "Belirtilmedi",
-  lamination: "Laminasyon (mevcut parça üzerine)",
-  infusion: "İnfüzyon (sıfırdan)",
+  lamination: "Laminasyon (Mevcut parça üzerine kaplama)",
+  infusion: "İnfüzyon (Kalıptan yeni parça üretimi)",
 };
 export const originalOptions = {
   unspecified: "Henüz belirtilmedi",

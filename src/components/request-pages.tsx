@@ -8,6 +8,8 @@ import { useVisualCopy, useVisualImage } from "@/lib/visual";
 import {
   requestLink,
   publicRequestSchema,
+  requestMaterialLabels,
+  requestMethodLabels,
   type RequestKind,
 } from "@/lib/requests";
 type Context = Record<string, string | number | undefined>;
@@ -355,28 +357,40 @@ export function CustomCarbonPage({
             <RequestImageChoice
               name="material"
               value="twill"
-              title="Twill Karbon"
+              title={requestMaterialLabels.twill}
               image="/images/carbon-twill.svg"
             />
           </div>
         </fieldset>
-        <fieldset className="request-image-fieldset">
+        <fieldset className="request-image-fieldset request-method-fieldset">
           <legend>Üretim yöntemi</legend>
-          <div className="request-image-grid">
-            <RequestImageChoice
-              name="manufacturing_method"
-              value="lamination"
-              title="Laminasyon"
-              subtitle="mevcut parça üzerine"
-              image="/images/process-lamination.svg"
-            />
-            <RequestImageChoice
-              name="manufacturing_method"
-              value="infusion"
-              title="İnfüzyon"
-              subtitle="sıfırdan"
-              image="/images/process-infusion.svg"
-            />
+          <div className="request-method-options">
+            <label className="request-method-option">
+              <input
+                type="radio"
+                name="manufacturing_method"
+                value="lamination"
+                required
+                aria-label={requestMethodLabels.lamination}
+              />
+              <span>
+                <strong>Laminasyon</strong>
+                <small>Mevcut parça üzerine kaplama</small>
+              </span>
+            </label>
+            <label className="request-method-option">
+              <input
+                type="radio"
+                name="manufacturing_method"
+                value="infusion"
+                required
+                aria-label={requestMethodLabels.infusion}
+              />
+              <span>
+                <strong>İnfüzyon</strong>
+                <small>Kalıptan yeni parça üretimi</small>
+              </span>
+            </label>
           </div>
         </fieldset>
         <div className="request-field-grid">

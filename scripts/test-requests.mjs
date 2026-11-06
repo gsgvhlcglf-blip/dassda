@@ -65,11 +65,15 @@ try {
   assert.equal(await frame().locator(".request-form select").count(), 0);
   assert.equal(await frame().locator(".request-form textarea").count(), 1);
   assert.equal(await frame().getByRole("radio").count(), 4);
+  assert.equal(
+    await frame().locator(".request-method-fieldset img").count(),
+    0,
+  );
   await frame()
     .getByRole("radio", { name: "Forged Carbon", exact: true })
     .check();
   await frame()
-    .getByRole("radio", { name: "Twill Karbon", exact: true })
+    .getByRole("radio", { name: "Twill Carbon", exact: true })
     .check();
   await expect(
     frame().getByRole("radio", { name: "Forged Carbon", exact: true }),
@@ -77,7 +81,7 @@ try {
   async function fillForm(view, kind, email) {
     await view
       .getByRole("radio", {
-        name: kind === "demand" ? "Twill Karbon" : "Forged Carbon",
+        name: kind === "demand" ? "Twill Carbon" : "Forged Carbon",
         exact: true,
       })
       .check();
@@ -85,8 +89,8 @@ try {
       .getByRole("radio", {
         name:
           kind === "demand"
-            ? "İnfüzyon (sıfırdan)"
-            : "Laminasyon (mevcut parça üzerine)",
+            ? "İnfüzyon (Kalıptan yeni parça üretimi)"
+            : "Laminasyon (Mevcut parça üzerine kaplama)",
         exact: true,
       })
       .check();
