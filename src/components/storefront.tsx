@@ -387,8 +387,17 @@ export function Storefront({
                         `/motosikletler/${b.slug}/${m.slug}/${y.year}`,
                       )}
                       key={y.id}
+                      aria-label={String(y.year)}
                     >
-                      {y.year}
+                      <span>
+                        {y.year}
+                        <small className="year-generation">
+                          {
+                            c.generations.find((g) => g.id === y.generation_id)
+                              ?.name
+                          }
+                        </small>
+                      </span>
                       <ArrowUpRight size={16} />
                     </Link>
                   ))}

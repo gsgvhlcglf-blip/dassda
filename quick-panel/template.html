@@ -939,6 +939,7 @@
           editing = null,
           newPhoto = "",
           photoDirty = false,
+          generationEditor = null,
           toastTimer;
         /*__CATALOG_UPDATES__*/
         try {
@@ -1327,17 +1328,11 @@
             );
           if (section === "models")
             body = table(
-              ["Model", "Marka", "Üretim yılları", "Görünürlük", "İşlem"],
+              ["Model", "Marka", "Yıl / Nesil", "Görünürlük", "İşlem"],
               rows
                 .map(
                   (m) =>
-                    `<tr><td><strong>${esc(m.name)}</strong><small>${esc(m.slug)}</small></td><td>${esc(state.brands.find((b) => b.id === m.brand_id)?.name)}</td><td>${state.model_years
-                      .filter((y) => y.model_id === m.id)
-                      .map((y) => y.year)
-                      .sort()
-                      .join(
-                        " · ",
-                      )}</td><td><span class="pill">${m.published !== false ? "Yayında" : "Yayında değil"}</span></td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
+                    `<tr><td><strong>${esc(m.name)}</strong><small>${esc(m.slug)}</small></td><td>${esc(state.brands.find((b) => b.id === m.brand_id)?.name)}</td><td>${state.generations.filter((g) => g.model_id === m.id).sort((a,b) => a.start_year - b.start_year).map((g) => `<small>${g.start_year}–${g.end_year} · ${esc(g.name)}</small>`).join("") || "Henüz yıl aralığı yok"}</td><td><span class="pill">${m.published !== false ? "Yayında" : "Yayında değil"}</span></td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
                 )
                 .join(""),
             );
@@ -1376,6 +1371,8 @@
           return `<label class="span-2 image-upload">Fotoğraf yükle<p>JPEG, PNG veya WebP · En fazla 5 MB · Bu tarayıcıda işlenir.</p><input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp">${imageTag(url, "Seçilen görsel", "photo-preview")}</label>`;
         }
         function openEditor(id, tableOverride = section) {
+          generationEditor?.unmount();
+          generationEditor = null;
           const table = tableOverride;
           const record = id ? state[table].find((r) => r.id === id) : null;
           editing = { table, id: id || uid(), isNew: !id };
@@ -1471,7 +1468,6 @@
               `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published ? "checked" : ""}>Yayında</label><label><input type="checkbox" name="featured" ${record?.featured ? "checked" : ""}>Ana sayfada öne çıkar</label></div><p class="help span-2">Yayında işaretini kaldırınca parça panelde korunur; müşteri görünümünden ve ürün bağlantısından kaldırılır. Kaydettikten sonra Yayın & sürümler bölümünden taslağı yayınlayın.</p>`;
           }
           if (table === "models") {
-            const g = state.generations.find((g) => g.model_id === id);
             html =
               select(
                 "Marka",
@@ -1486,27 +1482,10 @@
                 "text",
                 'required maxlength="100"',
               ) +
-              field(
-                "Nesil adı",
-                "generation_name",
-                g?.name || "Yeni nesil",
-                "text",
-                "required",
-              ) +
-              field(
-                "Üretim yılları (virgülle ayırın)",
-                "years",
-                state.model_years
-                  .filter((y) => y.model_id === id)
-                  .map((y) => y.year)
-                  .sort()
-                  .join(", ") || "2024, 2025, 2026",
-                "text",
-                'required placeholder="2024, 2025, 2026"',
-              ) +
+              `<div class="span-2" id="model-generation-fields"></div>` +
               photoField(newPhoto) +
               `<div class="span-2 checks"><label><input type="checkbox" name="published" ${record?.published !== false ? "checked" : ""}>Yayında</label></div><p class="help span-2">İşareti kaldırınca model, yılları ve uyumlulukları panelde korunur; müşteri görünümünde model ve yıl bağlantıları kapanır. Uyumlu parçalar diğer modeller ve genel katalog için korunur. Kaydettikten sonra Yayın & sürümler bölümünden taslağı yayınlayın.</p>` +
-              `<p class="help span-2">Bu hızlı form modelin yıllarını tek bir nesilde toplar. Mevcut uyumlulukların dışında yıl bırakan değişiklikler kaydedilmez.</p>`;
+              `<p class="help span-2">Her yıl aralığını ayrı bir nesil olarak kaydedin. Aynı motosikletin farklı kasalarını tek model altında yönetebilirsiniz.</p>`;
           }
           if (table === "compatibility")
             html =
@@ -1563,6 +1542,7 @@
                 )
                 .join("");
           $("#fields").innerHTML = html;
+          if (table === "models") generationEditor = KZ_MODELS.mountEditor($("#model-generation-fields"), state, editing.id);
           $("#editor").showModal();
         }
         function slugify(s) {
@@ -1663,65 +1643,6 @@
               }
             }
             if (table === "models") {
-              const years = [
-                ...new Set(
-                  str("years")
-                    .split(/[,;\s]+/)
-                    .map(Number),
-                ),
-              ].sort((a, b) => a - b);
-              if (
-                !years.length ||
-                years.some((y) => !Number.isInteger(y) || y < 1900 || y > 2100)
-              )
-                throw Error("Yılları 2024, 2025 şeklinde girin.");
-              const existingYears = next.model_years
-                .filter((y) => y.model_id === id)
-                .map((y) => y.year)
-                .sort((a, b) => a - b);
-              if (
-                isNew ||
-                JSON.stringify(years) !== JSON.stringify(existingYears) ||
-                str("generation_name") !==
-                  next.generations.find((g) => g.model_id === id)?.name
-              ) {
-                if (
-                  next.generations.filter((g) => g.model_id === id).length > 1
-                )
-                  throw Error(
-                    "Bu model birden fazla nesil içeriyor; hızlı form bu modeli yeniden yapılandıramaz.",
-                  );
-                const old = next.generations.find((g) => g.model_id === id),
-                  g = {
-                    id: old?.id || uid(),
-                    model_id: id,
-                    name: str("generation_name"),
-                    start_year: years[0],
-                    end_year: years.at(-1),
-                  };
-                if (
-                  next.compatibility.some(
-                    (f) =>
-                      f.model_id === id &&
-                      (f.year_from < g.start_year || f.year_to > g.end_year),
-                  )
-                )
-                  throw Error(
-                    "Mevcut uyumluluklar bu yılların dışına çıkıyor. Önce uyumlulukları düzenleyin.",
-                  );
-                if (old) Object.assign(old, g);
-                else next.generations.push(g);
-                next.model_years = next.model_years.filter(
-                  (y) => y.model_id !== id,
-                );
-                for (const year of years)
-                  next.model_years.push({
-                    id: uid(),
-                    model_id: id,
-                    generation_id: g.id,
-                    year,
-                  });
-              }
               r = {
                 ...(current || {
                   id,
@@ -1792,7 +1713,7 @@
             if(table === "content" && isNew && next.content.some(row=>row.key===r.key)) throw Error("Bu blog adresi kullanılıyor. Farklı bir URL adı seçin.");
             if (isNew) next[table].push(r);
             else Object.assign(current, r);
-            commit(next);
+            commit(table === "models" ? KZ_MODELS.applyModelGenerations(next, id, generationEditor.read()) : next);
             $("#editor").close();
             toast("Değişiklikler bu tarayıcıya kaydedildi.");
           } catch (error) {
@@ -1827,7 +1748,7 @@
               for (const key of ["generations", "model_years", "compatibility"])
                 next[key] = next[key].filter((r) => r.model_id !== id);
             }
-            commit(next);
+            commit(table === "models" ? KZ_MODELS.applyModelGenerations(next, id, generationEditor.read()) : next);
             $("#editor").close();
             toast("Kayıt silindi.");
           } catch (error) {

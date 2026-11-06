@@ -5,8 +5,13 @@ import { paymentStatusLabel } from "@/lib/payments/types";
 import { PaymentSettings } from "./payment-settings";
 import { TrackingSettings } from "./tracking-settings";
 import { SiteStudio } from "./site-studio";
+import { ModelGenerationsEditor } from "./model-generations-editor";
+import {
+  generationInputs,
+  type GenerationInput,
+} from "@/lib/model-generations";
 import { AnalyticsDashboard } from "./analytics-dashboard";
-import type { Content } from "@/lib/types";
+import type { Catalog, Content } from "@/lib/types";
 import {
   Plus,
   Search,
@@ -291,6 +296,11 @@ export function Admin({
             table: section,
             action,
             record,
+            generationRows:
+              section === "models" && action !== "delete"
+                ? (record?.generationRows ??
+                  generationInputs(data as unknown as Catalog, record!.id))
+                : undefined,
             expectedRevision: data._workspace?.[0]?.revision,
             inventoryChanged:
               ["products", "variants"].includes(section) &&
@@ -1097,6 +1107,17 @@ export function Admin({
                 <p role="alert" className="form-error">
                   {error}
                 </p>
+              )}
+              {section === "models" && (
+                <ModelGenerationsEditor
+                  value={
+                    (editing.generationRows as GenerationInput[] | undefined) ??
+                    generationInputs(data as unknown as Catalog, editing.id)
+                  }
+                  onChange={(generationRows) =>
+                    setEditing({ ...editing, generationRows })
+                  }
+                />
               )}
               <div className="modal-actions">
                 {!isNew &&

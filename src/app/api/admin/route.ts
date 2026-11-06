@@ -6,7 +6,8 @@ import { getRows } from "@/lib/catalog";
 import { schemas } from "@/lib/validation";
 import { supabase } from "@/lib/supabase";
 import { getWorkspace, saveWorkspace } from "@/lib/site-version-store";
-import { editCatalog } from "@/lib/site-version";
+import { editCatalog, validateCatalog } from "@/lib/site-version";
+import { applyModelGenerations } from "@/lib/model-generations";
 import type { Catalog, Row } from "@/lib/types";
 export async function GET() {
   const role = await getRole();
@@ -50,8 +51,14 @@ export async function POST(req: Request) {
   if (!role)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
-    const { table, action, record, expectedRevision, inventoryChanged } =
-      await req.json();
+    const {
+      table,
+      action,
+      record,
+      expectedRevision,
+      inventoryChanged,
+      generationRows,
+    } = await req.json();
     if (
       !Object.hasOwn(schemas, table) ||
       !["insert", "update", "delete"].includes(action)
@@ -102,7 +109,15 @@ export async function POST(req: Request) {
         inventory = { table, id: row.id, stock: Number(row.stock) };
       else if (old) row.stock = old.stock;
     }
-    const catalog = editCatalog(workspace.snapshot.catalog, table, action, row);
+    let catalog = editCatalog(workspace.snapshot.catalog, table, action, row);
+    if (
+      table === "models" &&
+      action !== "delete" &&
+      generationRows !== undefined
+    )
+      catalog = validateCatalog(
+        applyModelGenerations(catalog, row.id, generationRows),
+      );
     await saveWorkspace(
       workspace.revision,
       { catalog, design: workspace.snapshot.design },

@@ -5,10 +5,11 @@
 ## Yeni motosiklet ekleme
 
 1. **Motosiklet modelleri → Yeni kayıt**: Ducati, BMW veya Yamaha'yı seçin. Model adını, küçük harf ve tirelerden oluşan URL adını ve fotoğrafını girin. Örnek URL adı: `mt-25`.
-2. **Nesiller → Yeni kayıt**: modeli seçin, nesil adını ve ilk/son üretim yıllarını girin. Gerçek teknik bilgilere göre tanımlayın.
-3. **Üretim yılları → Yeni kayıt**: aynı modeli ve nesli seçerek her kullanılabilir yılı ekleyin. Sadece eklediğiniz yıllar müşteriye gösterilir.
+2. Aynı formdaki **Nesiller ve yıl aralıkları → + Yıl aralığı ekle** düğmesine basın. Her satırda **Başlangıç yılı**, **Bitiş yılı** ve **Nesil açıklaması** girin. Örneğin R25 için kendi doğruladığınız yıllarla “1. nesil · ilk kasa”, “2. nesil · yeni kasa” ve “3. nesil” şeklinde üç ayrı satır ekleyebilirsiniz. Hazır yıl / nesil bilgisi varsayılmaz.
+3. Kaydedince yeni veya değişen aralığın içindeki tüm üretim yılları otomatik oluşur. Aynı yıl iki farklı nesle atanamaz. Yalnızca açıklamayı veya fotoğrafı değiştirmeniz mevcut yıl kayıtlarını değiştirmez. Gelişmiş **Nesiller** ve **Üretim yılları** bölümleri, tek tek kayıt yönetimi için korunur.
+4. Mevcut nesli birden fazla aralığa ayırdığınızda parça eşleştirmeleri önceki uyumluluk yıllarını koruyarak yeni nesillere bölünür. Uyumluluğu olan yılları aralıkların dışında bırakırsanız kayıt reddedilir; önce ilgili parça uyumluluğunu düzenleyin. Taslağı kaydettikten sonra **Yayın & sürümler → Taslağı yayınla** kullanın. Müşteri yıl seçerken ilgili nesil açıklamasını da görür.
 
-Mevcut yıllar veya uyumluluk kayıtları nesil aralığının dışına düşecekse nesil değişikliği reddedilir. Önce bağlı kayıtları düzeltin. Model silmek, bağlı nesil/yıl/uyumluluk kayıtlarını da siler; ürünleri silmez. Formdaki silme işlemi ikinci bir onay ister. Sipariş geçmişinde kullanılan ürünler silinemez; bunları yayından kaldırın.
+Gelişmiş **Nesiller** ekranında tek kayıt değiştirirken mevcut yıllar veya uyumluluklar aralığın dışına düşecekse değişiklik reddedilir; önce bağlı kayıtları düzeltin. Model formundaki çoklu aralık düzenleyicisi ise bağlı yılları ve uyumlulukları birlikte günceller. Model silmek, bağlı nesil/yıl/uyumluluk kayıtlarını da siler; ürünleri silmez. Formdaki silme işlemi ikinci bir onay ister. Sipariş geçmişinde kullanılan ürünler silinemez; bunları yayından kaldırın.
 
 ## Yeni ürün ekleme
 

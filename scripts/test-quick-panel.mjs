@@ -56,8 +56,13 @@ try {
   await page.getByRole("button", { name: "+ Yeni kayıt", exact: true }).click();
   await page.getByLabel("Model adı", { exact: true }).fill("Test model");
   await page
-    .getByLabel("Üretim yılları (virgülle ayırın)", { exact: true })
-    .fill("2024, 2025");
+    .getByRole("button", { name: "+ Yıl aralığı ekle", exact: true })
+    .click();
+  await page.getByLabel("Başlangıç yılı 1", { exact: true }).fill("2024");
+  await page.getByLabel("Bitiş yılı 1", { exact: true }).fill("2025");
+  await page
+    .getByLabel("Nesil açıklaması 1", { exact: true })
+    .fill("Test nesli");
   await page
     .getByRole("button", { name: "Değişiklikleri kaydet ✓", exact: true })
     .click();
@@ -104,7 +109,7 @@ try {
   const file = await download;
   const path = await file.path();
   const backupFile = JSON.parse(readFileSync(path, "utf8"));
-  assert.equal(backupFile.format,"kuzmin-workspace");
+  assert.equal(backupFile.format, "kuzmin-workspace");
   const backup = backupFile.catalog;
   assert.ok(backup.products.some((p) => p.sku === "TEST-QUICK-001"));
   await page.getByRole("button", { name: "Taslak yükle", exact: true }).click();
