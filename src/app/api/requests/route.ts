@@ -5,7 +5,7 @@ import { getCustomer } from "@/lib/customer";
 import { getCatalog } from "@/lib/catalog";
 import { isLive } from "@/lib/database";
 import {
-  requestSchema,
+  publicRequestSchema,
   newWorkRequest,
   type RequestFile,
 } from "@/lib/requests";
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   let saved: RequestFile[] = [];
   try {
     const form = await boundedForm(req),
-      input = requestSchema.parse(
+      input = publicRequestSchema.parse(
         JSON.parse(String(form.get("payload") || "{}")),
       );
     const photos = await parseWorkPhotos(

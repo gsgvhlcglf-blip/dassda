@@ -1,10 +1,15 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, Check, X } from "lucide-react";
 import type { Catalog, Lang } from "@/lib/types";
-import { useVisualCopy } from "@/lib/visual";
-import { requestLink, requestSchema, type RequestKind } from "@/lib/requests";
+import { useVisualCopy, useVisualImage } from "@/lib/visual";
+import {
+  requestLink,
+  publicRequestSchema,
+  type RequestKind,
+} from "@/lib/requests";
 type Context = Record<string, string | number | undefined>;
 export function RequestCards({
   context = {},
@@ -58,6 +63,47 @@ export function RequestCards({
   );
 }
 type Settings = { ready: boolean; demo?: boolean };
+function RequestImageChoice({
+  name,
+  value,
+  title,
+  subtitle,
+  image,
+}: {
+  name: string;
+  value: string;
+  title: string;
+  subtitle?: string;
+  image: string;
+}) {
+  const visualKey = "requests." + name + "." + value;
+  const src = useVisualImage(visualKey, image);
+  return (
+    <label className="request-image-choice" data-visual-image={visualKey}>
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        required
+        aria-label={subtitle ? title + " (" + subtitle + ")" : title}
+      />
+      <Image
+        src={src || image}
+        alt=""
+        fill
+        sizes="(max-width: 600px) 45vw, 390px"
+        unoptimized
+      />
+      <span className="request-choice-caption">
+        <strong>{title}</strong>
+        {subtitle && <span>{subtitle}</span>}
+      </span>
+      <span className="request-choice-check" aria-hidden="true">
+        <Check size={15} />
+      </span>
+    </label>
+  );
+}
 export function CustomCarbonPage({
   catalog: c,
   lang,
@@ -147,13 +193,12 @@ export function CustomCarbonPage({
     e.preventDefault();
     setError("");
     const f = new FormData(e.currentTarget),
-      text = (key: string) => String(f.get(key) || "").trim(),
-      contact = text("contact_value");
+      text = (key: string) => String(f.get(key) || "").trim();
     if (photos.length < 3) {
       setError("En az 3 fotoğraf ekleyin. Parçayı farklı açılardan gösterin.");
       return;
     }
-    const parsed = requestSchema.safeParse({
+    const parsed = publicRequestSchema.safeParse({
       submission_key: submissionKey,
       kind,
       brand_name: text("brand_name"),
@@ -163,13 +208,15 @@ export function CustomCarbonPage({
       year: Number(text("year")),
       length_cm: Number(text("length_cm")),
       width_cm: Number(text("width_cm")),
+      material: text("material"),
+      manufacturing_method: text("manufacturing_method"),
       category_id: params.get("category") || "",
       product_id: params.get("product") || "",
       part_description: text("part_description"),
       name: text("name"),
-      email: contact.includes("@") ? contact : "",
-      phone: contact.includes("@") ? "" : contact,
-      contact: contact.includes("@") ? "email" : "phone",
+      email: text("email"),
+      phone: text("phone"),
+      contact: "either",
       source_path: params.get("source") || "/parcani-urettir",
       permission: f.has("permission"),
       website: text("website"),
@@ -296,9 +343,45 @@ export function CustomCarbonPage({
             />
           </label>
         </div>
+        <fieldset className="request-image-fieldset">
+          <legend>Karbon görünümü</legend>
+          <div className="request-image-grid">
+            <RequestImageChoice
+              name="material"
+              value="forged"
+              title="Forged Carbon"
+              image="/images/carbon-forged.svg"
+            />
+            <RequestImageChoice
+              name="material"
+              value="twill"
+              title="Twill Karbon"
+              image="/images/carbon-twill.svg"
+            />
+          </div>
+        </fieldset>
+        <fieldset className="request-image-fieldset">
+          <legend>Üretim yöntemi</legend>
+          <div className="request-image-grid">
+            <RequestImageChoice
+              name="manufacturing_method"
+              value="lamination"
+              title="Laminasyon"
+              subtitle="mevcut parça üzerine"
+              image="/images/process-lamination.svg"
+            />
+            <RequestImageChoice
+              name="manufacturing_method"
+              value="infusion"
+              title="İnfüzyon"
+              subtitle="sıfırdan"
+              image="/images/process-infusion.svg"
+            />
+          </div>
+        </fieldset>
         <div className="request-field-grid">
           <label>
-            Uzunluk (cm)
+            Parça uzunluğu (cm)
             <input
               name="length_cm"
               type="number"
@@ -310,7 +393,7 @@ export function CustomCarbonPage({
             />
           </label>
           <label>
-            Genişlik (cm)
+            Parça genişliği (cm)
             <input
               name="width_cm"
               type="number"
@@ -378,24 +461,37 @@ export function CustomCarbonPage({
               " fotoğraf daha ekle."
             : photos.length + " fotoğraf eklendi."}
         </p>
+        <label>
+          Adınız
+          <input
+            name="name"
+            required
+            minLength={2}
+            maxLength={200}
+            autoComplete="name"
+          />
+        </label>
         <div className="request-field-grid">
           <label>
-            Adınız
+            Cep telefonu
             <input
-              name="name"
+              name="phone"
+              type="tel"
               required
-              minLength={2}
-              maxLength={200}
-              autoComplete="name"
+              maxLength={30}
+              autoComplete="tel"
+              placeholder="+90 5XX XXX XX XX"
             />
           </label>
           <label>
-            Telefon veya e-posta
+            E-posta
             <input
-              name="contact_value"
+              name="email"
+              type="email"
               required
               maxLength={254}
-              placeholder="Size ulaşabileceğimiz iletişim bilgisi"
+              autoComplete="email"
+              placeholder="ornek@eposta.com"
               defaultValue={userEmail}
             />
           </label>

@@ -21,7 +21,7 @@ function directBinding(binding) {
     return binding;
   if (
     binding.type === "image" &&
-    /^(home\.[a-z.]+|brand:[a-z0-9_-]+|model:[a-z0-9_-]+|product:[a-z0-9_-]+|image:[a-z0-9_-]+)$/.test(
+    /^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+|model:[a-z0-9_-]+|product:[a-z0-9_-]+|image:[a-z0-9_-]+)$/.test(
       binding.key,
     )
   )
@@ -72,6 +72,11 @@ function directValue(binding) {
       "home.collection.body": "/images/carbon.svg",
       "home.collection.details": "/images/hero.webp",
       "home.craft": "/images/carbon.svg",
+      "requests.material.forged": "/images/carbon-forged.svg",
+      "requests.material.twill": "/images/carbon-twill.svg",
+      "requests.manufacturing_method.lamination":
+        "/images/process-lamination.svg",
+      "requests.manufacturing_method.infusion": "/images/process-infusion.svg",
     };
     return (
       siteDesign.images[binding.key] ||
@@ -306,7 +311,9 @@ function saveDirect(binding, value, inline = false) {
     }
   }
 }
-function customerPreviewURL() { return studioCustomerURL('draft'); }
+function customerPreviewURL() {
+  return studioCustomerURL("draft");
+}
 
 document.addEventListener("input", (event) => {
   if (event.target.id === "site-logo-scale") {

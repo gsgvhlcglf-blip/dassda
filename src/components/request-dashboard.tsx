@@ -6,6 +6,8 @@ import {
   requestStages,
   requestInsights,
   originalOptions,
+  requestMaterialLabels,
+  requestMethodLabels,
   termsLabels,
   type WorkRequest,
   type RequestTerms,
@@ -311,16 +313,7 @@ export function RequestDashboard({
                 </dd>
                 <dt>Malzeme / yüzey / adet</dt>
                 <dd>
-                  {
-                    {
-                      undecided: "Değerlendirilecek",
-                      full_carbon: "Tam karbon fiber",
-                      hybrid: "Karbon / cam elyaf",
-                      forged: "Forged karbon",
-                      carbon_finish: "Karbon dış yüzey",
-                    }[selected.record.input.material]
-                  }{" "}
-                  /{" "}
+                  {requestMaterialLabels[selected.record.input.material]} /{" "}
                   {
                     {
                       undecided: "Belirtilmedi",
@@ -329,6 +322,15 @@ export function RequestDashboard({
                     }[selected.record.input.finish]
                   }{" "}
                   / {selected.record.input.quantity ?? "Adet belirtilmedi"}
+                </dd>
+                <dt>Üretim yöntemi</dt>
+                <dd>
+                  {
+                    requestMethodLabels[
+                      selected.record.input.manufacturing_method ||
+                        "unspecified"
+                    ]
+                  }
                 </dd>
                 <dt>Kaynak sayfa</dt>
                 <dd>

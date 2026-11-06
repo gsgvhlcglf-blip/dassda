@@ -5,6 +5,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { seed } from "../src/lib/seed";
 import {
   requestSchema,
+  publicRequestSchema,
   newWorkRequest,
   blankTerms,
   changeRequest,
@@ -43,6 +44,38 @@ function approved(): RequestTerms {
   }
   return t;
 }
+test("public enquiries require a carbon style, production method, phone and email while legacy CRM records remain readable", () => {
+  const valid = {
+    ...input(),
+    material: "twill",
+    manufacturing_method: "infusion",
+    phone: "+905550001122",
+  };
+  assert.equal(publicRequestSchema.parse(valid).material, "twill");
+  assert.equal(
+    publicRequestSchema.parse({
+      ...valid,
+      material: "forged",
+      manufacturing_method: "lamination",
+    }).manufacturing_method,
+    "lamination",
+  );
+  for (const missing of [
+    { material: "undecided" },
+    { manufacturing_method: "unspecified" },
+    { email: "" },
+    { phone: "" },
+  ]) {
+    assert.equal(
+      publicRequestSchema.safeParse({ ...valid, ...missing }).success,
+      false,
+    );
+  }
+  assert.equal(
+    requestSchema.parse(input()).manufacturing_method,
+    "unspecified",
+  );
+});
 test("guest request validation, exact motorcycle/year context and technical-review marking", () => {
   const r = newWorkRequest(input(), seed, blankTerms, null);
   assert(r.technical_review);

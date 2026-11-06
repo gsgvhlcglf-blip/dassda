@@ -6,7 +6,9 @@
 
 Mağazanın marka → model → yıl → ürün akışı korunur. Talep kartları stok boşken de görünür. Motosiklet sayfasından gelinirse marka/model/yıl metin alanlarına önceden yazılır; müşteri serbestçe değiştirebilir. Kategori ve kaynak sayfa arka planda korunur; ekstra alan olarak sorulmaz. Ürün detayında da başvuru bağlantıları vardır.
 
-Zorunlu alanlar: marka, model, yıl, **uzunluk ve genişlik (cm)**, tek açıklama, **en az 3 fotoğraf**, isim ve tek alanda telefon veya e-posta. En fazla 8 fotoğraf; JPEG/PNG/WebP, dosya başına 5 MB ve toplam 20 MB. Fotoğraflar birkaç seferde eklenebilir ve tek tek kaldırılabilir. Üç fotoğraf tamamlanmadan hem tarayıcı hem sunucu gönderimi reddeder. Malzeme, yüzey, adet, nesil, orijinal parça durumu ve iletişim tercihi ilk formda sorulmaz; sonradan görüşülür. Bilinmeyen bilgiler CRM'de belirtilmemiş olarak kalır.
+Marka/model/yılın hemen altında iki görsel karttan **Forged Carbon / Twill Karbon**, ardından **Laminasyon (mevcut parça üzerine) / İnfüzyon (sıfırdan)** seçilir. Her grupta bir seçim zorunludur ve tercihler CRM talep detayına kaydolur. Kart görselleri temsili özgün çizimlerdir; gerçek ürün fotoğrafı veya üretim sonucu vaadi değildir. Düzenleme modunda görsele tıklayıp kendi fotoğrafınızı yükleyebilirsiniz. Görsel değişiklikleri mevcut tasarım kaydı ve JSON yedeğinde korunur.
+
+Diğer zorunlu alanlar: marka, model, yıl, **Parça uzunluğu (cm)** ve **Parça genişliği (cm)**, tek açıklama, **en az 3 fotoğraf**, isim, ayrı alanlarda **Cep telefonu** ve **E-posta**. İletişim alanlarının ikisi de zorunludur; tarayıcı ve sunucu kontrol eder. En fazla 8 fotoğraf; JPEG/PNG/WebP, dosya başına 5 MB ve toplam 20 MB. Fotoğraflar birkaç seferde eklenebilir ve tek tek kaldırılabilir. Üç fotoğraf tamamlanmadan hem tarayıcı hem sunucu gönderimi reddeder. Yüzey, adet, nesil ve orijinal parça durumu sonradan görüşülür. Eski kayıtlar ve eksik bırakılmış eski bilgiler korunur; yeni üretim yöntemi belirtilmemiş olarak görünür.
 
 Başarı mesajı ancak kayıt tamamlanınca referans numarası gösterir. Fiyat/üretim tarihi vaat edilmez; onay ve koşullar iletilmeden parça gönderilmemesi belirtilir.
 

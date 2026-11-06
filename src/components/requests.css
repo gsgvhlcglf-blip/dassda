@@ -756,6 +756,130 @@
   grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
+.request-form .request-image-fieldset {
+  border: 0;
+  padding: 0 0 24px;
+}
+.request-image-fieldset legend {
+  font-size: 12px;
+  letter-spacing: 0;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+.request-image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.request-form .request-image-choice {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: 0;
+  aspect-ratio: 2.5;
+  margin: 0;
+  border: 1px solid #414141;
+  background: #151515;
+  cursor: pointer;
+  transition: border-color 160ms ease;
+}
+.request-image-choice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 25%, #000c);
+  pointer-events: none;
+}
+.request-image-choice > img {
+  object-fit: cover;
+  pointer-events: none;
+}
+.request-form .request-image-choice > input[type="radio"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+.request-choice-caption {
+  position: absolute;
+  z-index: 2;
+  bottom: 18px;
+  left: 20px;
+  right: 16px;
+  color: #fff;
+  pointer-events: none;
+}
+.request-choice-caption strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.request-choice-caption > span {
+  display: block;
+  font-size: 11px;
+  margin-top: 5px;
+  color: #d0d0d0;
+  line-height: 1.5;
+}
+.request-choice-check {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #aaa;
+  border-radius: 50%;
+  background: #0006;
+  pointer-events: none;
+}
+.request-choice-check svg {
+  opacity: 0;
+}
+.request-image-choice:hover,
+.request-image-choice:has(input:checked) {
+  border-color: #e9e9e2;
+}
+.request-image-choice:has(input:checked) .request-choice-check {
+  background: #e9e9e2;
+  border-color: #e9e9e2;
+  color: #111;
+}
+.request-image-choice:has(input:checked) .request-choice-check svg {
+  opacity: 1;
+}
+.request-image-choice:has(input:focus-visible) {
+  outline: 2px solid #eee;
+  outline-offset: 4px;
+}
+@media (max-width: 600px) {
+  .request-image-grid {
+    gap: 14px;
+  }
+  .request-form .request-image-choice {
+    aspect-ratio: 1.35;
+  }
+  .request-choice-caption {
+    left: 12px;
+    right: 10px;
+    bottom: 14px;
+  }
+  .request-choice-caption strong {
+    font-size: 16px;
+  }
+  .request-choice-check {
+    top: 10px;
+    right: 10px;
+  }
+}
 .request-simple-upload {
   padding: 18px;
   border: 1px dashed #454545;

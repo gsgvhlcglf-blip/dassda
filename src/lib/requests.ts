@@ -35,6 +35,19 @@ export const requestStages = {
   },
 };
 export type RequestKind = keyof typeof requestStages;
+export const requestMaterialLabels = {
+  undecided: "Değerlendirilecek",
+  full_carbon: "Tam karbon fiber",
+  hybrid: "Karbon / cam elyaf",
+  forged: "Forged Carbon",
+  twill: "Twill Karbon",
+  carbon_finish: "Karbon dış yüzey",
+};
+export const requestMethodLabels = {
+  unspecified: "Belirtilmedi",
+  lamination: "Laminasyon (mevcut parça üzerine)",
+  infusion: "İnfüzyon (sıfırdan)",
+};
 export const originalOptions = {
   unspecified: "Henüz belirtilmedi",
   can_ship: "Orijinal parçam var ve gönderebilirim.",
@@ -94,8 +107,18 @@ export const requestSchema = z
     part_description: notes.min(3, "Parçayı kısaca açıklayın."),
     other_part: notes.default(""),
     material: z
-      .enum(["undecided", "full_carbon", "hybrid", "forged", "carbon_finish"])
+      .enum([
+        "undecided",
+        "full_carbon",
+        "hybrid",
+        "forged",
+        "twill",
+        "carbon_finish",
+      ])
       .default("undecided"),
+    manufacturing_method: z
+      .enum(["unspecified", "lamination", "infusion"])
+      .default("unspecified"),
     finish: z.enum(["undecided", "gloss", "matte"]).default("undecided"),
     quantity: z.number().int().min(1).max(1000).nullable().default(null),
     original: z
@@ -148,6 +171,18 @@ export const requestSchema = z
       v.part_name || v.part_description.split(/\r?\n/)[0].trim().slice(0, 120),
   }));
 export type RequestInput = z.infer<typeof requestSchema>;
+// Existing CRM records may predate these choices; new public enquiries require them.
+export const publicRequestSchema = requestSchema
+  .refine(
+    (v) => v.material === "forged" || v.material === "twill",
+    "Karbon görünümünü seçin.",
+  )
+  .refine(
+    (v) => v.manufacturing_method !== "unspecified",
+    "Üretim yöntemini seçin.",
+  )
+  .refine((v) => !!v.email, "E-posta adresinizi girin.")
+  .refine((v) => !!v.phone, "Cep telefonu numaranızı girin.");
 export type Quote = {
   id: string;
   version: number;

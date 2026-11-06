@@ -64,18 +64,53 @@ try {
   await expect(frame().getByLabel("Yıl", { exact: true })).toHaveValue("2024");
   assert.equal(await frame().locator(".request-form select").count(), 0);
   assert.equal(await frame().locator(".request-form textarea").count(), 1);
+  assert.equal(await frame().getByRole("radio").count(), 4);
+  await frame()
+    .getByRole("radio", { name: "Forged Carbon", exact: true })
+    .check();
+  await frame()
+    .getByRole("radio", { name: "Twill Karbon", exact: true })
+    .check();
+  await expect(
+    frame().getByRole("radio", { name: "Forged Carbon", exact: true }),
+  ).not.toBeChecked();
   async function fillForm(view, kind, email) {
+    await view
+      .getByRole("radio", {
+        name: kind === "demand" ? "Twill Karbon" : "Forged Carbon",
+        exact: true,
+      })
+      .check();
+    await view
+      .getByRole("radio", {
+        name:
+          kind === "demand"
+            ? "İnfüzyon (sıfırdan)"
+            : "Laminasyon (mevcut parça üzerine)",
+        exact: true,
+      })
+      .check();
     await view
       .getByLabel("Açıklama", { exact: true })
       .fill(
         kind === "demand" ? "Test talep paneli" : "Test özel üretim paneli",
       );
-    await view.getByLabel("Uzunluk (cm)", { exact: true }).fill("25.5");
-    await view.getByLabel("Genişlik (cm)", { exact: true }).fill("12.5");
+    await view.getByLabel("Parça uzunluğu (cm)", { exact: true }).fill("25.5");
+    await view.getByLabel("Parça genişliği (cm)", { exact: true }).fill("12.5");
     await view
       .getByLabel("Adınız", { exact: true })
       .fill("Test request customer");
-    await view.getByLabel("Telefon veya e-posta", { exact: true }).fill(email);
+    await view
+      .getByLabel("Cep telefonu", { exact: true })
+      .fill("+905550001122");
+    await view.getByLabel("E-posta", { exact: true }).fill(email);
+    await expect(
+      view.getByLabel("Cep telefonu", { exact: true }),
+    ).toHaveAttribute("required", "");
+    await expect(view.getByLabel("E-posta", { exact: true })).toHaveAttribute(
+      "required",
+      "",
+    );
     await view.locator('input[name="permission"]').check();
   }
   const photo = (name) => ({ name, mimeType: "image/png", buffer: png });
@@ -168,6 +203,12 @@ try {
     assert.equal(custom.input.model_id, "");
     assert.equal(custom.input.length_cm, 25.5);
     assert.equal(custom.input.width_cm, 12.5);
+    assert.equal(demand.input.material, "twill");
+    assert.equal(demand.input.manufacturing_method, "infusion");
+    assert.equal(custom.input.material, "forged");
+    assert.equal(custom.input.manufacturing_method, "lamination");
+    assert.equal(custom.input.phone, "+905550001122");
+    assert.equal(custom.input.email, "custom-browser@example.test");
     const detail = await (
       await admin.request.get(origin + "/api/admin/requests?id=" + custom.id)
     ).json();
@@ -472,10 +513,33 @@ try {
       .getByRole("link", { name: /Özel üretim talebi/ })
       .click();
     await frame().locator(".custom-simple-page").waitFor();
+    await frame()
+      .locator(".request-image-fieldset")
+      .first()
+      .screenshot({ path: "/tmp/kuzmin-carbon-choices.png" });
+    await frame()
+      .locator(".request-image-fieldset")
+      .last()
+      .screenshot({ path: "/tmp/kuzmin-method-choices.png" });
     await page.screenshot({
       path: "/tmp/kuzmin-custom-carbon-preview.png",
       fullPage: true,
     });
+    await page.locator("#site-inspect").check();
+    await frame()
+      .locator('[data-visual-image="requests.material.forged"]')
+      .click();
+    await page
+      .getByLabel("Yeni fotoğraf seç", { exact: true })
+      .setInputFiles("public/images/hero.webp");
+    await page.waitForFunction(
+      (key) =>
+        !!JSON.parse(localStorage.getItem(key + ".design"))?.images[
+          "requests.material.forged"
+        ],
+      key,
+    );
+    await page.locator("#site-inspect").uncheck();
     await page.locator('[data-action="site-device"][data-id="mobile"]').click();
     await frame()
       .getByLabel("Adınız", { exact: true })

@@ -45,6 +45,8 @@ export function requestDemo(c: Catalog): CRMTransport {
       year: year?.year || 2024,
       length_cm: 25.5,
       width_cm: 12.5,
+      material: kind === "custom" ? "forged" : "twill",
+      manufacturing_method: kind === "custom" ? "lamination" : "infusion",
       part_description:
         kind === "custom"
           ? "Örnek özel karbon kaplama"

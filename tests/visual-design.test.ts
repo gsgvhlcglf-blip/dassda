@@ -1,6 +1,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { validateDesign } from "../quick-panel/design.mjs";
+test("request image choices survive visual backup validation", () => {
+  const images = Object.fromEntries(
+    [
+      "requests.material.forged",
+      "requests.material.twill",
+      "requests.manufacturing_method.lamination",
+      "requests.manufacturing_method.infusion",
+    ].map((key) => [key, "data:image/webp;base64,AAAA"]),
+  );
+  assert.deepEqual(validateDesign({ texts: {}, images }).images, images);
+});
 test("legacy visual drafts and backups retain copy/images when logo scaling is added", () => {
   const old = {
     texts: { tr: { "ui:chooseBrand": "Sahibin başlığı" } },
