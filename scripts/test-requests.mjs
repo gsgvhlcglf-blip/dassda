@@ -49,10 +49,6 @@ try {
     await page.locator("#site-inspect").uncheck();
   }
   await frame().locator(".request-options").waitFor();
-  assert.equal(
-    await frame().locator(".request-option-grid article").count(),
-    2,
-  );
   await frame()
     .getByRole("combobox", { name: "Koleksiyon", exact: true })
     .selectOption("body");
@@ -60,49 +56,47 @@ try {
     .getByRole("link", { name: /Ürün talebi oluştur/ })
     .click();
   await expect(frame().getByLabel("Marka", { exact: true })).toHaveValue(
-    "yamaha",
+    "YAMAHA",
   );
   await expect(frame().getByLabel("Model", { exact: true })).toHaveValue(
-    "yamaha-mt-25",
+    "MT-25",
   );
-  await expect(frame().getByLabel("Model yılı", { exact: true })).toHaveValue(
-    "2024",
-  );
-  await expect(
-    frame().getByLabel("Parça kategorisi", { exact: true }),
-  ).toHaveValue("body");
+  await expect(frame().getByLabel("Yıl", { exact: true })).toHaveValue("2024");
+  assert.equal(await frame().locator(".request-form select").count(), 0);
+  assert.equal(await frame().locator(".request-form textarea").count(), 1);
   async function fillForm(view, kind, email) {
     await view
-      .getByLabel("İstenen karbonfiber parça", { exact: true })
+      .getByLabel("Açıklama", { exact: true })
       .fill(
         kind === "demand" ? "Test talep paneli" : "Test özel üretim paneli",
       );
+    await view.getByLabel("Uzunluk (cm)", { exact: true }).fill("25.5");
+    await view.getByLabel("Genişlik (cm)", { exact: true }).fill("12.5");
     await view
-      .getByLabel(
-        kind === "custom"
-          ? "Üretim için referans alınabilecek orijinal parçayı bize sağlayabilir misiniz?"
-          : "Orijinal parçaya erişim durumu",
-        { exact: true },
-      )
-      .selectOption(kind === "custom" ? "unavailable" : "can_ship");
-    await view
-      .getByLabel("Ad soyad", { exact: true })
+      .getByLabel("Adınız", { exact: true })
       .fill("Test request customer");
-    await view.getByLabel("E-posta", { exact: true }).fill(email);
+    await view.getByLabel("Telefon veya e-posta", { exact: true }).fill(email);
     await view.locator('input[name="permission"]').check();
   }
+  const photo = (name) => ({ name, mimeType: "image/png", buffer: png });
   await fillForm(frame(), "demand", "requests-browser@example.test");
+  await frame()
+    .getByLabel("Fotoğraflar (en az 3)", { exact: true })
+    .setInputFiles([photo("one.png"), photo("two.png")]);
+  await frame()
+    .getByRole("button", { name: "Talebini gönder", exact: true })
+    .click();
+  await frame()
+    .getByRole("alert")
+    .filter({ hasText: /En az 3 fotoğraf/ })
+    .waitFor();
+  await frame()
+    .getByLabel("Fotoğraflar (en az 3)", { exact: true })
+    .setInputFiles(photo("three.png"));
   let demandRef, customRef;
   if (app) {
     await page
-      .getByLabel(/Referans fotoğrafları/)
-      .setInputFiles({
-        name: "reference.png",
-        mimeType: "image/png",
-        buffer: png,
-      });
-    await page
-      .getByRole("button", { name: "Ürün talebini gönder", exact: true })
+      .getByRole("button", { name: "Talebini gönder", exact: true })
       .click();
     await page.getByText(/KZ-UT-/).waitFor();
     demandRef = await page.locator(".request-thanks strong").innerText();
@@ -112,7 +106,7 @@ try {
       if (r.url().includes("/api/requests")) calls.push(r.url());
     });
     await frame()
-      .getByRole("button", { name: "Ürün talebini gönder", exact: true })
+      .getByRole("button", { name: "Talebini gönder", exact: true })
       .click();
     await frame()
       .getByRole("alert")
@@ -131,12 +125,14 @@ try {
         "/parcani-urettir?type=custom&brand=yamaha&model=yamaha-mt-25&year=2024&category=body",
     );
     await fillForm(page, "custom", "custom-browser@example.test");
-    await page.getByLabel(/Referans fotoğrafları/).setInputFiles([
-      { name: "one.png", mimeType: "image/png", buffer: png },
-      { name: "two.png", mimeType: "image/png", buffer: png },
-    ]);
+    await page.getByLabel("Marka", { exact: true }).fill("Honda");
+    await page.getByLabel("Model", { exact: true }).fill("CBR650R");
+    await page.getByLabel("Yıl", { exact: true }).fill("2018");
     await page
-      .getByRole("button", { name: "Özel üretim talebini gönder", exact: true })
+      .getByLabel("Fotoğraflar (en az 3)", { exact: true })
+      .setInputFiles([photo("one.png"), photo("two.png"), photo("three.png")]);
+    await page
+      .getByRole("button", { name: "Talebini gönder", exact: true })
       .click();
     await page.getByText(/KZ-OZ-/).waitFor();
     customRef = await page.locator(".request-thanks strong").innerText();
@@ -167,10 +163,15 @@ try {
     assert.equal(demand.input.category_id, "body");
     assert.equal(demand.input.model_id, "yamaha-mt-25");
     assert(custom.technical_review);
+    assert.equal(custom.snapshot.brand, "Honda");
+    assert.equal(custom.snapshot.model, "CBR650R");
+    assert.equal(custom.input.model_id, "");
+    assert.equal(custom.input.length_cm, 25.5);
+    assert.equal(custom.input.width_cm, 12.5);
     const detail = await (
       await admin.request.get(origin + "/api/admin/requests?id=" + custom.id)
     ).json();
-    assert.equal(detail.files.length, 2);
+    assert.equal(detail.files.length, 3);
     assert.equal(
       (await context.request.get(origin + detail.files[0].url)).status(),
       401,
@@ -185,29 +186,57 @@ try {
       submission_key: crypto.randomUUID(),
       email: "idempotent@example.test",
     };
-    const multipart = { payload: JSON.stringify(payload) };
+    const multipart = (value = payload, count = 3, bad = false) => {
+      const f = new FormData();
+      f.set("payload", JSON.stringify(value));
+      for (let i = 0; i < count; i++)
+        f.append(
+          "photos",
+          new File(
+            [
+              bad && i === 0
+                ? Buffer.from(
+                    '<svg xmlns="http://www.w3.org/2000/svg">unsafe</svg>',
+                  )
+                : png,
+            ],
+            bad && i === 0 ? "unsafe.svg" : "p" + i + ".png",
+            { type: bad && i === 0 ? "image/svg+xml" : "image/png" },
+          ),
+        );
+      return f;
+    };
     const one = await context.request.post(origin + "/api/requests", {
-        multipart,
+        multipart: multipart(),
       }),
-      two = await context.request.post(origin + "/api/requests", { multipart });
+      two = await context.request.post(origin + "/api/requests", {
+        multipart: multipart(),
+      });
     assert.equal(one.status(), 201, await one.text());
     assert.equal((await one.json()).reference, (await two.json()).reference);
     const invalid = await context.request.post(origin + "/api/requests", {
-      multipart: {
-        payload: JSON.stringify({
-          ...payload,
-          submission_key: crypto.randomUUID(),
-        }),
-        photos: {
-          name: "unsafe.svg",
-          mimeType: "image/svg+xml",
-          buffer: Buffer.from(
-            '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
-          ),
-        },
-      },
+      multipart: multipart(
+        { ...payload, submission_key: crypto.randomUUID() },
+        3,
+        true,
+      ),
     });
     assert.equal(invalid.status(), 400);
+    const tooFew = await context.request.post(origin + "/api/requests", {
+      multipart: multipart(
+        { ...payload, submission_key: crypto.randomUUID() },
+        2,
+      ),
+    });
+    assert.equal(tooFew.status(), 400);
+    const noMeasure = await context.request.post(origin + "/api/requests", {
+      multipart: multipart({
+        ...payload,
+        submission_key: crypto.randomUUID(),
+        length_cm: 0,
+      }),
+    });
+    assert.equal(noMeasure.status(), 400);
     await panel
       .locator("tbody tr")
       .filter({ hasText: customRef })
@@ -331,7 +360,7 @@ try {
     const saved = await (
       await admin.request.get(origin + "/api/admin/requests?id=" + custom.id)
     ).json();
-    assert.equal(saved.files.length, 3);
+    assert.equal(saved.files.length, 4);
     assert(saved.history.some((e) => e.type === "files"));
     assert(
       saved.history.some((e) => e.type === "operations" && e.detail.after),
@@ -442,14 +471,14 @@ try {
     await frame()
       .getByRole("link", { name: /Özel üretim talebi/ })
       .click();
-    await frame().locator(".custom-hero").waitFor();
+    await frame().locator(".custom-simple-page").waitFor();
     await page.screenshot({
       path: "/tmp/kuzmin-custom-carbon-preview.png",
       fullPage: true,
     });
     await page.locator('[data-action="site-device"][data-id="mobile"]').click();
     await frame()
-      .getByLabel("Ad soyad", { exact: true })
+      .getByLabel("Adınız", { exact: true })
       .scrollIntoViewIfNeeded();
     assert(
       await page

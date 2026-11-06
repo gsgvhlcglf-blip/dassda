@@ -2,11 +2,11 @@
 
 ## Müşteri akışı
 
-**Parçanı ürettir** sayfasında özel üretim teklifi ve yeni ürün talebi iki ayrı hizmettir. Formlar üyelik istemez. Giriş yapılmışsa başvuru doğrulanan hesapla ilişkilendirilir.
+**Parçanı ürettir** sayfasında tek, kısa bir başvuru formu vardır. Müşteri marka, model ve yılı yazar; katalog listelerinden seçim yapmaz. Her marka/model kabul edilir. Özel üretim veya ürün talebi türü gelinen bağlantıdan belirlenir; müşteriye ayrıca tercih sorulmaz. Üyelik gerekmez; giriş yapılmışsa başvuru doğrulanan hesapla ilişkilendirilir.
 
-Mevcut marka → model → yıl → ürün akışı korunur. Ürün listesinin altında iki talep kartı, satışta hiç ürün olmasa da görünür. Motosiklet, yıl, seçili kategori ve kaynak sayfa forma aktarılır; müşteri değiştirebilir. Ürün detayında da iki karta erişilir. Motosiklet listesinden ürüne geçerken model/yıl bağlamı URL'de korunur.
+Mağazanın marka → model → yıl → ürün akışı korunur. Talep kartları stok boşken de görünür. Motosiklet sayfasından gelinirse marka/model/yıl metin alanlarına önceden yazılır; müşteri serbestçe değiştirebilir. Kategori ve kaynak sayfa arka planda korunur; ekstra alan olarak sorulmaz. Ürün detayında da başvuru bağlantıları vardır.
 
-Ürün talebine bir, özel üretime en fazla sekiz referans fotoğrafı eklenir. JPEG/PNG/WebP, dosya başına 5 MB ve toplam 20 MB sınırı vardır. E-posta veya telefondan en az biri gerekir; seçilen iletişim kanalının bilgisi de zorunludur. Orijinal parçayı sağlayamayan özel üretim başvuruları kabul edilir ve teknik inceleme etiketi alır.
+Zorunlu alanlar: marka, model, yıl, **uzunluk ve genişlik (cm)**, tek açıklama, **en az 3 fotoğraf**, isim ve tek alanda telefon veya e-posta. En fazla 8 fotoğraf; JPEG/PNG/WebP, dosya başına 5 MB ve toplam 20 MB. Fotoğraflar birkaç seferde eklenebilir ve tek tek kaldırılabilir. Üç fotoğraf tamamlanmadan hem tarayıcı hem sunucu gönderimi reddeder. Malzeme, yüzey, adet, nesil, orijinal parça durumu ve iletişim tercihi ilk formda sorulmaz; sonradan görüşülür. Bilinmeyen bilgiler CRM'de belirtilmemiş olarak kalır.
 
 Başarı mesajı ancak kayıt tamamlanınca referans numarası gösterir. Fiyat/üretim tarihi vaat edilmez; onay ve koşullar iletilmeden parça gönderilmemesi belirtilir.
 
@@ -30,13 +30,13 @@ Teklif kaydetmek e-posta, SMS veya WhatsApp göndermez. **İletildi olarak kayde
 
 Mülkiyet, hasar/risk, iade ve kalıp kullanım hakları için boş, düzenlenebilir alanlar vardır. İşletmenizin hazırladığı/onayladığı metinleri ekleyin. Hazır hukuki koşul uydurulmamıştır. Boş veya onaysız metinler müşteriye gösterilmez. Kaydetmek yeni sürüm oluşturur; bu operasyonel dokümanlar katalog taslağının yayın düğmesinden bağımsızdır.
 
-Müşterinin kabul ettiği metin ve sürüm başvuruya kopyalanır. Gönderim için dört doküman hazırlanmalı, müşteriye iletilmeli; onay kanıtı/tarihi ve gönderim koşulları kaydedilmelidir. Sonra **gönderime izin verildi** kutusu açılır. Bu kayıt olmadan parça bekleme/kargo/teslim/fiziksel inceleme aşamalarına geçilemez.
+İlk kısa form yalnızca talep için iletişim izni ister; ticari koşullar müşteriye sonradan iletilir. Gönderim için dört doküman hazırlanmalı, müşteriye iletilmeli; onay kanıtı/tarihi ve gönderim koşulları kaydedilmelidir. Sonra **gönderime izin verildi** kutusu açılır. Bu kayıt olmadan parça bekleme/kargo/teslim/fiziksel inceleme aşamalarına geçilemez. Eski başvurulardaki metin/sürüm/onay kayıtları korunur.
 
 Takip değişiklikleri eski/yeni değerlerle geçmişe kaydedilir. Sonraki metin değişiklikleri önceki onayları değiştirmez. Onay geri alınsa bile eski kanıt tarihçede korunur.
 
 ## Sunucu kurulumu
 
-1. 001–007'den sonra **supabase/migrations/008_work_requests.sql** dosyasını uygulayın.
+1. 001–007'den sonra **008_work_requests.sql**, ardından **009_simple_work_requests.sql** dosyalarını uygulayın. 009, talep markasını/modelini katalogdan bağımsız hale getirir; ölçü sütunlarını ve üç fotoğraf kuralını ekler. Eski başvurular silinmez, bilinmeyen ölçüler uydurulmaz.
 2. Sunucuda `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` ve yalnızca sunucuya ait `SUPABASE_SERVICE_ROLE_KEY` bulunmalı. Servis anahtarını panel formuna, müşteri tarayıcısına veya GitHub'a koymayın.
 3. Göç; korumalı talep, olay, dosya ve koşul sürümü tablolarını, **work-requests** adlı özel Storage bucket'ını oluşturur. Bucket'ı herkese açık yapmayın. Doğrudan misafir tablo/RPC yazımı kapalıdır; başvurular doğrulanan sunucu rotasından alınır.
 4. Formları, yönetici rolünü ve dosya erişimini gerçek Supabase kurulumunda deneyin. Yapılandırma eksikse başarı taklidi yapılmaz; hizmetin açılmadığı gösterilir.

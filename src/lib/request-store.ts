@@ -195,6 +195,8 @@ export async function submitWork(
   source: string,
   fingerprint: string,
 ) {
+  if (files.length < 3 || files.length > 8)
+    throw Error("En az 3, en fazla 8 fotoğraf ekleyin.");
   if (isLive) {
     const { data, error } = await privileged().rpc("submit_work_request", {
       record,
@@ -285,7 +287,12 @@ export type PreparedPhoto = {
   extension: string;
   bytes: Buffer;
 };
-export async function parseWorkPhotos(files: File[], limit: number) {
+export async function parseWorkPhotos(
+  files: File[],
+  limit: number,
+  minimum = 0,
+) {
+  if (files.length < minimum) throw Error(`En az ${minimum} fotoğraf ekleyin.`);
   if (files.length > limit) throw Error(`En fazla ${limit} fotoğraf yükleyin.`);
   let total = 0;
   const result: PreparedPhoto[] = [];

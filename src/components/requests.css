@@ -718,3 +718,130 @@
     font-size: 24px;
   }
 }
+
+/* A single short enquiry, for any customer's motorcycle. */
+.custom-simple-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding-top: 58px;
+  padding-bottom: 65px;
+  scroll-margin-top: 20px;
+}
+.request-simple-heading {
+  max-width: 720px;
+  margin-bottom: 30px;
+}
+.request-simple-heading h1 {
+  font-size: clamp(38px, 4.5vw, 58px);
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+  margin: 18px 0;
+}
+.request-simple-heading > p:last-child {
+  font-size: 14px;
+  color: #999;
+  line-height: 1.8;
+  max-width: 560px;
+}
+.request-simple-form {
+  border-top: 1px solid #303030;
+  padding-top: 26px;
+}
+.request-vehicle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.6fr;
+  gap: 18px;
+}
+.request-simple-form .request-field-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.request-simple-upload {
+  padding: 18px;
+  border: 1px dashed #454545;
+  background: #111;
+  border-radius: 4px;
+}
+.request-simple-upload > span {
+  display: block;
+  color: #999;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.request-simple-upload input {
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+}
+.request-photo-count {
+  font-size: 12px;
+  color: #999;
+  margin: -6px 0 24px;
+}
+.request-simple-submit {
+  width: 100%;
+  margin-top: 12px;
+  justify-content: space-between;
+}
+.request-simple-note {
+  font-size: 11px !important;
+  color: #888;
+  line-height: 1.8;
+  margin-top: 16px;
+  max-width: 650px;
+}
+.custom-simple-page .request-preview-note {
+  font-size: 11px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.custom-simple-page .request-photo-list {
+  margin: 0 0 20px;
+}
+.custom-simple-page .request-photo-list img {
+  width: 115px;
+  height: 85px;
+}
+.custom-simple-page .request-photo-list figure {
+  width: 115px;
+}
+.custom-simple-page .request-check {
+  font-size: 11px;
+  margin: 8px 0 18px;
+}
+@media (max-width: 600px) {
+  .custom-simple-page {
+    padding-top: 35px;
+  }
+  .request-simple-heading {
+    margin-bottom: 22px;
+  }
+  .request-vehicle-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0 14px;
+  }
+  .request-vehicle-grid > label:last-child {
+    grid-column: 1/-1;
+  }
+  .request-simple-form .request-field-grid {
+    gap: 14px;
+  }
+  .request-simple-form input {
+    padding: 12px;
+    min-width: 0;
+  }
+  .request-simple-heading > p:last-child {
+    font-size: 13px;
+  }
+  .custom-simple-page .request-photo-list {
+    gap: 10px;
+  }
+  .custom-simple-page .request-photo-list figure,
+  .custom-simple-page .request-photo-list img {
+    width: 95px;
+  }
+  .request-simple-upload {
+    padding: 14px;
+  }
+}

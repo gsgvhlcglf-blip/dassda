@@ -36,6 +36,7 @@ export const requestStages = {
 };
 export type RequestKind = keyof typeof requestStages;
 export const originalOptions = {
+  unspecified: "Henüz belirtilmedi",
   can_ship: "Orijinal parçam var ve gönderebilirim.",
   on_bike: "Parçam motosiklet üzerinde, gerekirse sağlayabilirim.",
   unavailable: "Orijinal parçaya erişimim yok / şu an sağlayamam.",
@@ -67,30 +68,53 @@ export const requestSchema = z
   .object({
     submission_key: z.string().uuid(),
     kind: z.enum(["custom", "demand"]),
-    brand_id: z.enum(["ducati", "bmw", "yamaha"]),
-    model_id: line.min(1),
-    year: z.number().int().min(1900).max(2100),
+    brand_name: line.min(1, "Motosiklet markasını yazın."),
+    model_name: line.min(1, "Motosiklet modelini yazın."),
+    brand_id: line.default(""),
+    model_id: line.default(""),
+    year: z
+      .number()
+      .int()
+      .min(1900, "Yılı 1900–2100 arasında dört haneli yazın.")
+      .max(2100, "Yılı 1900–2100 arasında dört haneli yazın."),
+    length_cm: z
+      .number()
+      .finite()
+      .min(0.01, "Uzunluğu cm olarak girin.")
+      .max(10000),
+    width_cm: z
+      .number()
+      .finite()
+      .min(0.01, "Genişliği cm olarak girin.")
+      .max(10000),
     generation_id: line.optional().default(""),
     category_id: line.optional().default(""),
     product_id: line.optional().default(""),
-    part_name: line.min(2),
-    part_description: notes.default(""),
+    part_name: line.default(""),
+    part_description: notes.min(3, "Parçayı kısaca açıklayın."),
     other_part: notes.default(""),
     material: z
       .enum(["undecided", "full_carbon", "hybrid", "forged", "carbon_finish"])
       .default("undecided"),
     finish: z.enum(["undecided", "gloss", "matte"]).default("undecided"),
-    quantity: z.number().int().min(1).max(1000).default(1),
-    original: z.enum(["can_ship", "on_bike", "unavailable", "discuss"]),
+    quantity: z.number().int().min(1).max(1000).nullable().default(null),
+    original: z
+      .enum(["unspecified", "can_ship", "on_bike", "unavailable", "discuss"])
+      .default("unspecified"),
     name: line.min(2),
-    email: z.union([z.literal(""), z.email().max(254)]).default(""),
+    email: z
+      .union([
+        z.literal(""),
+        z.email({ error: "Geçerli bir e-posta adresi girin." }).max(254),
+      ])
+      .default(""),
     phone: z
       .string()
       .trim()
       .max(30)
       .refine(
         (v) => !v || /^[+\d\s().-]{7,30}$/.test(v),
-        "Telefon numarasını kontrol edin.",
+        "Geçerli bir telefon numarası veya e-posta adresi girin.",
       )
       .default(""),
     contact: z.enum(["email", "phone", "whatsapp", "either"]).default("either"),
@@ -118,13 +142,11 @@ export const requestSchema = z
     (v) => !["phone", "whatsapp"].includes(v.contact) || !!v.phone,
     "Seçtiğiniz iletişim kanalı için telefon girin.",
   )
-  .refine(
-    (v) =>
-      !["diğer", "diger", "other"].includes(
-        v.part_name.toLocaleLowerCase("tr"),
-      ) || v.other_part.trim().length >= 3,
-    "Diğer parça için kısa bir açıklama girin.",
-  );
+  .transform((v) => ({
+    ...v,
+    part_name:
+      v.part_name || v.part_description.split(/\r?\n/)[0].trim().slice(0, 120),
+  }));
 export type RequestInput = z.infer<typeof requestSchema>;
 export type Quote = {
   id: string;
@@ -202,29 +224,31 @@ export type RequestFile = {
   url?: string;
 };
 export function validateRequestSelection(input: RequestInput, c: Catalog) {
-  const model = c.models.find(
-    (m) =>
-      m.id === input.model_id &&
-      m.brand_id === input.brand_id &&
-      m.published !== false,
+  const same = (a: string, b: string) =>
+    a.trim().toLowerCase() === b.trim().toLowerCase();
+  const brand = c.brands.find(
+    (b) => b.id === input.brand_id && same(b.name, input.brand_name),
   );
-  const year = c.model_years.find(
-    (y) => y.model_id === input.model_id && y.year === input.year,
-  );
-  if (!model || !year)
-    throw Error("Marka, model ve üretim yılı seçimini kontrol edin.");
-  if (input.generation_id && input.generation_id !== year.generation_id)
-    throw Error("Nesil seçilen üretim yılıyla eşleşmiyor.");
-  if (
-    input.category_id &&
-    !c.categories.some((v) => v.id === input.category_id)
-  )
-    throw Error("Kategori bulunamadı.");
-  if (
-    input.product_id &&
-    !c.products.some((v) => v.id === input.product_id && v.published)
-  )
-    throw Error("İlgili ürün bulunamadı.");
+  const model = brand
+    ? c.models.find(
+        (m) =>
+          m.id === input.model_id &&
+          m.brand_id === brand.id &&
+          same(m.name, input.model_name),
+      )
+    : undefined;
+  const year = model
+    ? c.model_years.find(
+        (y) => y.model_id === model.id && y.year === input.year,
+      )
+    : undefined;
+  input.brand_id = brand?.id || "";
+  input.model_id = model?.id || "";
+  input.generation_id = year?.generation_id || "";
+  if (!c.categories.some((v) => v.id === input.category_id))
+    input.category_id = "";
+  if (!c.products.some((v) => v.id === input.product_id && v.published))
+    input.product_id = "";
   const source = new URL(input.source_path, "https://kuzmin.local");
   if (
     source.origin !== "https://kuzmin.local" ||
@@ -234,12 +258,12 @@ export function validateRequestSelection(input: RequestInput, c: Catalog) {
     throw Error("Kaynak sayfa geçersiz.");
   input.source_path = source.pathname + source.search;
   return {
-    brand: c.brands.find((b) => b.id === model.brand_id)!.name,
-    model: model.name,
+    brand: input.brand_name,
+    model: input.model_name,
     category:
       c.categories.find((v) => v.id === input.category_id)?.name.tr || "",
     generation:
-      c.generations.find((g) => g.id === year.generation_id)?.name || "",
+      c.generations.find((g) => g.id === year?.generation_id)?.name || "",
   };
 }
 export function newWorkRequest(
@@ -250,6 +274,7 @@ export function newWorkRequest(
   id = crypto.randomUUID(),
   now = new Date().toISOString(),
 ): WorkRequest {
+  input = requestSchema.parse(input);
   const snapshot = validateRequestSelection(input, c);
   const consents = input.accepted_terms.map((key) => {
     const doc = terms.documents[key];
@@ -274,7 +299,7 @@ export function newWorkRequest(
     snapshot,
     technical_review:
       input.kind === "custom" &&
-      ["unavailable", "discuss"].includes(input.original),
+      ["unspecified", "unavailable", "discuss"].includes(input.original),
     operations: {
       owner: "unknown",
       shipping_authorized: false,

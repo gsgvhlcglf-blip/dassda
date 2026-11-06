@@ -37,7 +37,8 @@ export async function POST(req: Request) {
       );
     const photos = await parseWorkPhotos(
       form.getAll("photos").filter((f): f is File => f instanceof File),
-      input.kind === "demand" ? 1 : 8,
+      8,
+      3,
     );
     const [catalog, terms, customer] = await Promise.all([
       getCatalog(),

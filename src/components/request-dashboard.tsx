@@ -302,6 +302,13 @@ export function RequestDashboard({
                 <dd>{selected.record.snapshot.category || "Belirtilmedi"}</dd>
                 <dt>Nesil</dt>
                 <dd>{selected.record.snapshot.generation || "—"}</dd>
+                <dt>Uzunluk × genişlik</dt>
+                <dd>
+                  {selected.record.input.length_cm &&
+                  selected.record.input.width_cm
+                    ? `${selected.record.input.length_cm} × ${selected.record.input.width_cm} cm`
+                    : "Eski kayıtta ölçü belirtilmemiş"}
+                </dd>
                 <dt>Malzeme / yüzey / adet</dt>
                 <dd>
                   {
@@ -321,7 +328,7 @@ export function RequestDashboard({
                       matte: "Mat",
                     }[selected.record.input.finish]
                   }{" "}
-                  / {selected.record.input.quantity}
+                  / {selected.record.input.quantity ?? "Adet belirtilmedi"}
                 </dd>
                 <dt>Kaynak sayfa</dt>
                 <dd>

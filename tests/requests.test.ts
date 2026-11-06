@@ -18,6 +18,11 @@ function input(kind: "custom" | "demand" = "custom") {
   return requestSchema.parse({
     submission_key: crypto.randomUUID(),
     kind,
+    brand_name: "YAMAHA",
+    model_name: "MT-25",
+    length_cm: 25.5,
+    width_cm: 12.5,
+    part_description: "Karbon özel panel isteği.",
     brand_id: "yamaha",
     model_id: "yamaha-mt-25",
     year: 2024,
@@ -62,9 +67,11 @@ test("guest request validation, exact motorcycle/year context and technical-revi
   assert.throws(() => requestSchema.parse({ ...input(), permission: false }));
   assert.throws(() => requestSchema.parse({ ...input(), website: "bot" }));
   for (const bad of [
-    { brand_id: "bmw" },
-    { year: 2030 },
-    { generation_id: "bmw-s1000rr-demo" },
+    { brand_name: "" },
+    { model_name: "" },
+    { year: 0 },
+    { length_cm: 0 },
+    { width_cm: 0 },
     { source_path: "https://example.com/" },
   ] as const)
     assert.throws(() =>
@@ -76,6 +83,39 @@ test("guest request validation, exact motorcycle/year context and technical-revi
     ),
     true,
   );
+});
+test("customer-entered brands/models/years and required dimensions do not depend on catalog inventory", () => {
+  const original = structuredClone(seed);
+  const free = {
+    ...input(),
+    brand_name: "Honda",
+    model_name: "CBR650R",
+    year: 2018,
+  };
+  const record = newWorkRequest(free, seed, blankTerms, null);
+  assert.equal(record.snapshot.brand, "Honda");
+  assert.equal(record.snapshot.model, "CBR650R");
+  assert.equal(record.input.brand_id, "");
+  assert.equal(record.input.model_id, "");
+  assert.equal(record.input.generation_id, "");
+  assert.equal(record.input.length_cm, 25.5);
+  assert.equal(record.input.width_cm, 12.5);
+  const empty = {
+    ...seed,
+    brands: [],
+    models: [],
+    model_years: [],
+    generations: [],
+  };
+  assert.equal(
+    newWorkRequest({ ...free }, empty, blankTerms, null).snapshot.brand,
+    "Honda",
+  );
+  assert.throws(() =>
+    requestSchema.parse({ ...input(), length_cm: undefined }),
+  );
+  assert.throws(() => requestSchema.parse({ ...input(), width_cm: undefined }));
+  assert.deepEqual(seed, original);
 });
 test("CRM stages move forwards/backwards with history, shipping consent is explicit, quotes and terms retain evidence", () => {
   const r = newWorkRequest(input(), seed, blankTerms, null),
@@ -228,13 +268,24 @@ test("PostgreSQL enquiries are private, service-only writes are idempotent and r
       "001_store.sql",
       "007_model_visibility.sql",
       "008_work_requests.sql",
+      "009_simple_work_requests.sql",
     ])
       await db.exec(readFileSync("supabase/migrations/" + file, "utf8"));
     await db.exec(readFileSync("supabase/seed.sql", "utf8"));
     const record = newWorkRequest(input(), seed, blankTerms, null),
       params = [
         JSON.stringify(record),
-        "[]",
+        JSON.stringify(
+          Array.from({ length: 3 }, (_, i) => ({
+            id: crypto.randomUUID(),
+            request_id: record.id,
+            kind: "customer",
+            path: record.id + "/test-" + i + ".png",
+            name: "test.png",
+            mime: "image/png",
+            size: 80,
+          })),
+        ),
         "source-a",
         record.input.submission_key,
         "digest-a",
@@ -319,6 +370,72 @@ test("PostgreSQL enquiries are private, service-only writes are idempotent and r
     await assert.rejects(() =>
       db.query("update public.work_requests set revision=99"),
     );
+    await db.exec("reset role;set role service_role");
+    const outside = newWorkRequest(
+      {
+        ...input(),
+        submission_key: crypto.randomUUID(),
+        email: "outside@example.test",
+        brand_name: "Honda",
+        model_name: "CBR650R",
+        year: 2018,
+      },
+      seed,
+      blankTerms,
+      null,
+    );
+    const outsidePhotos = Array.from({ length: 3 }, (_, i) => ({
+      id: crypto.randomUUID(),
+      request_id: outside.id,
+      kind: "customer",
+      path: outside.id + "/outside-" + i + ".png",
+      name: "outside.png",
+      mime: "image/png",
+      size: 80,
+    }));
+    const submitOutside = (r = outside, photos = outsidePhotos) =>
+      db.query(
+        "select public.submit_work_request($1::jsonb,$2::jsonb,$3,$4::uuid,$5)",
+        [
+          JSON.stringify(r),
+          JSON.stringify(photos),
+          "outside-source",
+          r.input.submission_key,
+          "outside-digest",
+        ],
+      );
+    await assert.rejects(
+      () => submitOutside(outside, outsidePhotos.slice(0, 2)),
+      /INVALID_FILES/,
+    );
+    await assert.rejects(
+      () =>
+        submitOutside({
+          ...outside,
+          input: { ...outside.input, length_cm: 0 },
+        }),
+      /INVALID_REQUEST/,
+    );
+    await submitOutside();
+    const stored = (
+      await db.query<{
+        brand_id: string | null;
+        model_id: string | null;
+        brand_name: string;
+        model_name: string;
+        length_cm: string;
+        width_cm: string;
+      }>(
+        "select brand_id,model_id,brand_name,model_name,length_cm,width_cm from public.work_requests where id=$1",
+        [outside.id],
+      )
+    ).rows[0];
+    assert.equal(stored.brand_id, null);
+    assert.equal(stored.model_id, null);
+    assert.equal(stored.brand_name, "Honda");
+    assert.equal(stored.model_name, "CBR650R");
+    assert.equal(Number(stored.length_cm), 25.5);
+    assert.equal(Number(stored.width_cm), 12.5);
   } finally {
     await db.close();
   }

@@ -33,17 +33,22 @@ export function requestDemo(c: Catalog): CRMTransport {
         m.published !== false && c.model_years.some((y) => y.model_id === m.id),
     );
     const year = c.model_years.find((y) => y.model_id === model?.id);
-    if (!model || !year)
-      throw Error(
-        "Örnek oluşturmak için önce bir model ve üretim yılı ekleyin.",
-      );
     const kind = data.records.length % 2 ? "demand" : "custom";
     const input = requestSchema.parse({
       submission_key: crypto.randomUUID(),
       kind,
-      brand_id: model.brand_id,
-      model_id: model.id,
-      year: year.year,
+      brand_id: model?.brand_id || "",
+      model_id: model?.id || "",
+      brand_name:
+        c.brands.find((b) => b.id === model?.brand_id)?.name || "Örnek marka",
+      model_name: model?.name || "Örnek model",
+      year: year?.year || 2024,
+      length_cm: 25.5,
+      width_cm: 12.5,
+      part_description:
+        kind === "custom"
+          ? "Örnek özel karbon kaplama"
+          : "Örnek yeni ürün talebi",
       part_name:
         kind === "custom"
           ? "Örnek özel karbon kaplama"
@@ -70,13 +75,7 @@ export function requestDemo(c: Catalog): CRMTransport {
     });
     save();
   }
-  if (
-    !data.records.length &&
-    c.models.some(
-      (m) =>
-        m.published !== false && c.model_years.some((y) => y.model_id === m.id),
-    )
-  ) {
+  if (!data.records.length) {
     add();
     add();
   }
