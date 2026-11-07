@@ -13,15 +13,25 @@ Gelişmiş **Nesiller** ekranında tek kayıt değiştirirken mevcut yıllar vey
 
 ## Ana sayfa fotoğrafları
 
-Ana sayfada banner ve sekiz parçalı asimetrik fotoğraf mozaiği bulunur. Kare, dikey ve yatay alanlar mobilde yeniden dizilir. Bölüm başlıkları ve koleksiyon numaraları gösterilmez.
+Ana sayfada banner ve dört görselli fotoğraf düzeni bulunur. Geniş motosiklet kadrajları karbon doku ve parça detaylarıyla eşleşir; mobilde geniş görsellerin arasına iki detay yan yana yerleşir. Bölüm başlıkları ve koleksiyon numaraları gösterilmez.
 
 1. **Sayfa önizlemeleri → Ana sayfa** açın ve **Düzenleme modu** seçili olsun.
-2. Fotoğraf eklemek istediğiniz alana tıklayın. Boş alanlarda yalnızca düzenleme sırasında **+** işareti görünür.
+2. Fotoğraf eklemek istediğiniz alana tıklayın. Örnek konsept fotoğrafların her birini kendi görselinizle değiştirebilirsiniz.
 3. Sağdaki **Yeni fotoğraf seç** alanından JPEG, PNG veya WebP yükleyin (en fazla 5 MB). Değişiklik bu tarayıcıdaki taslağa otomatik kaydolur.
 4. **Müşteri önizlemesi** ile sonucu kontrol edin. Aynı tarayıcıda açık müşteri sekmesi de güncellenir. Fotoğraf çerçeveyi doldurur; uzun ve dar alanlar için uygun kadrajlı fotoğraflar seçin.
 5. Mevcut yayın akışında **Yayın & sürümler → Taslağı yayınla** kullanın; farklı cihazda görünmesi için yayın gerekir. Yedek tasarım ve fotoğraf kayıtlarını da içerir.
 
-Daha önce yüklenen iki koleksiyon görseli ve işçilik görseli, mozaiğin ilk üç alanında korunur. Diğer beş alan kendi fotoğraflarınız için boştur. Banner başlığına tıklayarak metni düzenleyebilir, banner fotoğrafını da aynı yöntemle değiştirebilirsiniz.
+Önceki sekizli düzene yüklediğiniz görseller tasarım kaydınızda ve yedeğinizde korunur. Yeni dört alan bağımsızdır. Banner altında masaüstünde 72 px, görseller arasında 24 px boşluk vardır; mobilde bu boşluklar 36 ve 16 px olur. Banner başlığına tıklayarak metni düzenleyebilir, banner fotoğrafını da aynı yöntemle değiştirebilirsiniz.
+
+## Banner videosu yükleme
+
+1. **Sayfa önizlemeleri → Ana sayfa** açıp **Düzenleme modu**nu etkinleştirin.
+2. Banner görseline tıklayın. Sağda **Banner videosu → Video yükle** alanından MP4 (H.264) veya WebM seçin; en fazla 50 MB.
+3. Video bu tarayıcıya otomatik kaydolur. Sayfa yenilenince korunur; aynı tarayıcıdaki müşteri önizlemesinde de görünür. Sessiz ve döngüde oynar. Müşteri sağ alttaki küçük düğmeyle duraklatabilir. Hareket azaltma tercihi olan cihazlarda otomatik oynatılmaz.
+4. **Taslağı indir** ile aldığınız JSON yedeği aktif videoyu da içerir. Başka tarayıcıda **Taslak yükle** videoyu geri getirir. Videolu yedekler için içe aktarma sınırı 100 MB'dır.
+5. **Videoyu kaldır, fotoğrafı kullan** düğmesi banner fotoğrafına döner. Eski sürümlerdeki video dosyası korunur.
+
+Gerçek sunucudaki yönetim panelinde **Fotoğraf düzeni → Ana sayfa banner videosu** kullanılır. Kaydetmek taslağı günceller; **Yayın & sürümler → Taslağı yayınla** ile müşterilere açılır. Canlı Supabase için 009'dan sonra **010_site_video.sql** kurulmalıdır. Sunucu/platform yükleme sınırı video boyutunu karşılamalıdır; uygulamanın üst sınırı 50 MB olsa da barındırma hizmeti daha düşük sınır uygulayabilir. Kurulumsuz önizlemedeki tarayıcı kaydı canlı dosya sunucusu yerine geçmez.
 
 ## Yeni ürün ekleme
 

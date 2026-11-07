@@ -107,7 +107,7 @@ try {
     .getByRole("heading", { name: "İki sekmede aynı sonuç", exact: true })
     .waitFor();
   assert.equal(await frame().locator("#main > section").count(), 2);
-  assert.equal(await frame().locator(".home-photo-slot").count(), 8);
+  assert.equal(await frame().locator(".home-photo-slot").count(), 4);
   assert.equal(
     await frame()
       .locator(
@@ -117,7 +117,7 @@ try {
     0,
   );
   // Legacy photo slots remain usable; new slots save independently and sync to the customer tab.
-  for (const slot of ["home.collection.body", "home.gallery.four"]) {
+  for (const slot of ["home.editorial.bike", "home.editorial.weave"]) {
     await frame()
       .locator('.home-photo-slot[data-visual-image="' + slot + '"]')
       .click();
@@ -145,24 +145,21 @@ try {
   assert.equal(gallery["home.hero"], image);
   await page.reload();
   await frame()
-    .locator('.home-photo-slot[data-visual-image="home.gallery.four"] img')
+    .locator('.home-photo-slot[data-visual-image="home.editorial.weave"] img')
     .waitFor();
   assert.equal(
     await frame()
-      .locator('.home-photo-slot[data-visual-image="home.collection.body"] img')
+      .locator('.home-photo-slot[data-visual-image="home.editorial.bike"] img')
       .getAttribute("src"),
-    gallery["home.collection.body"],
+    gallery["home.editorial.bike"],
   );
   assert.equal(
     await frame()
-      .locator('.home-photo-slot[data-visual-image="home.gallery.four"] img')
+      .locator('.home-photo-slot[data-visual-image="home.editorial.weave"] img')
       .getAttribute("src"),
-    gallery["home.gallery.four"],
+    gallery["home.editorial.weave"],
   );
-  assert.equal(
-    await customer.locator(".home-photo-placeholder svg").first().isVisible(),
-    false,
-  );
+  assert.equal(await customer.locator(".home-photo-slot img").count(), 4);
   await customer
     .locator(".home-photo-grid")
     .screenshot({ path: "/tmp/home-photo-mosaic-desktop.png" });

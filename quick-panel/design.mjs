@@ -1,4 +1,4 @@
-/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, logoScales: Record<string, number>, logoOffsets: Record<string,{x:number,y:number}>, photography: import("../src/lib/photography").Photography, photoFrames: Record<string,import("../src/lib/photography").PhotoFrame>}} */
+/** @returns {{texts: Record<string, Record<string, string>>, images: Record<string, string>, heroVideo?: import("../src/lib/hero-video").HeroVideoAsset, logoScales: Record<string, number>, logoOffsets: Record<string,{x:number,y:number}>, photography: import("../src/lib/photography").Photography, photoFrames: Record<string,import("../src/lib/photography").PhotoFrame>}} */
 export function validateDesign(value) {
   if (value == null)
     return {
@@ -34,6 +34,46 @@ export function validateDesign(value) {
     },
     photoFrames: {},
   };
+  if (value.heroVideo != null) {
+    const video = value.heroVideo;
+    let safeSource = false;
+    if (video && typeof video.src === "string" && video.src.length <= 2048) {
+      safeSource =
+        /^\/api\/upload-video\?file=[a-f0-9-]{36}\.(mp4|webm)$/.test(
+          video.src,
+        ) ||
+        /^idb:[a-f0-9-]{36}$/.test(video.src) ||
+        /^\/uploads\/[a-f0-9-]+\.(mp4|webm)$/.test(video.src);
+      if (!safeSource) {
+        try {
+          const url = new URL(video.src);
+          safeSource =
+            url.protocol === "https:" &&
+            !!url.hostname &&
+            !url.username &&
+            !url.password;
+        } catch {}
+      }
+    }
+    if (
+      !safeSource ||
+      typeof video.name !== "string" ||
+      video.name.length > 200 ||
+      !["video/mp4", "video/webm"].includes(video.mime) ||
+      !Number.isInteger(video.size) ||
+      video.size < 12 ||
+      video.size > 50 * 1024 * 1024
+    )
+      throw Error(
+        "Banner videosu geçersiz. MP4/WebM ve en fazla 50 MB kullanın.",
+      );
+    result.heroVideo = {
+      src: video.src,
+      name: video.name,
+      mime: video.mime,
+      size: video.size,
+    };
+  }
   for (const lang of ["tr", "en", "ru"]) {
     const entries = value.texts[lang] || {};
     result.texts[lang] = {};

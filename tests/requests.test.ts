@@ -346,6 +346,7 @@ test("PostgreSQL enquiries are private, service-only writes are idempotent and r
       "007_model_visibility.sql",
       "008_work_requests.sql",
       "009_simple_work_requests.sql",
+      "010_site_video.sql",
     ])
       await db.exec(readFileSync("supabase/migrations/" + file, "utf8"));
     await db.exec(readFileSync("supabase/seed.sql", "utf8"));

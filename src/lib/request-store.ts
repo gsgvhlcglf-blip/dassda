@@ -503,7 +503,7 @@ export async function localWorkPhoto(id: string) {
     ),
   };
 }
-export async function boundedForm(req: Request) {
+export async function boundedForm(req: Request, maxBytes = 24 * 1024 * 1024) {
   const reader = req.body?.getReader();
   if (!reader) throw Error("Form verisi eksik.");
   const chunks: Uint8Array[] = [];
@@ -513,7 +513,7 @@ export async function boundedForm(req: Request) {
       const { value, done } = await reader.read();
       if (done) break;
       total += value.length;
-      if (total > 24 * 1024 * 1024) {
+      if (total > maxBytes) {
         await reader.cancel();
         throw Error("Form yükleme sınırı aşıldı.");
       }

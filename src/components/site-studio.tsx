@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { Workspace } from "@/lib/site-version";
 import { defaultPhotography, type Photography } from "@/lib/photography";
+import { HeroVideoSettings } from "./hero-video-settings";
+import type { HeroVideoAsset } from "@/lib/hero-video";
 export function SiteStudio({
   mode,
   role,
@@ -74,6 +76,22 @@ export function SiteStudio({
         location.origin,
       );
   };
+  async function saveHeroVideo(heroVideo: HeroVideoAsset | null) {
+    if (!data) return;
+    const response = await fetch("/api/admin/studio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "design",
+        expectedRevision: data.revision,
+        design: { ...data.snapshot.design, heroVideo },
+      }),
+    });
+    const body = await response.json();
+    if (!response.ok) throw Error(body.error || "Video kaydedilemedi.");
+    setData(body);
+    onSaved();
+  }
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (
@@ -188,6 +206,10 @@ export function SiteStudio({
         </>
       ) : (
         <>
+          <HeroVideoSettings
+            value={data.snapshot.design.heroVideo}
+            onSave={saveHeroVideo}
+          />
           <section className="analytics-card">
             <h2>Tek koleksiyon, ortak fotoğraf dili.</h2>
             <p>

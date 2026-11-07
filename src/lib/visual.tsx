@@ -5,6 +5,7 @@ import type { Lang } from "./types";
 export type VisualDesign = {
   texts: Partial<Record<Lang, Record<string, string>>>;
   images: Record<string, string>;
+  heroVideo?: import("./hero-video").HeroVideoAsset;
   photography?: import("./photography").Photography;
   photoFrames?: Record<string, import("./photography").PhotoFrame>;
   logoScales?: Record<string, number>;

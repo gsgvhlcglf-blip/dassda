@@ -1,4 +1,10 @@
 import type { SiteSnapshot, SiteVersion } from "./site-version";
+export {
+  saveBrowserVideo,
+  exportBrowserVideo,
+  importBrowserVideo,
+  validateHeroVideoFile,
+} from "./hero-video";
 export const browserPublicationKey =
   "kuzmin.workspace.gsgvhlcglf-blip.dassda.v1.published";
 const databaseName = "kuzmin-site-versions-v1";

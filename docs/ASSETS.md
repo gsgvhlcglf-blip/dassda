@@ -6,3 +6,7 @@
 - Marque names and the stylized monochrome selector badges are reference placeholders identifying supported fitment brands. Replace them with owner-provided, approved brand assets and review brand-use rights before launch. The footer states that the concept is independent of the manufacturers.
 - Icons are supplied by lucide-react (ISC license). System Arial/Helvetica fonts avoid third-party font requests. No stock photography was scraped or represented as licensed commercial imagery.
 - Owner uploads are stored in a public bucket. The owner must have rights to publish them. No photographs, certificates, measured weights, performance results, manufacturer affiliations or real stock are invented.
+
+## Curated homepage concepts
+
+`home-editorial-bike.webp`, `home-editorial-weave.webp`, `home-editorial-detail.webp` and `home-editorial-rear.webp` are original AI-generated concept images for the four-image homepage arrangement. They do not depict verified commercial inventory or supplied customer motorcycles. Optimized WebP copies preserve the generated compositions. Originals remain in the cloud workspace's `generated_images` folder. Each homepage area can be replaced in the visual editor.

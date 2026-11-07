@@ -1802,8 +1802,10 @@
           $("#preview-results").innerHTML =
             `<p class="eyebrow">${products.length} UYUMLU TASLAK ÜRÜN</p><div class="preview-products">${products.map((p) => `<article class="product">${imageTag(imageFor(p), p.title.tr, "product-photo")}<div><h3>${esc(p.title.tr)}</h3><b>${money(p.price)}</b><p>${esc(p.sku)} · Stok: ${p.stock}</p>${action("Düzenle ↗", "preview-edit", p.id, "ghost")}</div></article>`).join("")}</div>${!products.length ? '<p class="empty">Bu seçim için görünür bir ürün bulunmuyor.</p>' : ""}`;
         }
-        function exportData() {
-          const blob = new Blob([JSON.stringify({format:"kuzmin-workspace",version:2,catalog:state,design:siteDesign}, null, 2)], {
+        async function exportData() {
+          try {
+          const media = await KZ_VERSIONS.exportBrowserVideo(siteDesign.heroVideo);
+          const blob = new Blob([JSON.stringify({format:"kuzmin-workspace",version:2,catalog:state,design:siteDesign,media}, null, 2)], {
               type: "application/json",
             }),
             url = URL.createObjectURL(blob),
@@ -1814,13 +1816,14 @@
           a.click();
           setTimeout(() => URL.revokeObjectURL(url), 2000);
           toast("Taslak JSON dosyası hazırlanıyor.");
+          } catch (error) { toast(error.message); }
         }
         $("#import-file").addEventListener("change", async (event) => {
           try {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 12 * 1024 * 1024)
-              throw Error("Taslak dosyası en fazla 12 MB olabilir.");
+            if (file.size > 100 * 1024 * 1024)
+              throw Error("Taslak dosyası en fazla 100 MB olabilir.");
             const imported = JSON.parse(await file.text());
             const value = imported.format === "kuzmin-workspace" ? imported.catalog : imported;
             const design = imported.format === "kuzmin-workspace" ? validateDesign(imported.design) : siteDesign;
@@ -1829,6 +1832,7 @@
               !confirm("Mevcut tarayıcı taslağı bu dosyayla değiştirilsin mi?")
             )
               return;
+            await KZ_VERSIONS.importBrowserVideo(design.heroVideo, imported.media);
             const previousCatalog = localStorage.getItem(KEY);
             const previousDesign = localStorage.getItem(KEY + ".design");
             try {

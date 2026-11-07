@@ -1,5 +1,6 @@
 "use client";
 import { RequestCards, CustomCarbonPage } from "./request-pages";
+import { HeroVideo } from "./hero-video";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
 import {
@@ -105,23 +106,39 @@ function BrandVisual({
   );
 }
 const homePhotoSlots = [
-  "home.collection.body",
-  "home.collection.details",
-  "home.craft",
-  "home.gallery.four",
-  "home.gallery.five",
-  "home.gallery.six",
-  "home.gallery.seven",
-  "home.gallery.eight",
+  {
+    visualId: "home.editorial.bike",
+    src: "/images/home-editorial-bike.webp",
+    alt: "Karbon motosiklet konsepti, ön çapraz görünüm",
+  },
+  {
+    visualId: "home.editorial.weave",
+    src: "/images/home-editorial-weave.webp",
+    alt: "Karbon dokusunun konsept yakın çekimi",
+  },
+  {
+    visualId: "home.editorial.detail",
+    src: "/images/home-editorial-detail.webp",
+    alt: "Karbon parça ve bağlantı detayının konsept yakın çekimi",
+  },
+  {
+    visualId: "home.editorial.rear",
+    src: "/images/home-editorial-rear.webp",
+    alt: "Karbon motosiklet konsepti, arka çapraz görünüm",
+  },
 ] as const;
 function HomePhotoSlot({
   visualId,
   index,
+  src,
+  alt,
 }: {
   visualId: string;
   index: number;
+  src: string;
+  alt: string;
 }) {
-  const image = useVisualImage(visualId, undefined);
+  const image = useVisualImage(visualId, src);
   return (
     <figure
       className="home-photo-slot"
@@ -129,11 +146,7 @@ function HomePhotoSlot({
       aria-label={`Ana sayfa fotoğraf alanı ${index + 1}`}
     >
       {image ? (
-        <Art
-          src={image}
-          alt={`KUZMIN fotoğraf galerisi ${index + 1}`}
-          visualId={visualId}
-        />
+        <Art src={image} alt={alt} visualId={visualId} />
       ) : (
         <div className="home-photo-placeholder" aria-hidden="true">
           <Plus size={28} strokeWidth={1} />
@@ -746,6 +759,7 @@ export function Storefront({
                 priority
                 visualId="home.hero"
               />
+              <HeroVideo />
               <div className="hero-shade" />
               <div className="hero-content">
                 <h1 data-edit-text={home && `content:${home.id}:title`}>
@@ -758,12 +772,8 @@ export function Storefront({
               </div>
             </section>
             <section className="home-photo-grid" aria-label="Fotoğraf galerisi">
-              {homePhotoSlots.map((visualId, index) => (
-                <HomePhotoSlot
-                  key={visualId}
-                  visualId={visualId}
-                  index={index}
-                />
+              {homePhotoSlots.map((slot, index) => (
+                <HomePhotoSlot key={slot.visualId} {...slot} index={index} />
               ))}
             </section>
           </>

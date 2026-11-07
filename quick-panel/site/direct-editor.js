@@ -70,6 +70,10 @@ function directValue(binding) {
       );
     const defaults = {
       "home.hero": "/images/hero.webp",
+      "home.editorial.bike": "/images/home-editorial-bike.webp",
+      "home.editorial.weave": "/images/home-editorial-weave.webp",
+      "home.editorial.detail": "/images/home-editorial-detail.webp",
+      "home.editorial.rear": "/images/home-editorial-rear.webp",
       "requests.material.forged": "/images/carbon-forged.svg",
       "requests.material.twill": "/images/carbon-twill.svg",
       "requests.manufacturing_method.lamination":
@@ -220,7 +224,7 @@ function directEditorHTML() {
   if (!b)
     return "<p>Bu alanın içeriği seçime göre hesaplanır. Ayrıntılı kaydı düzenleyebilir veya yerleşim isteğinizi aşağıya yazabilirsiniz.</p>";
   if (b.type === "image")
-    return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" data-image-key="${esc(b.key)}" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
+    return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" data-image-key="${esc(b.key)}" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p>${heroVideoEditorHTML(b)}<div id="site-direct-status" role="status"></div></section>`;
   const number = b.key.endsWith(":price");
   return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label><p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
 }
@@ -377,5 +381,43 @@ window.addEventListener("message", (event) => {
     saveDirect(event.data.binding, event.data.value, true);
   if (event.data?.type === "kz-site-inline-end") {
     if (!siteDirectDirty) sendSiteConfig();
+  }
+});
+
+function heroVideoEditorHTML(binding) {
+  if (binding.key !== "home.hero") return "";
+  const video = siteDesign.heroVideo;
+  return `<div class="site-video-controls"><h4>Banner videosu</h4><label class="site-upload-label">Video yükle<input id="site-hero-video" type="file" accept="video/mp4,video/webm" aria-label="Banner videosu yükle"></label><p>MP4 / WebM · En fazla 50 MB · Sessiz ve döngüde oynatılır. Fotoğraf yedek görsel olarak korunur.</p>${video ? `<p>${esc(video.name)}</p><button type="button" class="button secondary" data-action="site-video-remove">Videoyu kaldır, fotoğrafı kullan</button>` : ""}</div>`;
+}
+function saveHeroVideoDraft(video) {
+  const design = validateDesign({ ...siteDesign, heroVideo: video });
+  localStorage.setItem(KEY + ".design", JSON.stringify(design));
+  siteDesign = design;
+  sendSiteConfig();
+  paintSiteInspector();
+}
+document.addEventListener("change", async (event) => {
+  if (event.target.id !== "site-hero-video") return;
+  const file = event.target.files?.[0];
+  if (!file) return;
+  event.target.disabled = true;
+  try {
+    const video = await KZ_VERSIONS.saveBrowserVideo(file);
+    saveHeroVideoDraft(video);
+    toast("Banner videosu kaydedildi.");
+  } catch (error) {
+    toast(error.message);
+  } finally {
+    event.target.disabled = false;
+  }
+});
+document.addEventListener("click", (event) => {
+  if (event.target.closest('[data-action="site-video-remove"]')) {
+    try {
+      saveHeroVideoDraft(null);
+      toast("Banner fotoğrafı kullanılıyor.");
+    } catch (error) {
+      toast(error.message);
+    }
   }
 });
