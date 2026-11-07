@@ -11,6 +11,18 @@
 
 Gelişmiş **Nesiller** ekranında tek kayıt değiştirirken mevcut yıllar veya uyumluluklar aralığın dışına düşecekse değişiklik reddedilir; önce bağlı kayıtları düzeltin. Model formundaki çoklu aralık düzenleyicisi ise bağlı yılları ve uyumlulukları birlikte günceller. Model silmek, bağlı nesil/yıl/uyumluluk kayıtlarını da siler; ürünleri silmez. Formdaki silme işlemi ikinci bir onay ister. Sipariş geçmişinde kullanılan ürünler silinemez; bunları yayından kaldırın.
 
+## Ana sayfa fotoğrafları
+
+Ana sayfada banner ve sekiz parçalı asimetrik fotoğraf mozaiği bulunur. Kare, dikey ve yatay alanlar mobilde yeniden dizilir. Bölüm başlıkları ve koleksiyon numaraları gösterilmez.
+
+1. **Sayfa önizlemeleri → Ana sayfa** açın ve **Düzenleme modu** seçili olsun.
+2. Fotoğraf eklemek istediğiniz alana tıklayın. Boş alanlarda yalnızca düzenleme sırasında **+** işareti görünür.
+3. Sağdaki **Yeni fotoğraf seç** alanından JPEG, PNG veya WebP yükleyin (en fazla 5 MB). Değişiklik bu tarayıcıdaki taslağa otomatik kaydolur.
+4. **Müşteri önizlemesi** ile sonucu kontrol edin. Aynı tarayıcıda açık müşteri sekmesi de güncellenir. Fotoğraf çerçeveyi doldurur; uzun ve dar alanlar için uygun kadrajlı fotoğraflar seçin.
+5. Mevcut yayın akışında **Yayın & sürümler → Taslağı yayınla** kullanın; farklı cihazda görünmesi için yayın gerekir. Yedek tasarım ve fotoğraf kayıtlarını da içerir.
+
+Daha önce yüklenen iki koleksiyon görseli ve işçilik görseli, mozaiğin ilk üç alanında korunur. Diğer beş alan kendi fotoğraflarınız için boştur. Banner başlığına tıklayarak metni düzenleyebilir, banner fotoğrafını da aynı yöntemle değiştirebilirsiniz.
+
 ## Yeni ürün ekleme
 
 1. Gerekirse **Kategoriler** bölümünde kategori oluşturun.

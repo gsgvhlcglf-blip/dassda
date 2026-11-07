@@ -59,6 +59,12 @@ try {
     key,
   );
   await frame().locator(".hero .button").click();
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector(".site-direct-editor")
+        ?.getAttribute("data-edit-key") === "ui:explore",
+  );
   await page.getByLabel("Seçili metni düzenle").fill("Motosikletimi seç");
   await frame()
     .locator(".hero .button")
@@ -100,6 +106,76 @@ try {
   await customer
     .getByRole("heading", { name: "İki sekmede aynı sonuç", exact: true })
     .waitFor();
+  assert.equal(await frame().locator("#main > section").count(), 2);
+  assert.equal(await frame().locator(".home-photo-slot").count(), 8);
+  assert.equal(
+    await frame()
+      .locator(
+        ".hero-bottom,.hero-side,.hero-content p,.editorial-section,.bike-section,.featured-section,.craft-section",
+      )
+      .count(),
+    0,
+  );
+  // Legacy photo slots remain usable; new slots save independently and sync to the customer tab.
+  for (const slot of ["home.collection.body", "home.gallery.four"]) {
+    await frame()
+      .locator('.home-photo-slot[data-visual-image="' + slot + '"]')
+      .click();
+    await page.waitForFunction(
+      (slot) =>
+        document
+          .querySelector("#site-photo")
+          ?.getAttribute("data-image-key") === slot,
+      slot,
+    );
+    await page.locator("#site-photo").setInputFiles("public/images/hero.webp");
+    await page.waitForFunction(
+      ({ key, slot }) =>
+        !!JSON.parse(localStorage.getItem(key + ".design"))?.images[slot],
+      { key, slot },
+    );
+    await customer
+      .locator('.home-photo-slot[data-visual-image="' + slot + '"] img')
+      .waitFor();
+  }
+  const gallery = await page.evaluate(
+    (key) => JSON.parse(localStorage.getItem(key + ".design")).images,
+    key,
+  );
+  assert.equal(gallery["home.hero"], image);
+  await page.reload();
+  await frame()
+    .locator('.home-photo-slot[data-visual-image="home.gallery.four"] img')
+    .waitFor();
+  assert.equal(
+    await frame()
+      .locator('.home-photo-slot[data-visual-image="home.collection.body"] img')
+      .getAttribute("src"),
+    gallery["home.collection.body"],
+  );
+  assert.equal(
+    await frame()
+      .locator('.home-photo-slot[data-visual-image="home.gallery.four"] img')
+      .getAttribute("src"),
+    gallery["home.gallery.four"],
+  );
+  assert.equal(
+    await customer.locator(".home-photo-placeholder svg").first().isVisible(),
+    false,
+  );
+  await customer
+    .locator(".home-photo-grid")
+    .screenshot({ path: "/tmp/home-photo-mosaic-desktop.png" });
+  await customer.setViewportSize({ width: 390, height: 844 });
+  assert(
+    await customer.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  );
+  await customer
+    .locator(".home-photo-grid")
+    .screenshot({ path: "/tmp/home-photo-mosaic-mobile.png" });
+  await customer.setViewportSize({ width: 1440, height: 1000 });
   await customer.locator(".hero .button").click();
   await customer.locator(".brand-card").filter({ hasText: "YAMAHA" }).click();
   await customer.locator(".model-card").filter({ hasText: "MT-25" }).click();
@@ -146,7 +222,7 @@ try {
   assert.deepEqual(errors, []);
   await page.screenshot({ path: "/tmp/direct-editor.png", fullPage: true });
   console.log(
-    "PASS: inline/sidebar text, translation copy, hero/model/product photos, reload, customer tab sync, customer journey and cart persistence.",
+    "PASS: minimal homepage, photo mosaic uploads/legacy slots/reload/customer sync, direct editing, customer journey and cart persistence.",
   );
 } finally {
   await browser.close();

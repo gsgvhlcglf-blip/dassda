@@ -18,6 +18,7 @@ import type { Lang } from "../../src/lib/types";
 import type {} from "./types";
 const config = window.__KZ_SITE__;
 let inspect = config.inspect;
+document.documentElement.dataset.kuzminEditing = String(inspect);
 const regions: [string, string, string][] = [
   [".site-header .header-wordmark", "header.logo", "Üst menü · Logo"],
   [".primary-nav", "header.navigation", "Üst menü · Sayfa bağlantıları"],
@@ -31,6 +32,8 @@ const regions: [string, string, string][] = [
   ],
   [".hero .button", "home.hero.button", "Ana sayfa · Alışveriş düğmesi"],
   [".hero", "home.hero", "Ana sayfa · Üst görsel (hero)"],
+  [".home-photo-slot", "home.gallery.photo", "Ana sayfa · Fotoğraf alanı"],
+  [".home-photo-grid", "home.gallery", "Ana sayfa · Fotoğraf mozaiği"],
   [".editorial-section", "home.collections", "Ana sayfa · Koleksiyon kartları"],
   [".bike-section", "home.brands", "Ana sayfa · Marka kartları"],
   [".featured-section", "home.featured", "Ana sayfa · Öne çıkan ürünler"],
@@ -293,6 +296,7 @@ window.addEventListener("message", (event) => {
   handleLogoGuideMessage(event.data || {});
   if (event.data?.type === "kz-site-inspect") {
     inspect = Boolean(event.data.enabled);
+    document.documentElement.dataset.kuzminEditing = String(inspect);
     setLogoGuideEditing(inspect);
     overlay.style.display = "none";
     if (!inspect) stopInline();

@@ -69,9 +69,6 @@ function directValue(binding) {
       );
     const defaults = {
       "home.hero": "/images/hero.webp",
-      "home.collection.body": "/images/carbon.svg",
-      "home.collection.details": "/images/hero.webp",
-      "home.craft": "/images/carbon.svg",
       "requests.material.forged": "/images/carbon-forged.svg",
       "requests.material.twill": "/images/carbon-twill.svg",
       "requests.manufacturing_method.lamination":
@@ -222,9 +219,9 @@ function directEditorHTML() {
   if (!b)
     return "<p>Bu alanın içeriği seçime göre hesaplanır. Ayrıntılı kaydı düzenleyebilir veya yerleşim isteğinizi aşağıya yazabilirsiniz.</p>";
   if (b.type === "image")
-    return `<section class="site-direct-editor"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
+    return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" data-image-key="${esc(b.key)}" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p><div id="site-direct-status" role="status"></div></section>`;
   const number = b.key.endsWith(":price");
-  return `<section class="site-direct-editor"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label><p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
+  return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label><p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
 }
 function saveDirect(binding, value, inline = false) {
   const b = directBinding(binding);

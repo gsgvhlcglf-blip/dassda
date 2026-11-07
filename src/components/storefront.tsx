@@ -25,7 +25,6 @@ import {
   Check,
   Search,
   SlidersHorizontal,
-  MoveDown,
 } from "lucide-react";
 import type { Catalog, Product, CartLine, Lang } from "@/lib/types";
 import { publicCatalog } from "@/lib/catalog-visibility";
@@ -103,6 +102,44 @@ function BrandVisual({
         children
       )}
     </div>
+  );
+}
+const homePhotoSlots = [
+  "home.collection.body",
+  "home.collection.details",
+  "home.craft",
+  "home.gallery.four",
+  "home.gallery.five",
+  "home.gallery.six",
+  "home.gallery.seven",
+  "home.gallery.eight",
+] as const;
+function HomePhotoSlot({
+  visualId,
+  index,
+}: {
+  visualId: string;
+  index: number;
+}) {
+  const image = useVisualImage(visualId, undefined);
+  return (
+    <figure
+      className="home-photo-slot"
+      data-visual-image={visualId}
+      aria-label={`Ana sayfa fotoğraf alanı ${index + 1}`}
+    >
+      {image ? (
+        <Art
+          src={image}
+          alt={`KUZMIN fotoğraf galerisi ${index + 1}`}
+          visualId={visualId}
+        />
+      ) : (
+        <div className="home-photo-placeholder" aria-hidden="true">
+          <Plus size={28} strokeWidth={1} />
+        </div>
+      )}
+    </figure>
   );
 }
 export function Storefront({
@@ -711,134 +748,23 @@ export function Storefront({
               />
               <div className="hero-shade" />
               <div className="hero-content">
-                <p className="eyebrow">{t("eyebrow")}</p>
                 <h1 data-edit-text={home && `content:${home.id}:title`}>
                   {home?.title[lang] || "Detayda fark yarat."}
                 </h1>
-                <p data-edit-text={home && `content:${home.id}:body`}>
-                  {home?.body[lang]}
-                </p>
                 <Link className="button" href={href("/motosikletler")}>
                   {t("explore")}
                   <ArrowUpRight size={16} />
                 </Link>
               </div>
-              <div className="hero-bottom">
-                <span className="micro" data-visual-text="slot:hero.collection">
-                  {copy("hero.collection", "01 — CARBON COLLECTION")}
-                </span>
-                <a href="#collection" className="scroll-link">
-                  {t("scroll")}
-                  <MoveDown size={16} />
-                </a>
-                <span className="micro hero-art-label">{t("imageLabel")}</span>
-              </div>
-              <span className="hero-side" data-visual-text="slot:hero.side">
-                {copy("hero.side", "DESIGNED TO MAKE A DIFFERENCE")}
-              </span>
             </section>
-            <section id="collection" className="section editorial-section">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">01 / {t("catalog")}</p>
-                  <h2>{t("collectionTitle")}</h2>
-                </div>
-                <Link className="text-link" href={href("/urunler")}>
-                  {t("viewAll")}
-                  <ArrowUpRight size={16} />
-                </Link>
-              </div>
-              <div className="editorial-grid">
-                <Link
-                  href={href("/urunler?category=body")}
-                  className="editorial-card"
-                >
-                  <div className="editorial-image carbon-photo">
-                    <Art
-                      src="/images/carbon.svg"
-                      alt={t("imageLabel")}
-                      visualId="home.collection.body"
-                    />
-                    <span className="editorial-number">01</span>
-                    <ArrowUpRight className="editorial-arrow" />
-                  </div>
-                  <div className="editorial-caption">
-                    <h3>{t("performance")}</h3>
-                    <span className="micro">
-                      {t("shopBody")} <ArrowRight size={13} />
-                    </span>
-                  </div>
-                </Link>
-                <Link
-                  href={href("/urunler?category=details")}
-                  className="editorial-card"
-                >
-                  <div className="editorial-image bike-detail">
-                    <Art
-                      src="/images/hero.webp"
-                      alt={t("imageLabel")}
-                      visualId="home.collection.details"
-                    />
-                    <span className="editorial-number">02</span>
-                    <ArrowUpRight className="editorial-arrow" />
-                  </div>
-                  <div className="editorial-caption">
-                    <h3>{t("expression")}</h3>
-                    <span className="micro">
-                      {t("shopDetails")} <ArrowRight size={13} />
-                    </span>
-                  </div>
-                </Link>
-              </div>
-            </section>
-            <section className="section bike-section">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">02 / {t("motorcycles")}</p>
-                  <h2>{t("chooseBrand")}</h2>
-                </div>
-                <p className="muted">{t("brandIntro")}</p>
-              </div>
-              {brandCards()}
-            </section>
-            <section className="section featured-section">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">03 / {t("featured")}</p>
-                  <h2>{t("featured")}.</h2>
-                </div>
-                <Link className="text-link" href={href("/urunler")}>
-                  {t("viewCollection")}
-                  <ArrowUpRight size={16} />
-                </Link>
-              </div>
-              <div className="product-grid">
-                {c.products
-                  .filter((p) => p.featured && p.published)
-                  .slice(0, 4)
-                  .map(productCard)}
-              </div>
-            </section>
-            <section className="craft-section">
-              <div className="craft-image">
-                <Art
-                  src="/images/carbon.svg"
-                  alt={t("imageLabel")}
-                  visualId="home.craft"
+            <section className="home-photo-grid" aria-label="Fotoğraf galerisi">
+              {homePhotoSlots.map((visualId, index) => (
+                <HomePhotoSlot
+                  key={visualId}
+                  visualId={visualId}
+                  index={index}
                 />
-                <span className="micro" data-visual-text="slot:craft.caption">
-                  {copy("craft.caption", "THE LANGUAGE OF CARBON")}
-                </span>
-              </div>
-              <div className="craft-copy">
-                <p className="eyebrow">04 / KUZMIN</p>
-                <h2>{t("crafted")}</h2>
-                <p className="muted">{t("craftBody")}</p>
-                <Link className="text-link" href={href("/hakkimizda")}>
-                  {t("ourStory")}
-                  <ArrowUpRight size={15} />
-                </Link>
-              </div>
+              ))}
             </section>
           </>
         ) : s[0] === "motosikletler" ? (
