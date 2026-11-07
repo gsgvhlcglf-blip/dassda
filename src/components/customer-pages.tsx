@@ -1,13 +1,26 @@
 "use client";
 import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ArrowLeft, UserRound, PackageCheck } from "lucide-react";
-import { useVisualTranslate } from "@/lib/visual";
+import Image from "next/image";
+import {
+  ArrowUpRight,
+  ArrowLeft,
+  UserRound,
+  PackageCheck,
+  ImagePlus,
+} from "lucide-react";
+import { useVisualTranslate, useVisualImage } from "@/lib/visual";
+import {
+  paginateBlog,
+  blogBannerSize,
+  blogImageKey,
+  blogPageNumber,
+} from "@/lib/blog";
 import { money } from "@/lib/i18n";
 import { trackingConfiguration, trackingLink } from "@/lib/tracking";
 import { paymentStatusLabel } from "@/lib/payments/types";
 import { safeNext } from "@/lib/customer-navigation";
-import type { Catalog, Lang } from "@/lib/types";
+import type { Catalog, Content, Lang } from "@/lib/types";
 export type CustomerView = { id: string; email: string };
 type Props = { lang: Lang; href: (path: string) => string };
 export function MemberGate({ lang, href }: Props) {
@@ -361,29 +374,63 @@ export function TrackingPage({ c, lang }: { c: Catalog; lang: Lang }) {
     </section>
   );
 }
+function BlogArtwork({ post }: { post: Content }) {
+  const key = blogImageKey(post.id);
+  const image = useVisualImage(key, undefined);
+  return (
+    <div className="blog-banner-media" data-visual-image={key}>
+      {image ? (
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="(max-width: 760px) 100vw, 70vw"
+          unoptimized
+        />
+      ) : (
+        <div className="blog-image-placeholder" aria-hidden="true">
+          <ImagePlus size={28} strokeWidth={1} />
+        </div>
+      )}
+    </div>
+  );
+}
 export function BlogPage({
   c,
   lang,
   slug,
   href,
-}: Props & { c: Catalog; slug?: string }) {
-  const t = useVisualTranslate(lang),
-    posts = c.content.filter((row) => row.key.startsWith("blog-")),
-    post = posts.find((row) => row.key === "blog-" + slug);
-  if (post)
+  query,
+}: Props & { c: Catalog; slug?: string; query?: string }) {
+  const t = useVisualTranslate(lang);
+  const params = new URLSearchParams(query || "");
+  const { posts, visible, page, pages } = paginateBlog(
+    c.content,
+    params.get("page"),
+  );
+  const post = posts.find((row) => row.key === "blog-" + slug);
+  const listLink = (n: number) => href("/blog" + (n > 1 ? "?page=" + n : ""));
+  if (post) {
+    const title = post.title[lang] || post.title.tr;
     return (
       <section className="page-section prose-page blog-article">
-        <Link className="text-link" href={href("/blog")}>
+        <Link
+          className="text-link"
+          href={listLink(Math.min(pages, blogPageNumber(params.get("page"))))}
+        >
           <ArrowLeft size={14} />
           {t("blog")}
         </Link>
-        <p className="eyebrow">KUZMIN / JOURNAL</p>
-        <h1 data-edit-text={`content:${post.id}:title`}>
-          {post.title[lang] || post.title.tr}
-        </h1>
+        <header className="blog-article-banner">
+          <BlogArtwork post={post} />
+          <div className="blog-banner-shade" />
+          <div className="blog-banner-content">
+            <h1 data-edit-text={"content:" + post.id + ":title"}>{title}</h1>
+          </div>
+        </header>
         <div
           className="content-body"
-          data-edit-text={`content:${post.id}:body`}
+          data-edit-text={"content:" + post.id + ":body"}
         >
           {(post.body[lang] || post.body.tr).split("\n").map((text, i) => (
             <p key={i}>{text}</p>
@@ -391,35 +438,92 @@ export function BlogPage({
         </div>
       </section>
     );
+  }
+  const numbers = [...new Set([1, page - 1, page, page + 1, pages])]
+    .filter((n) => n >= 1 && n <= pages)
+    .sort((a, b) => a - b);
   return (
     <section className="page-section blog-page">
-      <p className="eyebrow">KUZMIN / JOURNAL</p>
-      <h1>{t("blog")}</h1>
-      <p className="intro">{t("blogIntro")}</p>
+      <header className="blog-page-heading">
+        <h1>{t("blog")}</h1>
+        <p className="intro">{t("blogIntro")}</p>
+      </header>
       {!posts.length ? (
-        <div className="empty-state">
+        <div className="empty-state blog-empty">
           <p>{t("blogEmpty")}</p>
         </div>
       ) : (
-        <div className="blog-grid">
-          {posts.map((post) => (
-            <Link
-              key={post.id}
-              className="blog-card"
-              href={href("/blog/" + post.key.slice(5))}
-            >
-              <p className="eyebrow">JOURNAL</p>
-              <h2 data-edit-text={`content:${post.id}:title`}>
-                {post.title[lang] || post.title.tr}
-              </h2>
-              <p>{(post.body[lang] || post.body.tr).slice(0, 180)}</p>
-              <span className="text-link">
-                {t("readStory")}
-                <ArrowUpRight size={16} />
-              </span>
-            </Link>
-          ))}
-        </div>
+        <>
+          <div className="blog-grid">
+            {visible.map((post, index) => {
+              const title = post.title[lang] || post.title.tr;
+              return (
+                <Link
+                  key={post.id}
+                  className={
+                    "blog-card blog-card--" + blogBannerSize(title, index)
+                  }
+                  href={href(
+                    "/blog/" +
+                      post.key.slice(5) +
+                      (page > 1 ? "?page=" + page : ""),
+                  )}
+                >
+                  <BlogArtwork post={post} />
+                  <div className="blog-banner-shade" />
+                  <div className="blog-banner-content">
+                    <h2 data-edit-text={"content:" + post.id + ":title"}>
+                      {title}
+                    </h2>
+                    <ArrowUpRight size={20} aria-hidden="true" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          {pages > 1 && (
+            <nav className="blog-pagination" aria-label={t("blogPagination")}>
+              {page > 1 && (
+                <Link
+                  className="text-link"
+                  href={listLink(page - 1)}
+                  rel="prev"
+                >
+                  <ArrowLeft size={15} />
+                  {t("blogPrevious")}
+                </Link>
+              )}
+              <div className="blog-page-numbers">
+                {numbers.map((n, i) => (
+                  <span key={n}>
+                    {i > 0 && n - numbers[i - 1] > 1 && (
+                      <span className="blog-page-gap" aria-hidden="true">
+                        …
+                      </span>
+                    )}
+                    <Link
+                      href={listLink(n)}
+                      aria-current={page === n ? "page" : undefined}
+                      aria-label={t("blogPageLabel") + " " + n}
+                    >
+                      {n}
+                    </Link>
+                  </span>
+                ))}
+              </div>
+              {page < pages && (
+                <Link
+                  className="text-link"
+                  href={listLink(page + 1)}
+                  rel="next"
+                >
+                  {t("blogNext")}
+                  <ArrowUpRight size={15} />
+                </Link>
+              )}
+            </nav>
+          )}
+        </>
       )}
     </section>
   );

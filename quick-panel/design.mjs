@@ -49,7 +49,9 @@ export function validateDesign(value) {
   }
   for (const [key, url] of Object.entries(value.images)) {
     if (
-      !/^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+)$/.test(key) ||
+      !/^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+|blog:[a-zA-Z0-9_-]+)$/.test(
+        key,
+      ) ||
       typeof url !== "string" ||
       url.length > 2000000 ||
       !/^data:image\/webp;base64,[a-zA-Z0-9+/=]+$/.test(url)

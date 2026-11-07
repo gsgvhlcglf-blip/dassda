@@ -34,6 +34,13 @@ const regions: [string, string, string][] = [
   [".hero", "home.hero", "Ana sayfa · Üst görsel (hero)"],
   [".home-photo-slot", "home.gallery.photo", "Ana sayfa · Fotoğraf alanı"],
   [".home-photo-grid", "home.gallery", "Ana sayfa · Fotoğraf mozaiği"],
+  [".blog-banner-media", "blog.banner.image", "Blog · Banner görseli"],
+  [".blog-card", "blog.banner", "Blog · Konu banneri"],
+  [
+    ".blog-article-banner",
+    "blog.article.banner",
+    "Blog yazısı · Kapak banneri",
+  ],
   [".editorial-section", "home.collections", "Ana sayfa · Koleksiyon kartları"],
   [".bike-section", "home.brands", "Ana sayfa · Marka kartları"],
   [".featured-section", "home.featured", "Ana sayfa · Öne çıkan ürünler"],

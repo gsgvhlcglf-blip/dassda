@@ -1,12 +1,27 @@
 # Üyelik, Blog ve Kargo Takip
 
-Üst menü sırası: Ana Sayfa → Motosikletler → Hakkımızda → Blog → İletişim. Sağ üstte tek Hesabım bağlantısı bulunur: giriş yapılmamışsa giriş/kayıt ekranına, giriş yapılmışsa hesaba açılır. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur. Site ve müşteri önizlemesi şimdilik yalnızca Türkçedir; dil seçicisi kaldırılmıştır. Önceden kaydedilen çeviriler veri kaybı olmadan saklanır.
+Üst menü sırası: Ana Sayfa → Motosikletler → Parçanı ürettir → Hakkımızda → Blog → İletişim. Sağ üstte tek Hesabım bağlantısı bulunur: giriş yapılmamışsa giriş/kayıt ekranına, giriş yapılmışsa hesaba açılır. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur. Site ve müşteri önizlemesi şimdilik yalnızca Türkçedir; dil seçicisi kaldırılmıştır. Önceden kaydedilen çeviriler veri kaybı olmadan saklanır.
 
 ## Blog yazısı eklemek
 
 Tarayıcı panelinde Veri paneli → Sayfa içerikleri → Blog yazısı ekle. Yazının URL adını (küçük harf ve tire), başlığını ve içeriğini girip kaydedin. Yazı Blog sayfasında görünür. TR/EN/RU alanları ayrı düzenlenebilir; eksik çeviride Türkçe içerik gösterilir. Bir yazıyı açıp metne tıklayarak da düzenleyebilirsiniz. Bunlar tarayıcı taslaklarıdır ve JSON yedeğine dahildir.
 
-Gerçek uygulamanın güvenli yönetim panelinde Yapılandırma → Blog yazısı ekle aynı içerik tablosunu kullanır. `blog-` ile başlayan sayfa anahtarının devamı yazının adresidir. Kaydetmek yazıyı yayımlar; ayrı taslak/yayın tarihi alanı henüz yoktur. Yeni CMS koleksiyonu veya uygulama kodu gerekmez.
+Gerçek uygulamanın güvenli yönetim panelinde Yapılandırma → Blog yazısı ekle aynı içerik tablosunu kullanır. `blog-` ile başlayan sayfa anahtarının devamı yazının adresidir. Kaydetmek taslağı günceller; canlıya almak için Yayın & sürümler → Taslağı yayınla kullanılır. Ayrı yazı yayın tarihi alanı henüz yoktur. Yeni CMS koleksiyonu veya uygulama kodu gerekmez.
+
+## Blog bannerleri ve sayfalama
+
+Her yazı, konu başlığı görselin içinde olan bir banner kartıyla listelenir. Kartlar sırayı koruyan asimetrik satırlara yerleşir; uzun başlıklar daha geniş alan alır. Başlık kesilmez, gerektiğinde banner yüksekliği artar. Mobilde kartlar alt alta gelir.
+
+Her sayfada en fazla **10 yazı** bulunur. 11. yazıdan itibaren altta sayfa numaraları ve önceki/sonraki bağlantıları gösterilir. `/blog?page=2` gibi adresler paylaşılabilir; ikinci sayfadan yazı açıp Blog'a dönünce aynı liste sayfası korunur.
+
+Kapak değiştirmek için:
+
+1. **Sayfa önizlemeleri → Blog** açıp **Düzenleme modu**nu etkinleştirin.
+2. Bannerın görsel kısmına tıklayın; **Yeni fotoğraf seç** alanından JPEG/PNG/WebP yükleyin (en fazla 5 MB). Başlığa tıklamak metni düzenler.
+3. Fotoğraf, o yazının sabit kaydına bağlanır. Başka yazıları, ana sayfa fotoğraflarını veya yazı metnini değiştirmez. Aynı kapak yazının iç sayfasında da kullanılır.
+4. Değişiklik tarayıcı taslağına otomatik kaydolur ve tasarım yedeğine dahil edilir. Diğer tarayıcı/cihaz için mevcut **Yayın & sürümler** akışını kullanın.
+
+Yeni yazı eklendiğinde uygulama kodu veya ayrı koleksiyon gerekmeden kendi bannerı oluşur. Bu düzenleme örnek yazıları gerçek içeriğinize eklemez. Yazı yoksa boş durum mesajı görünür; kapak henüz yüklenmemişse düzenleme sırasında görsel ekleme işareti gösterilir. Yazıları hazırlarken konuya uygun ve kullanım hakkı bulunan kapak görsellerini de ekleyin.
 
 ## Kargo takibini açmak
 

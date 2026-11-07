@@ -29,6 +29,7 @@ try {
   assert.deepEqual(links, [
     "Ana sayfa",
     "Motosikletler",
+    "Parçanı ürettir",
     "Hakkımızda",
     "Blog",
     "İletişim",
@@ -38,12 +39,30 @@ try {
     0,
   );
   assert.equal(await frame().locator(".member-links a").count(), 1);
-  assert.equal((await frame().locator(".member-links a").textContent()).trim(), "Hesabım");
-  const typography = await frame().locator(".site-header").evaluate(header=>{
-    const keys=["fontFamily","fontSize","fontWeight","letterSpacing","textTransform"];
-    return [header.querySelector(".primary-nav a"),header.querySelector(".member-links a")].map(element=>Object.fromEntries(keys.map(key=>[key,getComputedStyle(element)[key]])));
-  });
-  assert.deepEqual(typography[0],typography[1]);
+  assert.equal(
+    (await frame().locator(".member-links a").textContent()).trim(),
+    "Hesabım",
+  );
+  const typography = await frame()
+    .locator(".site-header")
+    .evaluate((header) => {
+      const keys = [
+        "fontFamily",
+        "fontSize",
+        "fontWeight",
+        "letterSpacing",
+        "textTransform",
+      ];
+      return [
+        header.querySelector(".primary-nav a"),
+        header.querySelector(".member-links a"),
+      ].map((element) =>
+        Object.fromEntries(
+          keys.map((key) => [key, getComputedStyle(element)[key]]),
+        ),
+      );
+    });
+  assert.deepEqual(typography[0], typography[1]);
   const footer = await frame()
     .locator(".footer-nav > div")
     .last()
@@ -148,7 +167,7 @@ try {
   assert.equal(await frame().locator("html").getAttribute("lang"), "tr");
   await page.getByRole("button", { name: "Mobil", exact: true }).click();
   await frame().locator(".menu-toggle").click();
-  assert.equal(await frame().locator(".primary-nav.open>a").count(), 5);
+  assert.equal(await frame().locator(".primary-nav.open>a").count(), 6);
   assert.ok(
     await frame()
       .locator("html")

@@ -824,7 +824,13 @@ export function Storefront({
             query={previewQuery}
           />
         ) : s[0] === "blog" ? (
-          <BlogPage c={c} lang={lang} href={href} slug={s[1]} />
+          <BlogPage
+            c={c}
+            lang={lang}
+            href={href}
+            slug={s[1]}
+            query={previewQuery}
+          />
         ) : s[0] === "kargo-takip" ? (
           <TrackingPage c={c} lang={lang} />
         ) : s[0] === "odeme" ? (

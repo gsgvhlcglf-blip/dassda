@@ -9,6 +9,10 @@ const messages = {
   orderCancelled: ["İptal", "Cancelled", "Отменён"],
   orderDemo: ["Örnek talep", "Sample request", "Демо-заявка"],
   blog: ["Blog", "Journal", "Блог"],
+  blogPrevious: ["Önceki sayfa", "Previous page", "Предыдущая страница"],
+  blogNext: ["Sonraki sayfa", "Next page", "Следующая страница"],
+  blogPagination: ["Blog sayfaları", "Journal pages", "Страницы блога"],
+  blogPageLabel: ["Sayfa", "Page", "Страница"],
   blogIntro: [
     "Karbon, tasarım ve motosiklet kültürü.",
     "Carbon, design and motorcycle culture.",
