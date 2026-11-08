@@ -2,6 +2,7 @@
 import { CustomCarbonPage } from "./request-pages";
 import { HomeBestsellers } from "./home-bestsellers";
 import { QuoteRequest } from "./quote-request";
+import { FooterNavigation } from "./footer-navigation";
 import { HeroVideo } from "./hero-video";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
@@ -871,31 +872,7 @@ export function Storefront({
           </Link>
         </div>
         <div className="footer-main">
-          <nav className="footer-nav" aria-label="Alt bilgi bağlantıları">
-            <div className="footer-support">
-              {[
-                ["/sss", "faq"],
-                ["/kargo-takip", "tracking"],
-              ].map(([url, k]) => (
-                <Link key={url} href={href(url)}>
-                  {t(k as MessageKey)}
-                </Link>
-              ))}
-            </div>
-            <div className="footer-legal">
-              {[
-                ["/gizlilik", "privacyPolicy"],
-                ["/mesafeli-satis-sozlesmesi", "distanceSales"],
-                ["/on-bilgilendirme-formu", "preInformation"],
-                ["/iptal-iade-kosullari", "cancellationReturns"],
-                ["/kosullar", "userAgreement"],
-              ].map(([url, k]) => (
-                <Link key={url} href={href(url)}>
-                  {t(k as MessageKey)}
-                </Link>
-              ))}
-            </div>
-          </nav>
+          <FooterNavigation lang={lang} href={href} />
           <div className="footer-payments">
             <Image
               src="/images/iyzico-footer-white.svg"

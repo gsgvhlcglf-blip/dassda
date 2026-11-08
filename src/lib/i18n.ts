@@ -26,6 +26,16 @@ const messages = {
     "User Agreement / Terms and Conditions",
     "Пользовательское соглашение / Условия",
   ],
+  footerLinks: [
+    "Alt bilgi bağlantıları",
+    "Footer links",
+    "Ссылки внизу страницы",
+  ],
+  legalDocuments: [
+    "Sözleşmeler ve politikalar",
+    "Agreements and policies",
+    "Соглашения и политики",
+  ],
   homeChooseBrand: ["Markanı seç.", "Choose your brand.", "Выберите марку."],
   homeCustomTitle: [
     "Ürününü bulamadın mı?",
