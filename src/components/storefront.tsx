@@ -753,13 +753,9 @@ export function Storefront({
         {!s.length ? (
           <>
             <section className="hero">
-              <Art
-                src="/images/hero.webp"
-                alt={t("imageLabel")}
-                priority
-                visualId="home.hero"
-              />
-              <HeroVideo />
+              <div className="hero-video-canvas" data-visual-image="home.hero">
+                <HeroVideo />
+              </div>
               <div className="hero-shade" />
               <div className="hero-content">
                 <h1 data-edit-text={home && `content:${home.id}:title`}>

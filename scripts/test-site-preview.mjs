@@ -36,11 +36,8 @@ try {
   );
   assert.equal(await page.locator("#site-inspect").isChecked(), true);
   await page.locator("#site-inspect").uncheck();
-  await frame()
-    .locator(".hero img")
-    .evaluate(async (img) => {
-      await img.decode();
-    });
+  await frame().locator(".hero-video-canvas").waitFor();
+  assert.equal(await frame().locator(".hero img").count(), 0);
   await page.screenshot({
     path: "/tmp/site-preview-desktop.png",
     fullPage: true,
@@ -195,7 +192,9 @@ try {
   await page
     .getByRole("button", { name: "Değişiklikleri kaydet ✓", exact: true })
     .click();
-  await frame().getByRole("heading", { name: "Bu sayfa şu anda yayında değil." }).waitFor();
+  await frame()
+    .getByRole("heading", { name: "Bu sayfa şu anda yayında değil." })
+    .waitFor();
   assert.match(
     await page.locator("#site-product option:checked").innerText(),
     /Taslak/,

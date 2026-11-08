@@ -334,15 +334,12 @@ label {
   min-height: 560px;
   position: relative;
   overflow: hidden;
-  background: #111310;
-}
-.hero > img {
-  object-fit: cover;
-  object-position: 60% 58%;
+  background: #111;
 }
 .hero-shade {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
     linear-gradient(
       90deg,
@@ -359,10 +356,10 @@ label {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-start;
   max-width: 780px;
-  padding-bottom: 25px;
+  padding-bottom: clamp(40px, 4.5vw, 64px);
   pointer-events: none;
 }
 .hero-content > h1, .hero-content > .button { pointer-events: auto; }
@@ -405,6 +402,7 @@ label {
 .home-photo-slot:nth-child(3) { grid-column: 1 / span 4; }
 .home-photo-slot:nth-child(4) { grid-column: 5 / span 8; }
 html[data-kuzmin-editing="true"] .home-photo-slot:hover { outline: 1px solid #888; outline-offset: -1px; }
+.hero-video-canvas { position: absolute; inset: 0; }
 .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .hero-video-toggle { position: absolute; z-index: 4; right: 24px; bottom: 24px; width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #ffffff66; background: #0007; color: #fff; border-radius: 50%; }
 .hero-video-toggle:focus-visible { outline: 2px solid white; outline-offset: 4px; }
@@ -2060,9 +2058,6 @@ footer {
     height: calc(92svh - 73px);
     max-height: 800px;
   }
-  .hero > img {
-    object-position: 62% 30%;
-  }
   .hero-shade {
     background:
       linear-gradient(0deg, #080b05d9, transparent 90%),
@@ -2071,7 +2066,7 @@ footer {
   .hero-content {
     justify-content: flex-end;
     padding-top: 100px;
-    padding-bottom: 120px;
+    padding-bottom: 40px;
   }
   .hero h1 {
     font-size: 64px;

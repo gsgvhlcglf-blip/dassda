@@ -69,7 +69,6 @@ function directValue(binding) {
           .sort((a, b) => a.position - b.position)[0]?.url || ""
       );
     const defaults = {
-      "home.hero": "/images/hero.webp",
       "home.editorial.bike": "/images/home-editorial-bike.webp",
       "home.editorial.weave": "/images/home-editorial-weave.webp",
       "home.editorial.detail": "/images/home-editorial-detail.webp",
@@ -223,6 +222,8 @@ function directEditorHTML() {
   const b = directBinding(siteSelection?.binding);
   if (!b)
     return "<p>Bu alanın içeriği seçime göre hesaplanır. Ayrıntılı kaydı düzenleyebilir veya yerleşim isteğinizi aşağıya yazabilirsiniz.</p>";
+  if (b.type === "image" && b.key === "home.hero")
+    return `<section class="site-direct-editor" data-edit-key="home.hero"><h3>Banner videosu</h3>${heroVideoEditorHTML(b)}<div id="site-direct-status" role="status"></div></section>`;
   if (b.type === "image")
     return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" data-image-key="${esc(b.key)}" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p>${heroVideoEditorHTML(b)}<div id="site-direct-status" role="status"></div></section>`;
   const number = b.key.endsWith(":price");
@@ -387,7 +388,7 @@ window.addEventListener("message", (event) => {
 function heroVideoEditorHTML(binding) {
   if (binding.key !== "home.hero") return "";
   const video = siteDesign.heroVideo;
-  return `<div class="site-video-controls"><h4>Banner videosu</h4><label class="site-upload-label">Video yükle<input id="site-hero-video" type="file" accept="video/mp4,video/webm" aria-label="Banner videosu yükle"></label><p>MP4 / WebM · En fazla 50 MB · Sessiz ve döngüde oynatılır. Fotoğraf yedek görsel olarak korunur.</p>${video ? `<p>${esc(video.name)}</p><button type="button" class="button secondary" data-action="site-video-remove">Videoyu kaldır, fotoğrafı kullan</button>` : ""}</div>`;
+  return `<div class="site-video-controls"><label class="site-upload-label">Video yükle<input id="site-hero-video" type="file" accept="video/mp4,video/webm" aria-label="Banner videosu yükle"></label><p>MP4 / WebM · En fazla 50 MB · Sessiz ve döngüde oynatılır.</p>${video ? `<p>${esc(video.name)}</p><button type="button" class="button secondary" data-action="site-video-remove">Videoyu kaldır</button>` : ""}</div>`;
 }
 function saveHeroVideoDraft(video) {
   const design = validateDesign({ ...siteDesign, heroVideo: video });
@@ -415,7 +416,7 @@ document.addEventListener("click", (event) => {
   if (event.target.closest('[data-action="site-video-remove"]')) {
     try {
       saveHeroVideoDraft(null);
-      toast("Banner fotoğrafı kullanılıyor.");
+      toast("Banner videosu kaldırıldı.");
     } catch (error) {
       toast(error.message);
     }

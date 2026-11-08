@@ -31,7 +31,7 @@ const regions: [string, string, string][] = [
     "Ana sayfa · Ana açıklama",
   ],
   [".hero .button", "home.hero.button", "Ana sayfa · Alışveriş düğmesi"],
-  [".hero", "home.hero", "Ana sayfa · Üst görsel (hero)"],
+  [".hero", "home.hero", "Ana sayfa · Banner videosu"],
   [".home-photo-slot", "home.gallery.photo", "Ana sayfa · Fotoğraf alanı"],
   [".home-photo-grid", "home.gallery", "Ana sayfa · Fotoğraf mozaiği"],
   [".blog-banner-media", "blog.banner.image", "Blog · Banner görseli"],

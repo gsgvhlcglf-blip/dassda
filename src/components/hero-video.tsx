@@ -51,7 +51,6 @@ export function HeroVideo() {
       <video
         ref={element}
         className="hero-video"
-        data-visual-image="home.hero"
         src={src}
         muted
         loop

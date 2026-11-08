@@ -71,25 +71,18 @@ try {
     .filter({ hasText: "Motosikletimi seç" })
     .waitFor();
   await frame()
-    .locator(".hero img")
+    .locator(".hero-video-canvas")
     .click({ position: { x: 1000, y: 100 } });
-  await page.locator("#site-photo").setInputFiles("public/images/hero.webp");
-  await page.waitForFunction(
-    (key) =>
-      Boolean(
-        JSON.parse(localStorage.getItem(key + ".design"))?.images["home.hero"],
-      ),
-    key,
-  );
-  const image = await frame().locator(".hero img").getAttribute("src");
-  assert.ok(image.startsWith("data:image/webp"));
+  await page.locator("#site-hero-video").waitFor({ state: "attached" });
+  assert.equal(await page.locator("#site-photo").count(), 0);
+  assert.equal(await frame().locator(".hero img").count(), 0);
   await page.reload();
   await frame().locator(".hero h1").waitFor();
   assert.equal(
     await frame().locator(".hero h1").innerText(),
     "Doğrudan yazılan başlık",
   );
-  assert.equal(await frame().locator(".hero img").getAttribute("src"), image);
+  assert.equal(await frame().locator(".hero img").count(), 0);
   const popupPromise = context.waitForEvent("page");
   await page.getByRole("button", { name: "Müşteri önizlemesi ↗" }).click();
   const customer = await popupPromise;
@@ -142,7 +135,6 @@ try {
     (key) => JSON.parse(localStorage.getItem(key + ".design")).images,
     key,
   );
-  assert.equal(gallery["home.hero"], image);
   await page.reload();
   await frame()
     .locator('.home-photo-slot[data-visual-image="home.editorial.weave"] img')

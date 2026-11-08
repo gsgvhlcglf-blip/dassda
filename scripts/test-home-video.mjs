@@ -73,6 +73,35 @@ try {
   };
   const view = () => (app ? page : page.frameLocator("#site-frame"));
   await expect(view().locator(".home-photo-slot img")).toHaveCount(4);
+  await expect(view().locator(".hero img")).toHaveCount(0);
+  const assertBottomLeft = async () => {
+    const layout = await view()
+      .locator(".hero")
+      .evaluate((hero) => {
+        const bounds = hero.getBoundingClientRect(),
+          title = hero.querySelector("h1").getBoundingClientRect(),
+          button = hero.querySelector(".button").getBoundingClientRect();
+        return {
+          left: title.left - bounds.left,
+          bottom: bounds.bottom - button.bottom,
+          midpoint: title.top - bounds.top,
+          height: bounds.height,
+        };
+      });
+    assert(
+      layout.left >= 16 && layout.left < 150,
+      "Hero text stays left aligned",
+    );
+    assert(
+      layout.bottom >= 24 && layout.bottom <= 70,
+      "Hero controls stay near the bottom",
+    );
+    assert(
+      layout.midpoint > layout.height / 3,
+      "Hero text stays in the lower part of the banner",
+    );
+  };
+  await assertBottomLeft();
   const spacing = await view()
     .locator("#main")
     .evaluate((main) => {
@@ -137,8 +166,10 @@ try {
   } else {
     await page.locator("#site-inspect").check();
     await view()
-      .locator(".hero > img")
+      .locator(".hero-video-canvas")
       .click({ position: { x: 30, y: 30 } });
+    await expect(page.locator("#site-hero-video")).toBeAttached();
+    await expect(page.locator("#site-photo")).toHaveCount(0);
     await page
       .getByLabel("Banner videosu yükle", { exact: true })
       .setInputFiles(file);
@@ -262,11 +293,12 @@ try {
       .click({ position: { x: 30, y: 30 } });
     await page
       .getByRole("button", {
-        name: "Videoyu kaldır, fotoğrafı kullan",
+        name: "Videoyu kaldır",
         exact: true,
       })
       .click();
     await expect(view().locator(".hero-video")).toHaveCount(0);
+    await expect(view().locator(".hero img")).toHaveCount(0);
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
@@ -278,6 +310,7 @@ try {
         .evaluate((v) => v.paused),
     );
     await page.setViewportSize({ width: 390, height: 844 });
+    await assertBottomLeft();
     await page.screenshot({
       path: "/tmp/home-curated-mobile.png",
       fullPage: true,

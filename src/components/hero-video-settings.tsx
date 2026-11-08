@@ -39,8 +39,7 @@ export function HeroVideoSettings({
     <section className="analytics-card">
       <h3>Ana sayfa banner videosu</h3>
       <p>
-        MP4 (H.264) veya WebM · En fazla 50 MB. Video sessiz ve döngüde oynar;
-        mevcut banner fotoğrafı yedek görsel olarak kalır.
+        MP4 (H.264) veya WebM · En fazla 50 MB. Video sessiz ve döngüde oynar.
       </p>
       <label>
         Banner videosu yükle
@@ -74,7 +73,7 @@ export function HeroVideoSettings({
               }
             }}
           >
-            Videoyu kaldır, fotoğrafı kullan
+            Videoyu kaldır
           </button>
         </>
       )}
