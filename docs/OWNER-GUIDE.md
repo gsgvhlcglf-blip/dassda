@@ -48,7 +48,7 @@ Gerçek sunucudaki yönetim panelinde **Fotoğraf düzeni → Ana sayfa banner v
 
 ## Sayfalar ve ana sayfa
 
-**Sayfa içerikleri** bölümünde `home` ana sayfa başlık/açıklamasını düzenler. `about`, `contact`, `faq`, `shipping`, `privacy`, `terms` diğer sayfaları yönetir. Sayfa anahtarlarını değiştirmeyin. İşletmenizin gerçek bilgilerini ve onaylanmış hukuki metinlerini girin. Site şu anda bu bilgilerin yerine açık yer tutucular gösterir.
+**Sayfa içerikleri** bölümünde `home` ana sayfa başlık/açıklamasını düzenler. `about`, `contact`, `faq`, `shipping`, `privacy`, `terms` diğer sayfaları yönetir. Sayfa anahtarlarını değiştirmeyin. İşletmenizin gerçek bilgilerini ve onaylanmış hukuki metinlerini girin. Hakkımızda metni KUZMIN’in karbon parça, motosiklet uyumluluğu ve özel üretim talebi yaklaşımını anlatır. Diğer işletme ve hukuki bilgiler henüz sağlanmadığı için ilgili sayfalarda yer tutucular bulunur.
 
 Yönetici tüm işlemleri yapabilir. Editör ürün ve içerikleri düzenleyebilir; kayıt silemez veya müşteri siparişlerini göremez. Yeni kullanıcı/rol atamaları güvenli Supabase yönetiminden yapılır.
 

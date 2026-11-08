@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "2026-11-08-about-kuzmin-story-v1",
+    "table": "content",
+    "recordId": "about",
+    "changes": {
+      "body": {
+        "tr": "KUZMIN’de odağımız, motosikletinin karakterini tamamlayan karbon parçalar. Karbonun kendine özgü dokusunu ve sade tasarımı, motosikletini kendine göre şekillendirmenin bir parçası olarak görüyoruz.\nDoğru parçayı bulmak, doğru motosikleti seçmekle başlar. Ducati, BMW veya Yamaha markanı; ardından modelini ve üretim yılını seçerek uyumlu parçaları keşfedebilirsin. Malzeme, yüzey ve uyumluluk bilgilerini ürün sayfasında inceleyerek seçimini yapabilirsin.\nAradığın parça katalogda yoksa Parçanı Ürettir bölümünden bize ulaşabilirsin. Motosikletinin marka, model ve yılını; parçanın ölçülerini, açıklamasını ve fotoğraflarını paylaşarak talep oluşturabilirsin. Özel üretim talepleri katalogdaki üç markayla sınırlı değildir.\nForged Carbon veya Twill Karbon doku seçimini, laminasyon ya da infüzyon tercihinle birlikte iletebilirsin. Parçaya uygulanabilecek yöntem, üretim kapsamı ve teklif detayları talebin değerlendirilmesiyle netleşir. Bizim için iyi bir seçim, doğru uyumluluk ve açık bilgiyle başlar."
+      }
+    }
+  }
+]

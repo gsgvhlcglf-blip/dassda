@@ -137,6 +137,11 @@ const compatibility = products.flatMap((p, i) =>
       year_to: 2026,
     })),
 );
+const aboutBody = l(
+  "KUZMIN’de odağımız, motosikletinin karakterini tamamlayan karbon parçalar. Karbonun kendine özgü dokusunu ve sade tasarımı, motosikletini kendine göre şekillendirmenin bir parçası olarak görüyoruz.\nDoğru parçayı bulmak, doğru motosikleti seçmekle başlar. Ducati, BMW veya Yamaha markanı; ardından modelini ve üretim yılını seçerek uyumlu parçaları keşfedebilirsin. Malzeme, yüzey ve uyumluluk bilgilerini ürün sayfasında inceleyerek seçimini yapabilirsin.\nAradığın parça katalogda yoksa Parçanı Ürettir bölümünden bize ulaşabilirsin. Motosikletinin marka, model ve yılını; parçanın ölçülerini, açıklamasını ve fotoğraflarını paylaşarak talep oluşturabilirsin. Özel üretim talepleri katalogdaki üç markayla sınırlı değildir.\nForged Carbon veya Twill Karbon doku seçimini, laminasyon ya da infüzyon tercihinle birlikte iletebilirsin. Parçaya uygulanabilecek yöntem, üretim kapsamı ve teklif detayları talebin değerlendirilmesiyle netleşir. Bizim için iyi bir seçim, doğru uyumluluk ve açık bilgiyle başlar.",
+  "At KUZMIN, our focus is carbon parts that complement the character of your motorcycle. We see carbon’s distinctive texture and considered design as part of making your motorcycle your own.\nFinding the right part starts with choosing the right motorcycle. Select Ducati, BMW or Yamaha, then your model and production year to explore compatible parts. Review the material, finish and fitment information on each product page before making your choice.\nIf the part you need is not in the catalog, visit Custom Carbon. Share your motorcycle’s brand, model and year, together with the part’s dimensions, description and photographs, to submit a request. Custom requests are not limited to the three brands in our catalog.\nYou can include your Forged Carbon or twill carbon preference, along with lamination or infusion. The suitable method, scope of production and quotation details are determined when the request is reviewed. For us, a good choice begins with the right fit and clear information.",
+  "KUZMIN — это карбоновые детали, дополняющие характер вашего мотоцикла. Мы видим в выразительной фактуре карбона и лаконичном дизайне возможность сделать мотоцикл по-настоящему своим.\nПоиск подходящей детали начинается с выбора мотоцикла. Выберите Ducati, BMW или Yamaha, затем модель и год выпуска, чтобы увидеть совместимые детали. На странице товара можно изучить материал, отделку и информацию о совместимости.\nЕсли нужной детали нет в каталоге, перейдите в раздел изготовления на заказ. Укажите марку, модель и год мотоцикла, размеры детали, её описание и приложите фотографии. Заявки на индивидуальное изготовление не ограничены тремя марками из нашего каталога.\nВ заявке можно выбрать Forged Carbon или карбон твилового плетения, а также ламинацию или инфузию. Подходящий метод, объём работ и условия предложения уточняются при рассмотрении заявки. Для нас хороший выбор начинается с правильной совместимости и понятной информации.",
+);
 const content = [
   {
     id: "home",
@@ -175,11 +180,14 @@ const content = [
         "Условия использования",
       ),
     }[key]!,
-    body: l(
-      "Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.",
-      "The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.",
-      "Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме.",
-    ),
+    body:
+      key === "about"
+        ? aboutBody
+        : l(
+            "Bu sayfa yayın öncesi işletme sahibi tarafından doldurulmalıdır. İşletme kimliği, iletişim, teslimat, iade ve yasal koşullar henüz sağlanmadı. Bu mağaza şu anda bir demo deneyimidir.",
+            "The business owner must complete this page before launch. Business identity, contact details, shipping, returns and legal terms have not been provided. This store is currently a demonstration.",
+            "Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме.",
+          ),
   })),
 ];
 export const seed: Catalog = {
