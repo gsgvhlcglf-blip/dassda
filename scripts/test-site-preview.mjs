@@ -58,6 +58,8 @@ try {
     contact: ".prose-page",
     faq: ".prose-page",
     shipping: ".prose-page",
+    distanceSales: ".legal-page",
+    preInformation: ".legal-page",
     privacy: ".prose-page",
     terms: ".prose-page",
   };
@@ -86,7 +88,7 @@ try {
     }
   }
   console.log(
-    "PASS: all 15 storefront screens render; checkout preview cannot send requests.",
+    "PASS: all storefront screens render; checkout preview cannot send requests.",
   );
   await choose("home");
   assert.equal(await page.locator("#site-lang").count(), 0);

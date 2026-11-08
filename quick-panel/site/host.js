@@ -17,9 +17,11 @@ const sitePages = {
   account: ["Hesabım", "/hesabim"],
   contact: ["İletişim", "/iletisim"],
   faq: ["Sık sorulan sorular", "/sss"],
-  shipping: ["Teslimat ve iade", "/teslimat-iade"],
-  privacy: ["Gizlilik politikası", "/gizlilik"],
-  terms: ["Kullanım koşulları", "/kosullar"],
+  shipping: ["İptal ve İade Koşulları", "/iptal-iade-kosullari"],
+  distanceSales: ["Mesafeli Satış Sözleşmesi", "/mesafeli-satis-sozlesmesi"],
+  preInformation: ["Ön Bilgilendirme Formu", "/on-bilgilendirme-formu"],
+  privacy: ["Gizlilik ve Çerez Politikası", "/gizlilik"],
+  terms: ["Kullanıcı Sözleşmesi / Şartlar ve Koşullar", "/kosullar"],
 };
 let sitePendingVersion = "",
   siteUpdateBusy = false;
@@ -297,6 +299,9 @@ function selectedSiteEditor() {
     iletisim: "contact",
     sss: "faq",
     "teslimat-iade": "shipping",
+    "iptal-iade-kosullari": "shipping",
+    "mesafeli-satis-sozlesmesi": "distance-sales",
+    "on-bilgilendirme-formu": "pre-information",
     gizlilik: "privacy",
     kosullar: "terms",
   };

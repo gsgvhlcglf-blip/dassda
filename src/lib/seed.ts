@@ -1,3 +1,4 @@
+import { legalPages } from "./legal-content";
 import type { Catalog, Localized } from "./types";
 const l = (tr: string, en: string, ru: string): Localized => ({ tr, en, ru });
 const brands = [
@@ -157,7 +158,7 @@ const content = [
       "Карбоновые детали, дополняющие характер вашего мотоцикла. Лаконичный дизайн. Яркое выражение.",
     ),
   },
-  ...["about", "contact", "faq", "shipping", "privacy", "terms"].map((key) => ({
+  ...["about", "contact", "faq"].map((key) => ({
     id: key,
     key,
     title: {
@@ -189,6 +190,7 @@ const content = [
             "Владелец должен заполнить страницу перед запуском. Реквизиты, контакты, условия доставки, возврата и юридические документы пока не предоставлены. Магазин работает в демонстрационном режиме.",
           ),
   })),
+  ...legalPages,
 ];
 export const seed: Catalog = {
   brands,

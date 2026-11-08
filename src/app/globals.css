@@ -831,7 +831,7 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 70px;
+  margin-bottom: 32px;
 }
 .footer-top .eyebrow {
   font-size: 8px;
@@ -2247,7 +2247,7 @@ footer {
     margin-bottom: 40px;
   }
   .footer-top .wordmark {
-    display: none;
+    display: inline-block;
   }
   .footer-title {
     font-size: 35px;
@@ -2857,3 +2857,11 @@ html[data-kuzmin-editing="true"] .blog-image-placeholder > svg { display: block;
  .cookie-actions > .button { flex: 1 1 40%; min-width: 0; }
  .quote-request-empty { min-height: 40vh; }
 }
+
+.legal-page { max-width: 1180px; }
+.legal-page .content-body { max-width: 850px; color: #b9b9b4; overflow-wrap: anywhere; }
+.legal-page .content-body h2 { font-size: clamp(22px, 2.2vw, 29px); letter-spacing: -.035em; line-height: 1.25; color: #eee; margin: 38px 0 18px; }
+.legal-page .content-body h2:first-child { margin-top: 0; }
+.legal-template-note { max-width: 850px; margin: -12px 0 32px; padding: 16px 18px; border: 1px solid #353535; color: #aaa; font-size: 12px; line-height: 1.7; }
+.footer-nav > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 20px 36px; line-height: 1.7; }
+@media (max-width: 760px) { .footer-nav > div { grid-template-columns: 1fr; gap: 14px; font-size: 10px; } }

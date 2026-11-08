@@ -74,3 +74,7 @@ Marka → model → yıl seçildikten sonra **Ürününü bulamadın mı?** alan
 ## Çerez tercihleri
 
 İlk ziyarette gerekli depolamayı ve isteğe bağlı istatistik/ısı haritası kaydını açıklayan bildirim açılır. **Kabul et**, **Reddet** veya **Tercihleri yönet** kullanılabilir. Gerekli depolama sepet ve oturum için açıktır; analiz varsayılan olarak kapalıdır. Tercih bu tarayıcıda 180 gün tutulur; ardından yeniden sorulur. Alt bilgideki **Çerez tercihleri** üzerinden izin geri çekilebilir. Değişiklik aynı siteye açık diğer sekmelere de uygulanır. Analiz ayrıca yönetici ayarından açık olmalıdır; DNT/GPC kayıt yapılmasını engeller. Önizleme test kaydı hem bu izin hem ayrıca **Test kaydını başlat** seçimini gerektirir. Form içerikleri analitik ve ısı haritasına alınmaz. Reklam çerezi veya pazarlama entegrasyonu eklenmemiştir.
+
+## Alt bilgi ve hukuki sayfalar
+
+Alt bilgideki beş sözleşme/politika sayfasını **Sayfa önizlemeleri** veya **Sayfa içerikleri** bölümünden düzenleyin. `(Buraya … girin)` alanları firma bilgilerinize göre tamamlanır. Müşteri ve sipariş bilgileri kamuya açık metne yazılmaz; siparişe özel belgeye aittir. Alan listesi, hukuki kontrol sınırı ve kurulum ayrıntıları için [Hukuki metinler](HUKUKI-METINLER.md) belgesini kullanın.

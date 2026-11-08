@@ -27,7 +27,7 @@ function mergeFields(record, changes) {
  * Apply requested public catalog edits once without resetting other drafts.
  * @template T
  * @param {T} catalog
- * @param {{id:string,table:string,recordId:string,changes:Record<string,unknown>}[]} updates
+ * @param {{id:string,table:string,recordId:string,changes:Record<string,unknown>,createIfMissing?:boolean}[]} updates
  * @param {string[]} [previousIds]
  */
 export function applyCatalogUpdates(catalog, updates, previousIds = []) {
@@ -45,10 +45,39 @@ export function applyCatalogUpdates(catalog, updates, previousIds = []) {
     )
       throw new Error("Invalid catalog update");
     if (applied.has(update.id)) continue;
+    if (update.createIfMissing && update.table !== "content")
+      throw new Error(
+        "Only public content pages can be created by a copy update",
+      );
     const row = next[update.table]?.find((r) => r.id === update.recordId);
     if (row) {
       mergeFields(row, update.changes);
       changed = true;
+    } else if (update.createIfMissing) {
+      const page = { id: update.recordId };
+      mergeFields(page, update.changes);
+      const localized = (value) =>
+        value &&
+        typeof value === "object" &&
+        ["tr", "en", "ru"].every(
+          (lang) =>
+            typeof value[lang] === "string" && value[lang].length <= 12000,
+        );
+      if (
+        Object.keys(page).some(
+          (key) => !["id", "key", "title", "body"].includes(key),
+        ) ||
+        !/^[a-z0-9][a-z0-9-]{0,119}$/.test(page.id) ||
+        typeof page.key !== "string" ||
+        !/^[a-z0-9][a-z0-9-]{0,119}$/.test(page.key) ||
+        !localized(page.title) ||
+        !localized(page.body)
+      )
+        throw new Error("Invalid public content page");
+      if (!next.content.some((existing) => existing.key === page.key)) {
+        next.content.push(page);
+        changed = true;
+      }
     }
     applied.add(update.id);
   }

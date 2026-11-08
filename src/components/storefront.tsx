@@ -605,23 +605,51 @@ export function Storefront({
       iletisim: "contact",
       sss: "faq",
       "teslimat-iade": "shipping",
+      "iptal-iade-kosullari": "shipping",
+      "mesafeli-satis-sozlesmesi": "distance-sales",
+      "on-bilgilendirme-formu": "pre-information",
       gizlilik: "privacy",
       kosullar: "terms",
     };
     const row = c.content.find((r) => r.key === key[s[0]]);
+    const legal = [
+      "privacy",
+      "shipping",
+      "terms",
+      "distance-sales",
+      "pre-information",
+    ].includes(key[s[0]]);
     return (
-      <section className="page-section prose-page">
-        <p className="eyebrow">KUZMIN / {key[s[0]]}</p>
+      <section
+        className={`page-section prose-page${legal ? " legal-page" : ""}`}
+      >
+        <p className="eyebrow">
+          KUZMIN / {legal ? "BİLGİLENDİRME" : key[s[0]]}
+        </p>
         <h1 data-edit-text={row && `content:${row.id}:title`}>
           {row?.title[lang] || t("notProvided")}
         </h1>
+        {legal && row?.body[lang]?.includes("(Buraya") && (
+          <p className="legal-template-note">
+            Bu metin, parantez içindeki alanlar tamamlanana kadar taslak
+            niteliğindedir. Müşteri ve sipariş bilgileri bu genel sayfaya değil,
+            siparişe özel belgeye yazılır.
+          </p>
+        )}
         <div
           className="content-body"
           data-edit-text={row && `content:${row.id}:body`}
         >
-          {row?.body[lang]?.split("\n").map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
+          {row?.body[lang]
+            ?.split("\n")
+            .filter((p) => p.trim())
+            .map((p, i) =>
+              legal && /^\d+\. /.test(p) ? (
+                <h2 key={i}>{p}</h2>
+              ) : (
+                <p key={i}>{p}</p>
+              ),
+            )}
         </div>
         <Link className="text-link" href={href("/motosikletler")}>
           {t("explore")}
@@ -819,13 +847,6 @@ export function Storefront({
       </main>
       <footer>
         <div className="footer-top">
-          <div>
-            <p className="eyebrow">{t("talkEye")}</p>
-            <Link href={href("/iletisim")} className="footer-title">
-              {t("talk")}
-              <ArrowUpRight size={34} strokeWidth={1} />
-            </Link>
-          </div>
           <Link className="wordmark" href={href("/")}>
             KUZMIN<span>CARBON MOTORCYCLE PARTS</span>
           </Link>
@@ -835,11 +856,12 @@ export function Storefront({
             {(
               [
                 ["/sss", "faq"],
-                ["/teslimat-iade", "shipping"],
-                ["/gizlilik", "privacy"],
-                ["/kosullar", "terms"],
                 ["/kargo-takip", "tracking"],
-                ["/admin", "admin"],
+                ["/gizlilik", "privacyPolicy"],
+                ["/mesafeli-satis-sozlesmesi", "distanceSales"],
+                ["/on-bilgilendirme-formu", "preInformation"],
+                ["/iptal-iade-kosullari", "cancellationReturns"],
+                ["/kosullar", "userAgreement"],
               ] as [string, MessageKey][]
             ).map(([url, k]) => (
               <Link key={url} href={href(url)}>

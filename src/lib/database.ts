@@ -3,6 +3,11 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { seed } from "./seed";
+import {
+  legalPages,
+  legalContentVersion,
+  applyLegalPages,
+} from "./legal-content";
 import { tableNames, type Table, type Row, type Catalog } from "./types";
 export const isLive = !!(
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -119,6 +124,56 @@ export function localDB() {
     } catch (e) {
       db.exec("ROLLBACK");
       throw e;
+    }
+  }
+  db.exec(
+    "CREATE TABLE IF NOT EXISTS local_content_updates(id TEXT PRIMARY KEY)",
+  );
+  if (
+    !db
+      .prepare("SELECT id FROM local_content_updates WHERE id=?")
+      .get(legalContentVersion)
+  ) {
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      for (const page of legalPages) {
+        const existing = db
+          .prepare("SELECT id,title,body FROM content WHERE key=?")
+          .get(page.key) as
+          { id: string; title: string; body: string } | undefined;
+        if (existing) {
+          db.prepare("UPDATE content SET title=?,body=? WHERE id=?").run(
+            JSON.stringify({
+              ...JSON.parse(existing.title),
+              tr: page.title.tr,
+            }),
+            JSON.stringify({ ...JSON.parse(existing.body), tr: page.body.tr }),
+            existing.id,
+          );
+        } else insertLocal("content", page);
+      }
+      if (
+        db
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='site_workspace'",
+          )
+          .get()
+      ) {
+        const workspace = db
+          .prepare("SELECT catalog FROM site_workspace WHERE id='site'")
+          .get() as { catalog: string } | undefined;
+        if (workspace)
+          db.prepare(
+            "UPDATE site_workspace SET catalog=?,revision=revision+1 WHERE id='site'",
+          ).run(JSON.stringify(applyLegalPages(JSON.parse(workspace.catalog))));
+      }
+      db.prepare(
+        "INSERT OR IGNORE INTO local_content_updates(id) VALUES (?)",
+      ).run(legalContentVersion);
+      db.exec("COMMIT");
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
     }
   }
   return db;

@@ -19,7 +19,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((row) => row.key.startsWith("blog-"))
       .map((row) => "/blog/" + row.key.slice(5)),
     "/sss",
-    "/teslimat-iade",
+    "/iptal-iade-kosullari",
+    "/mesafeli-satis-sozlesmesi",
+    "/on-bilgilendirme-formu",
     "/gizlilik",
     "/kosullar",
     ...c.brands.map((b) => `/motosikletler/${b.slug}`),

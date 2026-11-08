@@ -62,3 +62,55 @@ test("catalog update cannot change IDs, prototypes, customer orders or deleted o
   assert.equal(result.changed, false);
   assert.equal(result.catalog.products.length, seed.products.length);
 });
+test("explicit legal-page creation preserves drafts and is not replayed after owner edits/deletion", () => {
+  const catalog = structuredClone(seed);
+  catalog.content = catalog.content.filter(
+    (row) => row.id !== "pre-information",
+  );
+  catalog.products[0].price = 9876;
+  const page = seed.content.find((row) => row.id === "pre-information")!;
+  const { id, ...changes } = page;
+  const updates = [
+    {
+      id: "legal-create-1",
+      table: "content",
+      recordId: id,
+      createIfMissing: true,
+      changes,
+    },
+  ];
+  const result = applyCatalogUpdates(catalog, updates);
+  assert.equal(result.catalog.content.filter((row) => row.id === id).length, 1);
+  assert.equal(result.catalog.products[0].price, 9876);
+  result.catalog.content.find((row) => row.id === id)!.body.tr =
+    "Owner legal edit";
+  assert.equal(
+    applyCatalogUpdates(
+      result.catalog,
+      updates,
+      result.appliedIds,
+    ).catalog.content.find((row) => row.id === id)?.body.tr,
+    "Owner legal edit",
+  );
+  result.catalog.content = result.catalog.content.filter(
+    (row) => row.id !== id,
+  );
+  assert(
+    !applyCatalogUpdates(
+      result.catalog,
+      updates,
+      result.appliedIds,
+    ).catalog.content.some((row) => row.id === id),
+  );
+  assert.throws(() =>
+    applyCatalogUpdates(catalog, [{ ...updates[0], table: "products" }]),
+  );
+  assert.throws(() =>
+    applyCatalogUpdates(catalog, [
+      {
+        ...updates[0],
+        changes: { ...changes, body: { tr: "only one locale" } },
+      },
+    ]),
+  );
+});

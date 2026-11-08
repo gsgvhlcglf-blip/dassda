@@ -1,6 +1,31 @@
 import { storeSettings } from "./settings";
 import type { Lang } from "./types";
 const messages = {
+  privacyPolicy: [
+    "Gizlilik ve Çerez Politikası",
+    "Privacy and Cookie Policy",
+    "Политика конфиденциальности и файлов cookie",
+  ],
+  distanceSales: [
+    "Mesafeli Satış Sözleşmesi",
+    "Distance Sales Agreement",
+    "Договор дистанционной продажи",
+  ],
+  preInformation: [
+    "Ön Bilgilendirme Formu",
+    "Pre-contractual Information",
+    "Предварительная информация",
+  ],
+  cancellationReturns: [
+    "İptal ve İade Koşulları",
+    "Cancellation and Returns",
+    "Отмена и возврат",
+  ],
+  userAgreement: [
+    "Kullanıcı Sözleşmesi / Şartlar ve Koşullar",
+    "User Agreement / Terms and Conditions",
+    "Пользовательское соглашение / Условия",
+  ],
   homeChooseBrand: ["Markanı seç.", "Choose your brand.", "Выберите марку."],
   homeCustomTitle: [
     "Ürününü bulamadın mı?",

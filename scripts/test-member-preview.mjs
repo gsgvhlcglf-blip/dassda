@@ -70,9 +70,20 @@ try {
     .last()
     .locator("a")
     .allTextContents();
+  assert.deepEqual(footer, [
+    "Sık sorulan sorular",
+    "Kargo takip",
+    "Gizlilik ve Çerez Politikası",
+    "Mesafeli Satış Sözleşmesi",
+    "Ön Bilgilendirme Formu",
+    "İptal ve İade Koşulları",
+    "Kullanıcı Sözleşmesi / Şartlar ve Koşullar",
+  ]);
   assert.equal(
-    footer.indexOf("Kargo takip"),
-    footer.indexOf("Kullanım koşulları") + 1,
+    await frame()
+      .locator(".footer-title,footer .eyebrow,footer a[href='/admin']")
+      .count(),
+    0,
   );
   await page.locator("#site-inspect").uncheck();
   await frame()
