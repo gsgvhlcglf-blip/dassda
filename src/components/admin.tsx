@@ -675,12 +675,15 @@ export function Admin({
                   <dd>TR / TRY</dd>
                   <dt>Ödeme</dt>
                   <dd>Sipariş talebi</dd>
+                  <dt>Hostinger / MySQL</dt>
+                  <dd>Veri arayüzleri hazır · Bağlantı kurulmadı</dd>
                 </dl>
                 <p className="muted">
                   Tanımlı alanlar bağlantının doğrulandığı anlamına gelmez.
                   Supabase bağlantı bilgileri ve yayın alan adı, barındırma
                   hizmetinin ortam ayarlarından yönetilir. Gizli değerler bu
-                  ekranda gösterilmez.
+                  ekranda gösterilmez. MySQL bağlantısı sonraki kurulum
+                  aşamasında sunucu veri adaptörü üzerinden eklenecektir.
                 </p>
               </section>
               <section className="admin-guide settings-help">

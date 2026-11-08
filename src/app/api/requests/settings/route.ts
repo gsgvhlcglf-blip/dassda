@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { workReadiness } from "@/lib/request-store";
-import { isLive } from "@/lib/database";
+import { isDemo } from "@/lib/database";
 export async function GET() {
   try {
     const terms = await workReadiness();
     return NextResponse.json(
       {
         ready: true,
-        demo: !isLive,
+        demo: isDemo,
         version: terms.version,
         documents: Object.fromEntries(
           Object.entries(terms.documents).filter(

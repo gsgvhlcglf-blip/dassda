@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getRole, sameOrigin } from "@/lib/auth";
-import { isLive } from "@/lib/database";
-import { supabase } from "@/lib/supabase";
+import { isDemo } from "@/lib/database";
+import { repository } from "@/server/persistence";
 import {
   allWorkRequests,
+  workInsights,
   findWorkRequest,
   workHistory,
   workFiles,
@@ -12,12 +13,7 @@ import {
   saveWorkTerms,
   saveWorkMutation,
 } from "@/lib/request-store";
-import {
-  changeRequest,
-  termsSchema,
-  requestInsights,
-  requestPeriod,
-} from "@/lib/requests";
+import { changeRequest, termsSchema, requestInsights } from "@/lib/requests";
 export async function GET(req: Request) {
   if ((await getRole()) !== "admin")
     return NextResponse.json(
@@ -38,7 +34,6 @@ export async function GET(req: Request) {
         { headers: { "Cache-Control": "private, no-store" } },
       );
     }
-    const records = await allWorkRequests();
     if (params.get("view") === "insights") {
       const days = z.coerce
         .number()
@@ -48,18 +43,19 @@ export async function GET(req: Request) {
         .parse(params.get("days") || 0);
       return NextResponse.json(
         {
-          insights: requestInsights(requestPeriod(records, days)),
-          demo: !isLive,
+          insights: await workInsights(days),
+          demo: isDemo,
         },
         { headers: { "Cache-Control": "private, no-store" } },
       );
     }
+    const records = await allWorkRequests();
     return NextResponse.json(
       {
         records,
         terms: await workTerms(),
         insights: requestInsights(records),
-        demo: !isLive,
+        demo: isDemo,
       },
       { headers: { "Cache-Control": "private, no-store" } },
     );
@@ -89,12 +85,7 @@ export async function POST(req: Request) {
       expected = z.number().int().positive().parse(input.expectedRevision),
       record = await findWorkRequest(id);
     if (record.revision !== expected) throw Error("REQUEST_CONFLICT");
-    let actor = "local-admin";
-    if (isLive) {
-      const user = (await (await supabase()).auth.getUser()).data.user;
-      if (!user) throw Error("Yetki doğrulanamadı.");
-      actor = user.id;
-    }
+    const actor = await (await repository("identity")).getStaffActor();
     const { next, event } = changeRequest(
       record,
       input.action,

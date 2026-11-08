@@ -19,3 +19,17 @@ For explicitly requested catalog copy changes, add an immutable, unique update e
 Relevant checks: `npm run typecheck`, `node scripts/test-site-preview.mjs`, `node scripts/test-preview-updates.mjs` (provider transport simulation), `node scripts/test-direct-editor.mjs` (including `TEST_PROVIDER=1`), and the existing catalog workspace tests. The local static test server is `python3 -m http.server 4173 --bind 127.0.0.1`. Run the application's build and functional checks when shared storefront behavior changes. Prefer targeted visual verification for small CSS/text iterations; do not repeat unrelated suites unnecessarily.
 
 Customer/blog/tracking changes: `node scripts/test-member-preview.mjs` checks the preview/CMS flow; `tests/customer.spec.ts` checks authenticated orders and customer isolation. Keep HTML preview credentials disabled and use the explicit sample-member control. Preserve the checkout API and RPC membership checks (migration 002). Kargo tracking remains unconfigured until the owner supplies the official carrier URL; never invent shipment status.
+
+## Persistence boundary
+
+The intended future deployment is Hostinger with MySQL. Keep the existing design
+and API contracts independent of the database provider. Use the server-only
+repository ports in `src/server/persistence/contracts.ts` and the central adapter
+registry; SQL/SDK access belongs in adapters, not new React components or route
+handlers. Existing Supabase/SQLite implementations remain supported. Read
+`docs/VERI-MIMARISI.md` before database/auth/storage changes. The prepared MySQL
+schema is not a configured or verified live connection; do not claim otherwise.
+Browser/localStorage previews are design drafts and must never become the source
+of truth for real customer accounts, CRM, orders or analytics. Preserve demo
+labels, owner drafts, transactions, ownership checks and cookie consent. Never
+fall back to demo storage when the selected production adapter is unavailable.

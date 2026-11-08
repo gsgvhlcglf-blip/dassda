@@ -28,6 +28,24 @@ This remains a **public draft workspace**, separate from the authenticated produ
 
 For developer validation, serve the repository with `python3 -m http.server 4173 --bind 127.0.0.1`. `node scripts/test-quick-panel.mjs` covers catalog CRUD/photos/backup/import; `node scripts/test-site-preview.mjs` covers all storefront screens, responsive devices, Turkish-only display, section inspection, copy and draft editing; `node scripts/test-preview-updates.mjs` simulates the provider's transport to verify automatic design refresh, protected unsaved forms and one-time copy updates. Tests do not establish the external provider's availability. The public HTMLPreview script transformation is compatible with the generated single inline script and runtime-created iframe.
 
+## Modular data layer and future Hostinger / MySQL
+
+The existing design and API paths are preserved. Server repositories now share
+typed contracts for catalog/workspace, customer/staff identity, orders, CRM and
+requests, analytics/heatmaps, payments and media. Existing SQLite demonstration
+and Supabase implementations sit behind a single server-only adapter registry.
+The install-free browser workspace remains explicitly a design prototype, not a
+permanent business database.
+
+No hosting or MySQL connection was configured. `database/mysql/001_core.sql` is a
+prepared MySQL 8.0.16+ schema; it has not been executed against MySQL. Selecting
+`DATA_PROVIDER=mysql` fails closed until a complete adapter is implemented; it
+never silently falls back to demo storage. UI/forms do not need a rewrite to
+use the future adapter. Read [the architecture and migration guide](docs/VERI-MIMARISI.md)
+for implementation boundaries and the remaining authentication, transaction,
+query scaling and deployment work. MySQL credentials are server-only placeholders
+in `.env.example`. Neither Supabase nor Vercel is required for that future host.
+
 ## Membership, journal and shipment tracking
 
 The header includes Blog before Contact and a single My Account link. Collection is omitted from header/footer menus; Track Shipment appears in the footer alongside Terms. Browsing/cart are public; checkout, the order API and Supabase order RPC require a verified customer. Customers see only their own order history under My Account. Customer authentication is separate from staff authorization. Configure Supabase Email confirmation, Site URL, callback allowlist (`/auth/callback`) and production SMTP before using real accounts. The local demo uses hashed customer passwords and signed HttpOnly sessions without email verification; the install-free preview uses an explicit sample member without collecting credentials.
@@ -80,7 +98,7 @@ The local relational database is `.data/store.sqlite`. Image uploads go to ignor
    ```
 
    Use `editor` for a content-only account. The website does not create roles or accept role information from user metadata.
-4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the project's public anon/publishable key) in your local `.env.local` or Vercel project settings. The public key is safe only with the supplied RLS policies. The application never needs a service-role key. The server uses the signed-in user's session for administrative requests. Session refresh is handled by `src/proxy.ts`; each administrative API independently checks the role.
+4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the project's public anon/publishable key) in your local `.env.local` or hosting settings. The public key is safe only with the supplied RLS policies. Private request/CRM storage and payment RPCs additionally require the server-only `SUPABASE_SERVICE_ROLE_KEY`; never expose it to a browser. Administrative APIs independently check roles and use the signed-in session where appropriate. Session refresh is handled by `src/proxy.ts`.
 5. Set `NEXT_PUBLIC_SITE_URL` to your verified HTTPS production origin. Review the owner-managed legal/commercial pages, verified inventory, fitments, shipping/tax terms and licensed real assets before launch. Set `ENABLE_INDEXING=true` only when ready to be indexed. Preview deployments should leave it false. Preview order/admin POSTs require their own configured origin or an unset canonical origin; the origin check is intentionally strict.
 6. Import the repository into Vercel using the Next.js preset and Node 24. Build: `npm run build`. No SQLite database, local password or filesystem upload persistence is used on Vercel. Images upload to Supabase Storage. No deployment or remote Supabase mutation has been performed by this task.
 7. Verify the live Auth, RLS, Storage upload and order journey against your own Supabase project before accepting customer information. Local PostgreSQL tests do not establish actual Supabase/Vercel credentials or connectivity.

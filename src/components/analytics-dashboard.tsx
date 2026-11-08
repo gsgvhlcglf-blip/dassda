@@ -221,14 +221,16 @@ export function AnalyticsDashboard({
             {preview
               ? "BU TARAYICI / TEST VERİSİ"
               : data?.storage === "local"
-                ? "YEREL UYGULAMA"
+                ? "YEREL DEMO / TEST VERİSİ"
                 : "SİTE VERİSİ"}
           </p>
           <h2>Analitik & Isı Haritası</h2>
           <p>
             {preview
               ? "Yalnızca bu tarayıcıdaki müşteri önizlemesi ölçülür. Gerçek ziyaretçi istatistiği değildir."
-              : "İzin veren oturumların sayfa görüntülemeleri, tıklamaları ve kaydırma oranları."}
+              : data?.storage === "local"
+                ? "Yerel demo uygulamasındaki izinli test oturumlarıdır; canlı sitenin ziyaretçi verileri değildir."
+                : "İzin veren oturumların sayfa görüntülemeleri, tıklamaları ve kaydırma oranları."}
           </p>
         </div>
         <label>

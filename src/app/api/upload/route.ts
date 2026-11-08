@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRole, sameOrigin } from "@/lib/auth";
-import { isLive } from "@/lib/database";
-import { supabase } from "@/lib/supabase";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { repository } from "@/server/persistence";
 import { randomUUID } from "node:crypto";
 export async function POST(req: Request) {
   if (!sameOrigin(req) || !(await getRole()))
@@ -27,22 +24,15 @@ export async function POST(req: Request) {
             : null;
     if (!type) throw new Error("Only JPEG, PNG and WebP files are accepted.");
     const name = `${randomUUID()}.${type}`;
-    if (isLive) {
-      const db = await supabase();
-      const { error } = await db.storage.from("catalog").upload(name, bytes, {
-        contentType: type === "jpg" ? "image/jpeg" : `image/${type}`,
-        upsert: false,
-      });
-      if (error) throw error;
-      return NextResponse.json({
-        url: db.storage.from("catalog").getPublicUrl(name).data.publicUrl,
-      });
-    }
-    await mkdir(path.join(process.cwd(), "public/uploads"), {
-      recursive: true,
-    });
-    await writeFile(path.join(process.cwd(), "public/uploads", name), bytes);
-    return NextResponse.json({ url: `/uploads/${name}` });
+    const url = await (
+      await repository("media")
+    ).storePublicMedia(
+      name,
+      bytes,
+      type === "jpg" ? "image/jpeg" : `image/${type}`,
+      "image",
+    );
+    return NextResponse.json({ url });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Upload failed" },

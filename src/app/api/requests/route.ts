@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import { sameOrigin, rateLimit } from "@/lib/auth";
 import { getCustomer } from "@/lib/customer";
 import { getCatalog } from "@/lib/catalog";
-import { isLive } from "@/lib/database";
+import { isDemo } from "@/lib/database";
 import {
   publicRequestSchema,
   newWorkRequest,
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     );
     if (result.id !== record.id) await discardUnlinkedWorkPhotos(saved);
     return NextResponse.json(
-      { reference: result.reference, demo: !isLive },
+      { reference: result.reference, demo: isDemo },
       { status: 201, headers: { "Cache-Control": "no-store" } },
     );
   } catch (e) {

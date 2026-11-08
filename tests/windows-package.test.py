@@ -13,7 +13,7 @@ class PackageTests(unittest.TestCase):
             archive=module.package(Path(temporary)/'source.zip')
             with zipfile.ZipFile(archive) as package:
                 names=package.namelist()
-                for required in ['scripts/local-install.mjs','scripts/read-secret.mjs','scripts/local-server.mjs','public/images/hero.webp','.env.example','supabase/migrations/001_store.sql']:
+                for required in ['scripts/local-install.mjs','scripts/read-secret.mjs','scripts/local-server.mjs','public/images/hero.webp','.env.example','supabase/migrations/001_store.sql','database/mysql/001_core.sql','docs/VERI-MIMARISI.md','src/server/persistence/contracts.ts']:
                     self.assertIn('KUZMIN-Yerel/'+required,names)
                 for name in names:
                     parts=Path(name).parts

@@ -1,10 +1,9 @@
 import { paymentLedger } from "@/lib/payments/store";
 import { NextResponse } from "next/server";
 import { getRole, sameOrigin } from "@/lib/auth";
-import { isLive, updateLocal } from "@/lib/database";
 import { getRows } from "@/lib/catalog";
 import { schemas } from "@/lib/validation";
-import { supabase } from "@/lib/supabase";
+import { repository } from "@/server/persistence";
 import { getWorkspace, saveWorkspace } from "@/lib/site-version-store";
 import { editCatalog, validateCatalog } from "@/lib/site-version";
 import { applyModelGenerations } from "@/lib/model-generations";
@@ -77,25 +76,10 @@ export async function POST(req: Request) {
           ? { id: String(record.id) }
           : (schema.parse(record) as Row);
     if (table === "orders") {
-      const current = (await getRows("orders")).find((o) => o.id === row.id);
-      if (
-        current?.payment_provider &&
-        ["confirmed", "shipped"].includes(String(row.status)) &&
-        current.payment_status !== "paid"
-      )
-        throw Error(
-          "Kartlı siparişte ödeme doğrulanmadan onay veya gönderim yapılamaz.",
-        );
       if (action !== "update") throw Error("Sipariş yalnızca güncellenebilir.");
-      if (isLive) {
-        const { error } = await (
-          await supabase()
-        )
-          .from("orders")
-          .update({ status: row.status })
-          .eq("id", row.id);
-        if (error) throw error;
-      } else updateLocal("orders", row);
+      await (
+        await repository("orders")
+      ).updateOrderStatus(row.id, String(row.status));
       return NextResponse.json({ ok: true });
     }
     const workspace = await getWorkspace();

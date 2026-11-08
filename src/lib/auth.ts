@@ -1,8 +1,6 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { cookies } from "next/headers";
-import { isLive, localEnabled } from "./database";
-import { supabase } from "./supabase";
+import { repository } from "../server/persistence";
 const secret = () => process.env.LOCAL_SESSION_SECRET || "";
 export function equal(a: string, b: string) {
   const aa = Buffer.from(a),
@@ -15,37 +13,8 @@ export function signSession() {
   ).toString("base64url");
   return `${payload}.${createHmac("sha256", secret()).update(payload).digest("hex")}`;
 }
-export async function getRole(): Promise<"admin" | "editor" | null> {
-  if (isLive) {
-    const s = await supabase();
-    const {
-      data: { user },
-    } = await s.auth.getUser();
-    if (!user) return null;
-    const { data } = await s
-      .from("admin_users")
-      .select("role")
-      .eq("user_id", user.id)
-      .single();
-    return data?.role === "admin" || data?.role === "editor" ? data.role : null;
-  }
-  if (!localEnabled || !secret()) return null;
-  const cookie = (await cookies()).get("kz_session")?.value;
-  if (!cookie) return null;
-  const [payload, sig] = cookie.split(".");
-  if (
-    !sig ||
-    !equal(sig, createHmac("sha256", secret()).update(payload).digest("hex"))
-  )
-    return null;
-  try {
-    return JSON.parse(Buffer.from(payload, "base64url").toString()).exp >
-      Date.now()
-      ? "admin"
-      : null;
-  } catch {
-    return null;
-  }
+export async function getRole() {
+  return (await repository("identity")).getRole();
 }
 export function sameOrigin(req: Request) {
   const origin = req.headers.get("origin");

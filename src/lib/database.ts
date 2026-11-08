@@ -10,13 +10,10 @@ import {
   applyLegalPages,
 } from "./legal-content";
 import { tableNames, type Table, type Row, type Catalog } from "./types";
-export const isLive = !!(
-  process.env.NEXT_PUBLIC_SUPABASE_URL &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
-export const localEnabled =
-  (!isLive && process.env.NODE_ENV !== "production") ||
-  (!isLive && process.env.ALLOW_LOCAL_DEMO === "true" && !process.env.VERCEL);
+import { dataProvider, localDemoAllowed } from "../server/persistence/config";
+export const isLive = dataProvider(process.env) === "supabase";
+export const isDemo = dataProvider(process.env) === "sqlite-demo";
+export const localEnabled = localDemoAllowed(process.env);
 let db: DatabaseSync;
 const jsonFields = new Set([
   "title",
@@ -56,7 +53,7 @@ function decode(r: Record<string, unknown>): Row {
 export function localDB() {
   if (!localEnabled)
     throw new Error(
-      "Supabase configuration required. Local demo is disabled in production.",
+      "Configured data provider unavailable. Local demo is disabled.",
     );
   if (db) return db;
   mkdirSync(path.join(process.cwd(), ".data"), { recursive: true });

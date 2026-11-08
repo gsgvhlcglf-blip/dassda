@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile, readFile } from "node:fs/promises";
-import path from "node:path";
 import { getRole, sameOrigin } from "@/lib/auth";
-import { isLive } from "@/lib/database";
-import { supabase } from "@/lib/supabase";
+import { repository } from "@/server/persistence";
 import { boundedForm } from "@/lib/request-store";
 import { validateHeroVideoFile, maxHeroVideoBytes } from "@/lib/hero-video";
 export const runtime = "nodejs";
@@ -21,24 +18,9 @@ export async function POST(req: Request) {
     const mime = await validateHeroVideoFile(file),
       name = randomUUID() + (mime === "video/mp4" ? ".mp4" : ".webm");
     const bytes = Buffer.from(await file.arrayBuffer());
-    let url: string;
-    if (isLive) {
-      const db = await supabase();
-      const { error } = await db.storage
-        .from("site-media")
-        .upload(name, bytes, { contentType: mime, upsert: false });
-      if (error)
-        throw Error(
-          "Video yüklenemedi. Site medya deposunu ve barındırma yükleme sınırını kontrol edin.",
-        );
-      url = db.storage.from("site-media").getPublicUrl(name).data.publicUrl;
-    } else {
-      await mkdir(path.join(process.cwd(), "public/uploads"), {
-        recursive: true,
-      });
-      await writeFile(path.join(process.cwd(), "public/uploads", name), bytes);
-      url = "/api/upload-video?file=" + name;
-    }
+    const url = await (
+      await repository("media")
+    ).storePublicMedia(name, bytes, mime, "video");
     return NextResponse.json(
       { src: url, name: file.name.slice(0, 200), mime, size: file.size },
       { headers: { "Cache-Control": "no-store" } },
@@ -55,9 +37,7 @@ export async function GET(req: Request) {
   if (!/^[a-f0-9-]{36}\.(mp4|webm)$/.test(name))
     return new Response(null, { status: 404 });
   try {
-    const bytes = await readFile(
-      path.join(process.cwd(), "public/uploads", name),
-    );
+    const bytes = await (await repository("media")).readLocalVideo(name);
     const headers: Record<string, string> = {
       "Content-Type": name.endsWith(".mp4") ? "video/mp4" : "video/webm",
       "Accept-Ranges": "bytes",

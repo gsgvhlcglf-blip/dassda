@@ -809,8 +809,8 @@
         </div>
         <div class="banner">
           <span
-            >Tarayıcı çalışma alanı · Değişiklikler bu tarayıcıda saklanır;
-            canlı mağazaya aktarılmaz.</span
+            >Tasarım ön izlemesi · Canlı veritabanı bağlı değil. Taslaklar yalnızca
+            bu tarayıcıda saklanır.</span
           ><button class="ghost" data-action="export">Taslağı indir ↗</button>
         </div>
         <div id="view"></div>
@@ -1294,6 +1294,8 @@
           view.innerHTML = shippingSettingsHTML() + `<div class="welcome"><section class="box"><p class="eyebrow">YEDEĞİNİZ ELİNİZDE</p><h2>Taslağınızı yanınıza alın.</h2><p class="muted">Taslağı JSON dosyası olarak indirip başka bir tarayıcıya aktarabilirsiniz. Tarayıcı verilerini temizlemeden önce yedek alın.</p><div class="actions">${action("Taslağı indir ↗", "export")}${action("Taslak yükle", "import", "", "button secondary")}</div></section><section class="box"><p class="eyebrow">ÇALIŞMA ALANI</p>${[
             ["Kayıt yeri", "Bu tarayıcı"],
             ["Canlı mağaza bağlantısı", "Bağlı değil"],
+            ["Kalıcı veritabanı", "Bu ön izlemeye bağlı değil"],
+            ["Planlanan altyapı", "Hostinger / MySQL"],
             ["Müşteri / ödeme verisi", "Bu panelde bulunmaz"],
             ["Para birimi", "Türk lirası (TRY)"],
             ["Katalog modeli", "Marka · Model · Nesil · Yıl"],

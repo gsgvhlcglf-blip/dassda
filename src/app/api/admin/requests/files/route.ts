@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getRole, sameOrigin } from "@/lib/auth";
-import { isLive } from "@/lib/database";
-import { supabase } from "@/lib/supabase";
+import { repository } from "@/server/persistence";
 import {
   localWorkPhoto,
   boundedForm,
@@ -20,7 +19,6 @@ export async function GET(req: Request) {
   if ((await getRole()) !== "admin")
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
-    if (isLive) throw Error("Fotoğrafları talep kaydından açın.");
     const { file, bytes } = await localWorkPhoto(
       z.uuid().parse(new URL(req.url).searchParams.get("id")),
     );
@@ -56,12 +54,7 @@ export async function POST(req: Request) {
     if ((await workFiles(id)).length + photos.length > 24)
       throw Error("Talepte en fazla 24 fotoğraf tutulabilir.");
     files = await storeWorkPhotos(id, photos, "received");
-    let actor = "local-admin";
-    if (isLive) {
-      const user = (await (await supabase()).auth.getUser()).data.user;
-      if (!user) throw Error("Yetki doğrulanamadı.");
-      actor = user.id;
-    }
+    const actor = await (await repository("identity")).getStaffActor();
     const now = new Date().toISOString(),
       next = { ...record, revision: record.revision + 1, updated_at: now };
     const event: RequestEvent = {
