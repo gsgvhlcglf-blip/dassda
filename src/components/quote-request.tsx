@@ -26,7 +26,7 @@ export function QuoteRequest({
     >
       <div className="home-custom-card">
         <div>
-          <p className="eyebrow">{t("customCarbon")}</p>
+          {!home && <p className="eyebrow">{t("customCarbon")}</p>}
           <h2 id={title} data-visual-text="slot:home.custom.title">
             {copy("home.custom.title", t("homeCustomTitle"))}
           </h2>
