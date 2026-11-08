@@ -15,6 +15,10 @@ import {
 } from "../src/lib/model-generations";
 import type { Catalog } from "../src/lib/types";
 export { applyModelGenerations } from "../src/lib/model-generations";
+export {
+  generationRangeLabel,
+  resolveOngoingYears,
+} from "../src/lib/model-generations";
 export { applyProductCompatibility } from "../src/lib/product-compatibility";
 export { salePrice } from "../src/lib/product-commerce";
 

@@ -1,5 +1,6 @@
 import { bestsellersKey, bestsellersSchema } from "./bestsellers";
 import { z } from "zod";
+import { currentModelYear } from "./model-generations";
 const id = z
   .string()
   .min(1)
@@ -42,7 +43,9 @@ export const schemas = {
       name: z.string().min(1).max(200),
       start_year: year,
       end_year: year,
+      ongoing: z.boolean().optional(),
     })
+    .transform((r) => (r.ongoing ? { ...r, end_year: currentModelYear() } : r))
     .refine((r) => r.start_year <= r.end_year, "Invalid year range"),
   model_years: z.object({ id, model_id: id, generation_id: id, year }),
   categories: z.object({ id, slug, name: localized }),

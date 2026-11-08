@@ -44,7 +44,13 @@ function decode(r: Record<string, unknown>): Row {
       (jsonFields.has(k) || k === "name") &&
       v.startsWith("{")
         ? JSON.parse(v)
-        : ["featured", "published", "demo", "matte_enabled"].includes(k)
+        : [
+              "featured",
+              "published",
+              "demo",
+              "matte_enabled",
+              "ongoing",
+            ].includes(k)
           ? !!v
           : v,
     ]),
@@ -81,6 +87,14 @@ export function localDB() {
   )
     db.exec(
       "ALTER TABLE models ADD COLUMN published INTEGER NOT NULL DEFAULT 1",
+    );
+  if (
+    !(
+      db.prepare("PRAGMA table_info(generations)").all() as { name: string }[]
+    ).some((column) => column.name === "ongoing")
+  )
+    db.exec(
+      "ALTER TABLE generations ADD COLUMN ongoing INTEGER NOT NULL DEFAULT 0",
     );
   const productColumns = db.prepare("PRAGMA table_info(products)").all() as {
     name: string;

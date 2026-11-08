@@ -1,5 +1,6 @@
 "use client";
 import type { GenerationInput } from "@/lib/model-generations";
+import { currentModelYear } from "@/lib/model-generations";
 
 export function ModelGenerationsEditor({
   value,
@@ -48,7 +49,12 @@ export function ModelGenerationsEditor({
       )}
       {value.map((row, index) => (
         <fieldset className="generation-editor-row" key={row.id}>
-          <legend>{index + 1}. yıl aralığı</legend>
+          <legend>
+            {index + 1}. yıl aralığı
+            {row.ongoing && row.start_year !== ""
+              ? ` · ${row.start_year}–Günümüz`
+              : ""}
+          </legend>
           <label>
             Başlangıç yılı
             <input
@@ -62,19 +68,45 @@ export function ModelGenerationsEditor({
               onChange={(e) => update(index, "start_year", e.target.value)}
             />
           </label>
-          <label>
-            Bitiş yılı
-            <input
-              aria-label={`Bitiş yılı ${index + 1}`}
-              type="number"
-              min="1900"
-              max="2100"
-              step="1"
-              required
-              value={row.end_year}
-              onChange={(e) => update(index, "end_year", e.target.value)}
-            />
-          </label>
+          <div className="generation-end-year">
+            <label>
+              Bitiş yılı
+              <input
+                aria-label={`Bitiş yılı ${index + 1}`}
+                type="number"
+                min="1900"
+                max="2100"
+                step="1"
+                required={!row.ongoing}
+                disabled={row.ongoing === true}
+                value={row.ongoing ? currentModelYear() : row.end_year}
+                onChange={(e) => update(index, "end_year", e.target.value)}
+              />
+            </label>
+            <label className="generation-current-toggle">
+              <input
+                type="checkbox"
+                aria-label={`Günümüz ${index + 1}`}
+                checked={row.ongoing === true}
+                onChange={(event) =>
+                  onChange(
+                    value.map((entry, i) =>
+                      i === index
+                        ? {
+                            ...entry,
+                            ongoing: event.target.checked,
+                            end_year: event.target.checked
+                              ? currentModelYear()
+                              : entry.end_year || currentModelYear(),
+                          }
+                        : entry,
+                    ),
+                  )
+                }
+              />
+              Günümüz
+            </label>
+          </div>
           <label className="generation-description">
             Nesil açıklaması
             <input
@@ -97,9 +129,10 @@ export function ModelGenerationsEditor({
         </fieldset>
       ))}
       <p className="help">
-        Aralıklar çakışamaz. Değiştirilen aralıktaki tüm yıllar eklenir. Mevcut
-        parça eşleştirmeleri yılları korunarak yeni nesillere ayrılır;
-        uyumluluğu olan yıllar kapsam dışında bırakılamaz.
+        Günümüz seçilirse bitiş yılı otomatik güncellenir. Aralıklar çakışamaz.
+        Değiştirilen aralıktaki tüm yıllar eklenir. Mevcut parça eşleştirmeleri
+        yılları korunarak yeni nesillere ayrılır; uyumluluğu olan yıllar kapsam
+        dışında bırakılamaz.
       </p>
     </section>
   );

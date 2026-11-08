@@ -29,6 +29,20 @@ kayıtları korunur.
 1. **Motosiklet modelleri → Yeni kayıt**: Ducati, BMW veya Yamaha'yı seçin. Model adını, küçük harf ve tirelerden oluşan URL adını ve fotoğrafını girin. Örnek URL adı: `mt-25`.
 2. Aynı formdaki **Nesiller ve yıl aralıkları → + Yıl aralığı ekle** düğmesine basın. Her satırda **Başlangıç yılı**, **Bitiş yılı** ve **Nesil açıklaması** girin. Örneğin R25 için kendi doğruladığınız yıllarla “1. nesil · ilk kasa”, “2. nesil · yeni kasa” ve “3. nesil” şeklinde üç ayrı satır ekleyebilirsiniz. Hazır yıl / nesil bilgisi varsayılmaz.
 3. Kaydedince yeni veya değişen aralığın içindeki tüm üretim yılları otomatik oluşur. Aynı yıl iki farklı nesle atanamaz. Yalnızca açıklamayı veya fotoğrafı değiştirmeniz mevcut yıl kayıtlarını değiştirmez. Gelişmiş **Nesiller** ve **Üretim yılları** bölümleri, tek tek kayıt yönetimi için korunur.
+
+Devam eden son nesil için **Bitiş yılı** yanındaki **Günümüz** kutusunu işaretleyin.
+Örneğin başlangıcı 2025 olan aralık **2025–Günümüz** görünür. Bitiş yılı elle
+girilmez; güncel Türkiye takvim yılı kullanılır ve yeni yılda yıl seçenekleri
+güncellenir. Seçimi kaldırırsanız sabit bir bitiş yılı girebilirsiniz. Günümüz
+yalnızca son nesilde kullanılabilir. Yeni yıllar mevcut ürün uyumluluklarına
+kendiliğinden eklenmez; her ürün için doğrulayıp ayrıca eşleştirin. Eski sabit
+aralıklar ve mevcut yıl kimlikleri korunur. Sunucuya kaydetme/yayınlama sırasında
+güncel model-yıl kayıtları ilişkisel tablolara da yazılır; okuma görünümü bir yıl
+değişiminde henüz yayımlanmamış yeni yılları aynı aralık bilgisinden türetir.
+
+Mevcut Supabase kurulumu için `014_ongoing_generations.sql`; gelecekteki MySQL
+kurulumu için `003_ongoing_generations.sql` hazırlanmıştır. Bağlantı kurulmaz veya
+uzak veritabanında otomatik göç çalıştırılmaz.
 4. Mevcut nesli birden fazla aralığa ayırdığınızda parça eşleştirmeleri önceki uyumluluk yıllarını koruyarak yeni nesillere bölünür. Uyumluluğu olan yılları aralıkların dışında bırakırsanız kayıt reddedilir; önce ilgili parça uyumluluğunu düzenleyin. Taslağı kaydettikten sonra **Yayın & sürümler → Taslağı yayınla** kullanın. Müşteri yıl seçerken ilgili nesil açıklamasını da görür.
 
 Gelişmiş **Nesiller** ekranında tek kayıt değiştirirken mevcut yıllar veya uyumluluklar aralığın dışına düşecekse değişiklik reddedilir; önce bağlı kayıtları düzeltin. Model formundaki çoklu aralık düzenleyicisi ise bağlı yılları ve uyumlulukları birlikte günceller. Model silmek, bağlı nesil/yıl/uyumluluk kayıtlarını da siler; ürünleri silmez. Formdaki silme işlemi ikinci bir onay ister. Sipariş geçmişinde kullanılan ürünler silinemez; bunları yayından kaldırın.

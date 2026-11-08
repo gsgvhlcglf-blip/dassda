@@ -1,8 +1,10 @@
 import type { Catalog } from "./types";
+import { resolveOngoingYears } from "./model-generations";
 
 // Older owner drafts have no model publication flag; keep those models visible.
 // Return a filtered view without changing the editable catalog or its relations.
 export function publicCatalog(c: Catalog): Catalog {
+  c = resolveOngoingYears(c);
   const models = c.models.filter((m) => m.published !== false);
   const products = c.products.filter((p) => p.published);
   const modelIds = new Set(models.map((m) => m.id));

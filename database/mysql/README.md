@@ -15,3 +15,8 @@ Kapsam, tablo ilişkileri ve geçiş adımları: [Veri mimarisi](../../docs/VERI
 Ürünler sipariş üzerine üretilir; stok kolonları eski kayıt uyumluluğu içindir.
 Uyarlama sırasında sipariş/ödeme miktarı ürünün KDV dahil indirimli fiyatından
 hesaplanmalı, ücretsiz kargo için ek tutar alınmamalı ve stok rezerve edilmemelidir.
+
+`003_ongoing_generations.sql`, model nesillerindeki **Günümüz** seçimini saklar.
+Sabit aralıklar değiştirilmez. Sunucu aralığı güncel Türkiye yılına göre çözer;
+model-yıl satırları kaydetme/yayınlama sırasında kalıcılaşır. Ürün uyumlulukları
+yeni yıllara otomatik genişletilmez.

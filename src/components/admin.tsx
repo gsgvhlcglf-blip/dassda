@@ -15,6 +15,8 @@ import {
 } from "@/lib/product-compatibility";
 import {
   generationInputs,
+  currentModelYear,
+  generationRangeLabel,
   type GenerationInput,
 } from "@/lib/model-generations";
 import { AnalyticsDashboard } from "./analytics-dashboard";
@@ -76,6 +78,7 @@ const fields: Record<string, Field[]> = {
     { key: "name", label: "Nesil adı" },
     { key: "start_year", label: "İlk yıl", type: "number" },
     { key: "end_year", label: "Son yıl", type: "number" },
+    { key: "ongoing", label: "Günümüz", type: "checkbox" },
   ],
   model_years: [
     { key: "model_id", label: "Motosiklet modeli", relation: "models" },
@@ -302,6 +305,8 @@ export function Admin({
     setError("");
     try {
       let record = editing;
+      if (section === "generations" && record?.ongoing === true)
+        record = { ...record, end_year: currentModelYear() };
       if (section === "orders")
         record = { id: editing!.id, status: editing!.status };
       const r = await fetch("/api/admin", {
@@ -843,6 +848,12 @@ export function Admin({
                             src={String(r.url)}
                             alt="Ürün fotoğrafı"
                           />
+                        ) : section === "generations" ? (
+                          generationRangeLabel({
+                            start_year: Number(r.start_year),
+                            end_year: Number(r.end_year),
+                            ongoing: r.ongoing === true,
+                          })
                         ) : r.price !== undefined ? (
                           money(
                             salePrice({
@@ -858,7 +869,11 @@ export function Admin({
                                 typeof r.name === "string" &&
                                 r.name) ||
                               (r.start_year &&
-                                `${r.start_year}—${r.end_year}`) ||
+                                generationRangeLabel({
+                                  start_year: Number(r.start_year),
+                                  end_year: Number(r.end_year),
+                                  ongoing: r.ongoing === true,
+                                })) ||
                               "—",
                           )
                         )}
@@ -1148,6 +1163,9 @@ export function Admin({
                       aria-label={f.label}
                       type={f.type === "number" ? "number" : "text"}
                       min={f.type === "number" ? 0 : undefined}
+                      disabled={
+                        f.key === "end_year" && editing.ongoing === true
+                      }
                       max={f.key === "discount_percent" ? 100 : undefined}
                       step={
                         f.key === "price" ||
@@ -1157,7 +1175,13 @@ export function Admin({
                           : 1
                       }
                       required={!f.optional && f.type !== "image"}
-                      value={value === null ? "" : String(value ?? "")}
+                      value={
+                        f.key === "end_year" && editing.ongoing === true
+                          ? currentModelYear()
+                          : value === null
+                            ? ""
+                            : String(value ?? "")
+                      }
                       onChange={(e) =>
                         set(
                           f.type === "number"

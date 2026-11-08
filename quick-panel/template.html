@@ -975,6 +975,7 @@
             );
             state = result.catalog;
           }
+          state = KZ_MODELS.resolveOngoingYears(state);
           $("#save-status").textContent = "● Tarayıcıya kayıt açık";
         } catch {
           $("#save-status").textContent = "Kayıt kullanılamıyor · Dışa aktarın";
@@ -1142,10 +1143,11 @@
             if (!has("products", i.product_id))
               throw Error("Görsel ürünü geçersiz.");
           for (const g of c.generations)
-            if (!has("models", g.model_id) || g.start_year > g.end_year)
+            if (!has("models", g.model_id) || g.start_year > g.end_year || (g.ongoing !== undefined && typeof g.ongoing !== "boolean"))
               throw Error("Nesil geçersiz.");
         }
         function commit(next) {
+          next = KZ_MODELS.resolveOngoingYears(next);
           validate(next);
           try {
             localStorage.setItem(KEY, JSON.stringify(next));
@@ -1350,7 +1352,7 @@
               rows
                 .map(
                   (m) =>
-                    `<tr><td><strong>${esc(m.name)}</strong><small>${esc(m.slug)}</small></td><td>${esc(state.brands.find((b) => b.id === m.brand_id)?.name)}</td><td>${state.generations.filter((g) => g.model_id === m.id).sort((a,b) => a.start_year - b.start_year).map((g) => `<small>${g.start_year}–${g.end_year} · ${esc(g.name)}</small>`).join("") || "Henüz yıl aralığı yok"}</td><td><span class="pill">${m.published !== false ? "Yayında" : "Yayında değil"}</span></td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
+                    `<tr><td><strong>${esc(m.name)}</strong><small>${esc(m.slug)}</small></td><td>${esc(state.brands.find((b) => b.id === m.brand_id)?.name)}</td><td>${state.generations.filter((g) => g.model_id === m.id).sort((a,b) => a.start_year - b.start_year).map((g) => `<small>${KZ_MODELS.generationRangeLabel(g)} · ${esc(g.name)}</small>`).join("") || "Henüz yıl aralığı yok"}</td><td><span class="pill">${m.published !== false ? "Yayında" : "Yayında değil"}</span></td><td>${action("Düzenle ↗", "edit", m.id, "ghost")}</td></tr>`,
                 )
                 .join(""),
             );

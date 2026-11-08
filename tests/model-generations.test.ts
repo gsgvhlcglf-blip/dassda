@@ -4,6 +4,9 @@ import { seed } from "../src/lib/seed";
 import {
   applyModelGenerations,
   generationInputs,
+  currentModelYear,
+  generationRangeLabel,
+  resolveOngoingYears,
 } from "../src/lib/model-generations";
 import { compatibleProducts } from "../src/lib/commerce";
 import { validateCatalog } from "../src/lib/site-version";
@@ -66,6 +69,145 @@ test("splitting a model into three generations preserves exact-year product comp
   ] as const)
     assert.deepEqual(next[key], original[key]);
   assert.deepEqual(original, seed);
+});
+
+test("ongoing selection persists separately, resolves the current year and rejects future starts", () => {
+  const year = currentModelYear();
+  const catalog = structuredClone(seed);
+  catalog.models.push({
+    ...catalog.models[0],
+    id: "ongoing-r25",
+    slug: "ongoing-r25",
+    name: "R25",
+  });
+  const value = [
+    {
+      id: "ongoing-generation",
+      name: "Yeni kasa",
+      start_year: year - 1,
+      end_year: "",
+      ongoing: true,
+    },
+  ];
+  const updated = validateCatalog(
+    applyModelGenerations(catalog, "ongoing-r25", value),
+  );
+  const g = updated.generations.find((row) => row.id === "ongoing-generation")!;
+  assert.equal(g.ongoing, true);
+  assert.equal(g.end_year, year);
+  assert.equal(generationRangeLabel(g), `${year - 1}–Günümüz`);
+  assert.equal(generationInputs(updated, "ongoing-r25")[0].ongoing, true);
+  assert.deepEqual(
+    updated.model_years
+      .filter((row) => row.model_id === "ongoing-r25")
+      .map((row) => row.year),
+    [year - 1, year],
+  );
+  assert.throws(
+    () =>
+      applyModelGenerations(catalog, "ongoing-r25", [
+        { ...value[0], start_year: year + 1 },
+      ]),
+    /yıllarını/,
+  );
+  assert.throws(
+    () =>
+      applyModelGenerations(catalog, "ongoing-r25", [
+        { ...value[0], ongoing: "true" },
+      ]),
+    /Günümüz/,
+  );
+  const fixed = applyModelGenerations(updated, "ongoing-r25", [
+    { ...value[0], ongoing: false, end_year: year - 1 },
+  ]);
+  assert.equal(
+    fixed.generations.find((row) => row.id === g.id)!.ongoing,
+    false,
+  );
+  assert.equal(
+    fixed.model_years.filter((row) => row.model_id === "ongoing-r25").length,
+    1,
+  );
+});
+
+test("year rollover keeps fixed ranges, row identities and explicit product compatibility", () => {
+  const year = currentModelYear();
+  const catalog = structuredClone(seed);
+  catalog.models.push({
+    ...catalog.models[0],
+    id: "rollover-r25",
+    slug: "rollover-r25",
+    name: "R25",
+  });
+  const current = applyModelGenerations(catalog, "rollover-r25", [
+    {
+      id: "rollover-generation",
+      name: "Güncel",
+      start_year: year - 1,
+      end_year: year,
+      ongoing: true,
+    },
+  ]);
+  current.compatibility.push({
+    id: "explicit-fit",
+    product_id: "p1",
+    model_id: "rollover-r25",
+    generation_id: "rollover-generation",
+    year_from: year - 1,
+    year_to: year,
+  });
+  const future = resolveOngoingYears(current, year + 1);
+  assert.equal(
+    future.generations.find((row) => row.id === "rollover-generation")!
+      .end_year,
+    year + 1,
+  );
+  for (const row of current.model_years)
+    assert.ok(future.model_years.some((next) => next.id === row.id));
+  assert.deepEqual(future.compatibility, current.compatibility);
+  assert.equal(compatibleProducts(future, "rollover-r25", year).length, 1);
+  assert.equal(compatibleProducts(future, "rollover-r25", year + 1).length, 0);
+  assert.deepEqual(resolveOngoingYears(current, year + 1), future);
+  assert.equal(
+    current.model_years.some(
+      (row) => row.model_id === "rollover-r25" && row.year === year + 1,
+    ),
+    false,
+  );
+  assert.deepEqual(
+    future.generations.filter((row) => !row.ongoing),
+    current.generations.filter((row) => !row.ongoing),
+  );
+});
+
+test("ongoing generation must be last and retains overlap protection", () => {
+  const year = currentModelYear();
+  const catalog = structuredClone(seed);
+  catalog.models.push({
+    ...catalog.models[0],
+    id: "last-r25",
+    slug: "last-r25",
+    name: "R25",
+  });
+  assert.throws(
+    () =>
+      applyModelGenerations(catalog, "last-r25", [
+        {
+          id: "first-ongoing",
+          name: "Devam",
+          start_year: year - 2,
+          end_year: year,
+          ongoing: true,
+        },
+        {
+          id: "future-range",
+          name: "Sonraki",
+          start_year: year + 1,
+          end_year: year + 2,
+        },
+      ]),
+    /son nesilde/,
+  );
 });
 test("ranges never extend an existing part's fitment and reject overlapping years, gaps, foreign IDs and invalid inputs", () => {
   const c = structuredClone(seed);

@@ -1,10 +1,69 @@
-import type { Catalog, Generation } from "./types";
+import type { Catalog, Generation, Lang } from "./types";
+
+export function currentModelYear(now = new Date()) {
+  return Number(
+    new Intl.DateTimeFormat("en", {
+      year: "numeric",
+      timeZone: "Europe/Istanbul",
+    }).format(now),
+  );
+}
+export function generationRangeLabel(
+  g: Pick<Generation, "start_year" | "end_year" | "ongoing">,
+  lang: Lang = "tr",
+) {
+  const present = { tr: "Günümüz", en: "Present", ru: "Настоящее время" };
+  return `${g.start_year}–${g.ongoing ? present[lang] : g.end_year}`;
+}
+
+// Stable view IDs for newly elapsed years, independent of browser/server clocks.
+function ongoingYearId(modelId: string, year: number) {
+  const source = `${modelId}:${year}`;
+  const hashes = [0x811c9dc5, 0x9e3779b9, 0x85ebca6b, 0xc2b2ae35];
+  for (const ch of source)
+    for (let i = 0; i < hashes.length; i++)
+      hashes[i] = Math.imul(hashes[i] ^ ch.charCodeAt(0), 16777619) >>> 0;
+  return `ongoing-${hashes.map((n) => n.toString(16).padStart(8, "0")).join("")}-${year}`;
+}
+
+/** Resolve an owner-declared ongoing generation; never extend any product fitment. */
+export function resolveOngoingYears(
+  catalog: Catalog,
+  year = currentModelYear(),
+): Catalog {
+  if (!catalog.generations.some((g) => g.ongoing === true)) return catalog;
+  const next = {
+    ...catalog,
+    generations: catalog.generations.map((g) => ({ ...g })),
+    model_years: [...catalog.model_years],
+  };
+  for (const g of next.generations) {
+    if (g.ongoing !== true) continue;
+    g.end_year = Math.max(g.start_year, year);
+    for (let y = g.start_year; y <= g.end_year; y++) {
+      if (
+        next.model_years.some(
+          (row) => row.model_id === g.model_id && row.year === y,
+        )
+      )
+        continue;
+      next.model_years.push({
+        id: ongoingYearId(g.model_id, y),
+        model_id: g.model_id,
+        generation_id: g.id,
+        year: y,
+      });
+    }
+  }
+  return next;
+}
 
 export type GenerationInput = {
   id: string;
   name: string;
   start_year: number | "";
   end_year: number | "";
+  ongoing?: boolean;
 };
 
 export function generationInputs(
@@ -13,11 +72,12 @@ export function generationInputs(
 ): GenerationInput[] {
   return c.generations
     .filter((g) => g.model_id === modelId)
-    .map(({ id, name, start_year, end_year }) => ({
+    .map(({ id, name, start_year, end_year, ongoing }) => ({
       id,
       name,
       start_year,
-      end_year,
+      end_year: ongoing ? currentModelYear() : end_year,
+      ongoing: ongoing === true,
     }));
 }
 
@@ -52,15 +112,19 @@ export function applyModelGenerations(
       throw Error(
         "Her yıl aralığı için nesil açıklaması girin (en fazla 200 karakter).",
       );
+    if (value.ongoing !== undefined && typeof value.ongoing !== "boolean")
+      throw Error("Günümüz seçimi geçersiz.");
+    const endYear =
+      value.ongoing === true ? currentModelYear() : value.end_year;
     if (
-      ![value.start_year, value.end_year].every(
+      ![value.start_year, endYear].every(
         (y) =>
           typeof y === "number" &&
           Number.isInteger(y) &&
           y >= 1900 &&
           y <= 2100,
       ) ||
-      value.start_year > value.end_year
+      value.start_year > endYear
     )
       throw Error(
         "Başlangıç ve bitiş yıllarını 1900–2100 arasında, küçükten büyüğe girin.",
@@ -77,10 +141,15 @@ export function applyModelGenerations(
       model_id: modelId,
       name: value.name.trim(),
       start_year: value.start_year,
-      end_year: value.end_year,
+      end_year: endYear,
+      ...(value.ongoing !== undefined ? { ongoing: value.ongoing } : {}),
     });
   }
   groups.sort((a, b) => a.start_year - b.start_year || a.end_year - b.end_year);
+  if (groups.some((g, index) => g.ongoing && index !== groups.length - 1))
+    throw Error(
+      "Günümüz seçimi yalnızca son nesilde kullanılabilir. Önce önceki neslin bitiş yılını belirtin.",
+    );
   const unchanged =
     groups.length === previous.length &&
     groups.every((g) =>
@@ -88,7 +157,8 @@ export function applyModelGenerations(
         (p) =>
           p.id === g.id &&
           p.start_year === g.start_year &&
-          p.end_year === g.end_year,
+          p.end_year === g.end_year &&
+          !!p.ongoing === !!g.ongoing,
       ),
     );
   const next = structuredClone(c);
@@ -111,7 +181,9 @@ export function applyModelGenerations(
   for (const g of groups) {
     const old = previous.find((p) => p.id === g.id);
     const sameBounds =
-      old?.start_year === g.start_year && old?.end_year === g.end_year;
+      old?.start_year === g.start_year &&
+      old?.end_year === g.end_year &&
+      !!old?.ongoing === !!g.ongoing;
     const years = sameBounds
       ? oldYears.filter((y) => y.generation_id === g.id).map((y) => y.year)
       : Array.from(

@@ -75,6 +75,16 @@ export function validateCatalog(value: unknown): Catalog {
     if (!has("brands", row.brand_id)) throw Error("Modelin markası geçersiz.");
   for (const row of result.generations)
     if (!has("models", row.model_id)) throw Error("Neslin modeli geçersiz.");
+  for (const g of result.generations.filter((row) => row.ongoing))
+    if (
+      result.generations.some(
+        (other) =>
+          other.id !== g.id &&
+          other.model_id === g.model_id &&
+          other.end_year >= g.start_year,
+      )
+    )
+      throw Error("Günümüz seçimi yalnızca son nesilde kullanılabilir.");
   for (const row of result.products)
     if (!has("categories", row.category_id))
       throw Error("Ürünün kategorisi geçersiz.");

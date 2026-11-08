@@ -14,6 +14,7 @@ export type Generation = Row & {
   name: string;
   start_year: number;
   end_year: number;
+  ongoing?: boolean;
 };
 export type ModelYear = Row & {
   model_id: string;

@@ -1,4 +1,5 @@
 "use client";
+import { generationRangeLabel } from "@/lib/model-generations";
 import type { Catalog } from "@/lib/types";
 import type { CompatibilityInput } from "@/lib/product-compatibility";
 
@@ -169,7 +170,7 @@ export function ProductCompatibilityEditor({
                       )
                     }
                   >
-                    {g.start_year}–{g.end_year} · {g.name}
+                    {generationRangeLabel(g)} · {g.name}
                   </option>
                 ))}
               </select>
