@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 const browser = await chromium.launch({
@@ -24,6 +25,7 @@ try {
     }),
   );
   const frame = () => page.frameLocator("#site-frame");
+  await dismissCookies(frame());
   await frame().locator(".hero h1").waitFor();
   const links = await frame().locator(".primary-nav>a").allTextContents();
   assert.deepEqual(links, [

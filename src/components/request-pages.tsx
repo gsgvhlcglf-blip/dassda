@@ -4,66 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Check, X } from "lucide-react";
 import type { Catalog, Lang } from "@/lib/types";
-import { useVisualCopy, useVisualImage } from "@/lib/visual";
+import { useVisualImage } from "@/lib/visual";
 import {
-  requestLink,
   publicRequestSchema,
   requestMaterialLabels,
   requestMethodLabels,
   type RequestKind,
 } from "@/lib/requests";
-type Context = Record<string, string | number | undefined>;
-export function RequestCards({
-  context = {},
-  empty = false,
-}: {
-  context?: Context;
-  empty?: boolean;
-}) {
-  const copy = useVisualCopy("tr");
-  return (
-    <section className="request-options" aria-label="Parça talep seçenekleri">
-      {empty && (
-        <div className="request-empty">
-          <span className="eyebrow">BİR SONRAKİ PARÇA, SENİNKİ OLABİLİR.</span>
-          <h2>Bu motosiklet için henüz satışta ürünümüz bulunmuyor.</h2>
-          <p>
-            Aradığın parçayı bize anlat. Ürün geliştirme talebi bırak veya
-            orijinal parçan için özel üretim değerlendirmesi iste.
-          </p>
-        </div>
-      )}
-      <div className="request-option-grid">
-        <article>
-          <span className="eyebrow">01 / ÜRÜN GELİŞTİRME</span>
-          <h3 data-visual-text="slot:requests.demand.title">
-            {copy("requests.demand.title", "Aradığın parça burada yok mu?")}
-          </h3>
-          <p>
-            Kataloğumuzda bulunmayan karbonfiber parçayı bildir. Yeni ürün
-            geliştirme planımızda değerlendirelim.
-          </p>
-          <Link className="text-link" href={requestLink("demand", context)}>
-            Ürün talebi oluştur <ArrowUpRight size={16} />
-          </Link>
-        </article>
-        <article className="request-custom-option">
-          <span className="eyebrow">02 / SANA ÖZEL ÜRETİM</span>
-          <h3 data-visual-text="slot:requests.custom.title">
-            {copy("requests.custom.title", "Orijinalinden, sana özel.")}
-          </h3>
-          <p>
-            Orijinal parçanı referans alarak karbonfiber üretimi için teknik
-            değerlendirme ve teklif iste.
-          </p>
-          <Link className="text-link" href={requestLink("custom", context)}>
-            Özel üretim talebi <ArrowUpRight size={16} />
-          </Link>
-        </article>
-      </div>
-    </section>
-  );
-}
 type Settings = { ready: boolean; demo?: boolean };
 function RequestImageChoice({
   name,

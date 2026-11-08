@@ -36,6 +36,11 @@ const regions: [string, string, string][] = [
   [".home-brands .brand-word", "home.brand.logo", "Ana sayfa · Marka logosu"],
   [".home-brands .brand-card", "home.brand", "Ana sayfa · Marka bağlantısı"],
   [".home-brands", "home.brands", "Ana sayfa · Marka seçimi"],
+  [
+    ".quote-request:not(.home-custom)",
+    "request.quote",
+    "Motosiklet · Teklif çağrısı",
+  ],
   [".home-custom h2", "home.custom.title", "Ana sayfa · Özel üretim başlığı"],
   [
     ".home-custom-action > p",
@@ -234,7 +239,7 @@ document.addEventListener(
     if (
       !inspect ||
       !(event.target instanceof Element) ||
-      event.target.closest("[data-kz-logo-guides]")
+      event.target.closest("[data-kz-logo-guides],[data-no-editor]")
     )
       return;
     if (activeInline?.contains(event.target)) return;

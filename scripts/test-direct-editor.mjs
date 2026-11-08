@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -38,6 +39,7 @@ try {
   );
   const frame = () => page.frameLocator("#site-frame");
   await frame().locator(".hero h1").waitFor();
+  await dismissCookies(frame());
   assert.equal(await page.locator("#site-inspect").isChecked(), true);
   await frame().locator(".hero h1").click();
   await page.getByLabel("Seçili metni düzenle").fill("Yeni başlık <örnek>");

@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium, expect } from "@playwright/test";
 import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
@@ -51,11 +52,12 @@ try {
     await page.locator("#site-inspect").uncheck();
   }
   await frame().locator(".request-options").waitFor();
+  await dismissCookies(frame());
   await frame()
     .getByRole("combobox", { name: "Koleksiyon", exact: true })
     .selectOption("body");
   await frame()
-    .getByRole("link", { name: /Ürün talebi oluştur/ })
+    .getByRole("link", { name: /Talep oluştur/ })
     .click();
   await expect(frame().getByLabel("Marka", { exact: true })).toHaveValue(
     "YAMAHA",
@@ -64,6 +66,12 @@ try {
     "MT-25",
   );
   await expect(frame().getByLabel("Yıl", { exact: true })).toHaveValue("2024");
+  // The new quote button carries the selected bike; legacy demand requests remain supported.
+  if (app) {
+    const demandURL = new URL(page.url());
+    demandURL.searchParams.set("type", "demand");
+    await page.goto(demandURL.href);
+  }
   assert.equal(await frame().locator(".request-form select").count(), 0);
   assert.equal(await frame().locator(".request-form textarea").count(), 1);
   assert.equal(await frame().getByRole("radio").count(), 4);
@@ -601,19 +609,12 @@ try {
     );
     await page.reload();
     await page.locator("#site-page").selectOption("fitment");
-    await frame()
-      .getByRole("heading", {
-        name: "Bu motosiklet için henüz satışta ürünümüz bulunmuyor.",
-        exact: true,
-      })
-      .waitFor();
-    assert.equal(
-      await frame().locator(".request-option-grid article").count(),
-      2,
-    );
+    await frame().locator(".quote-request-empty").waitFor();
+    assert.equal(await frame().locator(".quote-request .button").count(), 1);
+    assert.equal(await frame().locator(".catalog-tools").count(), 0);
     await page.locator("#site-inspect").uncheck();
     await frame()
-      .getByRole("link", { name: /Özel üretim talebi/ })
+      .getByRole("link", { name: /Talep oluştur/ })
       .click();
     await frame().locator(".custom-simple-page").waitFor();
     await frame()

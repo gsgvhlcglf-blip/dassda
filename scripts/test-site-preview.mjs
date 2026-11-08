@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 const browser = await chromium.launch({
@@ -25,6 +26,7 @@ try {
   );
   const frame = () => page.frameLocator("#site-frame");
   await frame().locator(".hero h1").waitFor({ timeout: 20000 });
+  await dismissCookies(frame());
   assert.match(
     await frame().locator(".hero h1").innerText(),
     /Detayda fark yarat/,

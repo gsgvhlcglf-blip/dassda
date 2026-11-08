@@ -7,6 +7,10 @@ import {
   createAnalyticsRecorder,
   privacyPreference,
 } from "../../src/lib/analytics-recorder";
+import {
+  readCookieChoice,
+  useCookieChoice,
+} from "../../src/lib/cookie-consent";
 import { analyticsPath } from "../../src/lib/analytics";
 export function PreviewAnalyticsRecorder({
   path,
@@ -15,6 +19,7 @@ export function PreviewAnalyticsRecorder({
   path: string;
   revision: string;
 }) {
+  const { choice } = useCookieChoice();
   const [enabled, setEnabled] = useState(() => readPreviewAnalytics().enabled),
     [recording, setRecording] = useState(false);
   useEffect(() => {
@@ -27,12 +32,14 @@ export function PreviewAnalyticsRecorder({
     };
   }, []);
   useEffect(() => {
-    if (!enabled) setRecording(false);
-  }, [enabled]);
+    if (!enabled || !choice?.analytics) setRecording(false);
+  }, [enabled, choice]);
   useEffect(() => {
-    if (!enabled || !recording) return;
-    return createAnalyticsRecorder(path, revision, appendPreviewAnalytics);
-  }, [enabled, recording, path, revision]);
+    if (!enabled || !recording || !choice?.analytics) return;
+    return createAnalyticsRecorder(path, revision, (event) => {
+      if (readCookieChoice()?.analytics) appendPreviewAnalytics(event);
+    });
+  }, [enabled, recording, path, revision, choice]);
   if (!enabled || !analyticsPath(path)) return null;
   return (
     <aside
@@ -45,11 +52,15 @@ export function PreviewAnalyticsRecorder({
           ? "Test kaydı açık · Tıklamalar ve kaydırma bu tarayıcıya kaydediliyor."
           : "Yalnızca bu tarayıcı için test kaydı. Gerçek ziyaretçi verisi değildir."}
       </p>
+      {!choice?.analytics && (
+        <span>Test kaydı için çerez tercihlerinden analize izin ver.</span>
+      )}
       {privacyPreference() ? (
         <span>Tarayıcı gizlilik tercihi nedeniyle kapalı.</span>
       ) : (
         <button
           className="under-link"
+          disabled={!choice?.analytics}
           onClick={() => setRecording((value) => !value)}
         >
           {recording ? "Test kaydını durdur" : "Test kaydını başlat"}

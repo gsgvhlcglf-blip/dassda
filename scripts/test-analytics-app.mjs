@@ -103,14 +103,14 @@ try {
   await page.getByRole("button", { name: "Kaydı aç", exact: true }).click();
   await visitor.goto(origin);
   await visitor
-    .getByRole("button", { name: "İzin ver", exact: true })
+    .getByRole("button", { name: "Kabul et", exact: true })
     .waitFor();
   const report = async () =>
     await (
       await admin.request.get(origin + "/api/admin/analytics?days=7")
     ).json();
   assert.equal((await report()).report.totals.pageviews, 0);
-  await visitor.getByRole("button", { name: "İzin ver", exact: true }).click();
+  await visitor.getByRole("button", { name: "Kabul et", exact: true }).click();
   await visitor.locator(".hero h1").click();
   await visitor.waitForTimeout(5400);
   const first = await report();
@@ -188,11 +188,9 @@ try {
   await secondTab.waitForTimeout(5200);
   assert.equal((await report()).report.totals.pageviews, 2);
   await visitor
-    .getByRole("button", { name: "İstatistik tercihleri", exact: true })
+    .getByRole("button", { name: "Çerez tercihleri", exact: true })
     .click();
-  await visitor
-    .getByRole("button", { name: "İzni geri çek", exact: true })
-    .click();
+  await visitor.getByRole("button", { name: "Reddet", exact: true }).click();
   await visitor.locator(".hero h1").click();
   await secondTab.locator(".hero h1").click();
   await visitor.waitForTimeout(5200);

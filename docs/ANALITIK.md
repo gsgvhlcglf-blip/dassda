@@ -4,7 +4,7 @@
 
 1. Önizlemede **Veri paneli → Analitik & Isı Haritası** bölümünü açın.
 2. **Test kaydını aç → Müşteri önizlemesini aç** düğmelerini kullanın.
-3. Açılan müşteri sekmesinde **Test kaydını başlat** düğmesine basın. Sayfalarda gezinin, tıklayın ve aşağı kaydırın.
+3. Açılan müşteri sekmesinde çerez bildiriminden **Kabul et** seçin (önceden reddettiyseniz alt bilgide **Çerez tercihleri** açın). Ardından **Test kaydını başlat** düğmesine basın. Sayfalarda gezinin, tıklayın ve aşağı kaydırın.
 4. Panele dönün. Sayılar otomatik yenilenir; **Yenile** düğmesi de kullanılabilir. Isı haritasında sayfayı ve kayıtlı ekran ölçüsünü seçin.
 
 Bu bölüm yalnızca aynı tarayıcı profili ve aynı adres kökenindeki kendi testlerinizi kaydeder. Gerçek müşteri istatistiği değildir. Editör ve ısı haritası kendi tıklamalarını kaydetmez. Veriler son 30 gün / en fazla 2.500 olay olarak tarayıcıda tutulur. Tarayıcı verileri silinirse bu kayıtlar kaybolur. **Veriyi indir** raporu JSON olarak dışa aktarır; taslak ürün yedeğinden ayrıdır. **Kayıtları sil** geri alınamaz.
@@ -14,7 +14,7 @@ Bu bölüm yalnızca aynı tarayıcı profili ve aynı adres kökenindeki kendi 
 - Supabase kullanılıyorsa önce mevcut 001 ve 002 göçlerinden sonra `supabase/migrations/003_analytics.sql` dosyasını SQL Editor veya migration aracıyla uygulayın. Yerel SQLite uygulaması tabloları kendisi oluşturur. İlave servis hesabı gerekmiyor.
 - Yönetici hesabıyla `/admin` üzerinden **Analitik & Isı Haritası** bölümünü açın. Editör rolü bu rapora ve ayarlara erişemez.
 - Başlangıçta kayıt kapalıdır. **Kaydı aç** ile etkinleştirin ve 7, 30 veya 90 günlük saklama süresi seçin.
-- Ziyaretçiye istatistik izni sunulur. Kayıt yalnızca izin sonrası başlar; reddetme ve **İstatistik tercihleri → İzni geri çek** desteklenir. Do Not Track / Global Privacy Control tercihleri kaydı engeller.
+- Ziyaretçiye istatistik izni sunulur. Kayıt yalnızca izin sonrası başlar; reddetme ve **Çerez tercihleri → Reddet** desteklenir. Do Not Track / Global Privacy Control tercihleri kaydı engeller.
 - Dağıtımda `NEXT_PUBLIC_ANALYTICS_REVISION` değerini tasarım sürümüne göre değiştirin (örn. `2026-11-v1`). Yalnızca harf, rakam, alt çizgi ve kısa çizgi; en fazla 64 karakter. Bu bir genel sürüm etiketidir, gizli anahtar değildir.
 
 Kaydedilenler: rastgele sekme oturum kimliği, yalnızca izin verilen genel sayfa yolu, sunucunun olay zamanı, olay türü, ekran/belge ölçüleri, sayfa üzerindeki yuvarlanmış tıklama konumu, en derin kaydırma oranı, harici yönlendiren sitenin alan adı ve tasarım sürümü. Oturum sayısı tekil insan sayısı değildir. Aynı sekmenin sayfaları birlikte değerlendirilir; yeni sekmeler ayrı oturum olabilir.

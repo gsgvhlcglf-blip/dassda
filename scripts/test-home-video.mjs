@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium, expect } from "@playwright/test";
 import { createServer } from "node:http";
 import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
@@ -72,6 +73,7 @@ try {
     buffer: Buffer.from(fixture, "base64"),
   };
   const view = () => (app ? page : page.frameLocator("#site-frame"));
+  await dismissCookies(view());
   await expect(view().locator(".home-photo-grid,.home-photo-slot")).toHaveCount(
     0,
   );

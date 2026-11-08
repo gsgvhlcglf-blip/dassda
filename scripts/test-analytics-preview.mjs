@@ -70,6 +70,7 @@ try {
     .click();
   const customer = await popup;
   customer.on("pageerror", (e) => errors.push(e.message));
+  await customer.getByRole("button", { name: "Kabul et", exact: true }).click();
   if (process.env.TEST_PROVIDER)
     assert(customer.url().includes("/test-release/docs/store.html"));
   await customer

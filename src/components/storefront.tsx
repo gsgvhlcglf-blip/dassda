@@ -1,5 +1,6 @@
 "use client";
-import { RequestCards, CustomCarbonPage } from "./request-pages";
+import { CustomCarbonPage } from "./request-pages";
+import { QuoteRequest } from "./quote-request";
 import { HeroVideo } from "./hero-video";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
@@ -730,33 +731,7 @@ export function Storefront({
               </h2>
               {brandCards(true)}
             </section>
-            <section
-              className="home-custom"
-              aria-labelledby="home-custom-title"
-            >
-              <div className="home-custom-card">
-                <div>
-                  <p className="eyebrow">{t("customCarbon")}</p>
-                  <h2
-                    id="home-custom-title"
-                    data-visual-text="slot:home.custom.title"
-                  >
-                    {copy("home.custom.title", t("homeCustomTitle"))}
-                  </h2>
-                </div>
-                <div className="home-custom-action">
-                  <p data-visual-text="slot:home.custom.intro">
-                    {copy("home.custom.intro", t("homeCustomIntro"))}
-                  </p>
-                  <Link className="button" href={href("/parcani-urettir")}>
-                    <span data-visual-text="slot:home.custom.action">
-                      {copy("home.custom.action", t("homeCustomAction"))}
-                    </span>
-                    <ArrowUpRight size={16} />
-                  </Link>
-                </div>
-              </div>
-            </section>
+            <QuoteRequest home lang={lang} />
           </>
         ) : s[0] === "motosikletler" ? (
           renderMotorcycles()
@@ -948,6 +923,8 @@ function ProductListing({
         ),
     [products, category, material, stock, search, lang, sort],
   );
+  if (!products.length && requestContext)
+    return <QuoteRequest lang={lang} context={requestContext} empty />;
   return (
     <>
       <div className="catalog-tools">
@@ -1034,7 +1011,8 @@ function ProductListing({
         </div>
       )}
       {requestContext && (
-        <RequestCards
+        <QuoteRequest
+          lang={lang}
           context={{ ...requestContext, category: category || undefined }}
           empty={!products.length}
         />
@@ -1266,7 +1244,8 @@ function ProductDetail({
           )}
         </div>
       </div>
-      <RequestCards
+      <QuoteRequest
+        lang={lang}
         context={{
           brand: requestContext.brand,
           model: requestContext.model,

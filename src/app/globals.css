@@ -396,13 +396,13 @@ label {
 .home-brands .brand-card:hover .brand-discover svg { transform: translate(2px, -2px); }
 .home-custom { max-width: 1680px; margin: 0 auto 96px; padding: 0 var(--space); }
 .home-custom-card { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 48px; padding: 56px; border: 1px solid #292929; background: #111; }
-.home-custom .eyebrow { color: #a5a5a5; margin-bottom: 20px; }
-.home-custom h2 { max-width: 480px; font-size: clamp(36px, 4vw, 58px); line-height: 1.06; letter-spacing: -0.045em; text-wrap: balance; }
+.quote-request .eyebrow { color: #a5a5a5; margin-bottom: 20px; }
+.quote-request h2 { max-width: 480px; font-size: clamp(36px, 4vw, 58px); line-height: 1.06; letter-spacing: -0.045em; text-wrap: balance; }
 .home-custom-action { justify-self: end; }
-.home-custom-action > p { font-size: clamp(19px, 2vw, 26px); color: #b8b8b8; line-height: 1.4; max-width: 300px; margin-bottom: 24px; }
-.home-custom .button { min-width: 220px; }
-.home-custom .button svg { transition: transform 0.25s; }
-.home-custom .button:hover svg { transform: translate(2px, -2px); }
+.home-custom-action > p { font-size: clamp(19px, 2vw, 26px); color: #b8b8b8; line-height: 1.4; max-width: 300px; margin-bottom: 24px; text-wrap: balance; }
+.quote-request .button { min-width: 220px; }
+.quote-request .button svg { transition: transform 0.25s; }
+.quote-request .button:hover svg { transform: translate(2px, -2px); }
 @media (max-width: 760px) {
   .home-brands { padding-top: 48px; padding-bottom: 32px; }
   .home-brands h2 { margin-bottom: 24px; }
@@ -410,10 +410,10 @@ label {
   .home-brands .brand-discover { font-size: 8px; }
   .home-custom { margin-bottom: 56px; }
   .home-custom-card { grid-template-columns: 1fr; padding: 32px 24px; gap: 28px; }
-  .home-custom .eyebrow { margin-bottom: 16px; }
+  .quote-request .eyebrow { margin-bottom: 16px; }
   .home-custom-action { justify-self: stretch; }
   .home-custom-action > p { max-width: none; font-size: 20px; margin-bottom: 20px; }
-  .home-custom .button { width: 100%; }
+  .quote-request .button { width: 100%; }
 }
 .hero-video-canvas { position: absolute; inset: 0; }
 .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -2832,3 +2832,28 @@ html[data-kuzmin-editing="true"] .blog-image-placeholder > svg { display: block;
 .payment-settings h2{font-size:30px;letter-spacing:-.04em;margin-bottom:18px;}
 .payment-settings p{color:#aaa;line-height:1.7;margin:18px 0;}
 .account-payment-status{display:block;font-size:10px;color:#aaa;margin-top:8px;font-weight:400;}
+
+.quote-request.request-options { border-top: 0; padding-top: 0; }
+.quote-request-empty { display: grid; align-content: center; min-height: 45vh; margin-top: 0; }
+.quote-request-empty .home-custom-card { max-width: 1000px; width: 100%; margin: auto; }
+.quote-empty-note { max-width: 430px; margin-top: 20px; font-size: 13px; color: #aaa; line-height: 1.7; }
+.cookie-preferences { margin-top: 22px; font-size: 10px; }
+.cookie-notice { position: fixed; z-index: 220; left: 24px; right: 24px; bottom: 24px; max-width: 860px; margin: auto; padding: 28px; background: #151515; border: 1px solid #555; box-shadow: 0 12px 64px #000b; max-height: calc(100dvh - 48px); overflow-y: auto; color: #eee; }
+.cookie-notice h2 { font-size: 23px; letter-spacing: -.035em; margin: 0 0 12px; }
+.cookie-notice p, .cookie-feedback { font-size: 12px; line-height: 1.7; color: #bbb; margin: 0 0 18px; }
+.cookie-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.cookie-actions .button { min-width: 130px; min-height: 44px; padding: 14px 20px; }
+.cookie-actions .under-link { font-size: 11px; padding: 10px 4px; }
+.cookie-categories { margin: 18px 0; border-top: 1px solid #333; }
+.cookie-categories label { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px 0; border-bottom: 1px solid #333; }
+.cookie-categories b { font-size: 12px; font-weight: 500; }
+.cookie-categories small { display: block; color: #aaa; font-size: 11px; line-height: 1.6; margin-top: 6px; max-width: 600px; }
+.cookie-categories input { width: 18px; height: 18px; flex-shrink: 0; accent-color: white; }
+.cookie-categories > p { margin-top: 16px; }
+.analytics-map-page .cookie-consent-controls { display: none; }
+@media (max-width: 760px) {
+ .cookie-notice { left: 12px; right: 12px; bottom: 12px; padding: 20px; max-height: calc(100dvh - 24px); }
+ .cookie-actions { gap: 10px; }
+ .cookie-actions > .button { flex: 1 1 40%; min-width: 0; }
+ .quote-request-empty { min-height: 40vh; }
+}
