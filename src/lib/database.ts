@@ -1,3 +1,4 @@
+import { editorialVersion, applyEditorialContent } from "./editorial-content";
 import "server-only";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
@@ -170,6 +171,73 @@ export function localDB() {
       db.prepare(
         "INSERT OR IGNORE INTO local_content_updates(id) VALUES (?)",
       ).run(legalContentVersion);
+      db.exec("COMMIT");
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+  }
+  if (
+    !db
+      .prepare("SELECT id FROM local_content_updates WHERE id=?")
+      .get(editorialVersion)
+  ) {
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      const tables = [
+        "brands",
+        "models",
+        "generations",
+        "model_years",
+        "products",
+        "variants",
+        "product_images",
+        "compatibility",
+        "categories",
+        "content",
+      ] as (keyof Catalog)[];
+      const current = Object.fromEntries(
+        tables.map((table) => [
+          table,
+          db
+            .prepare(`SELECT * FROM ${table}`)
+            .all()
+            .map((row) => decode(row)),
+        ]),
+      ) as Catalog;
+      const updated = applyEditorialContent(current);
+      for (const page of updated.content) {
+        const old = current.content.find((row) => row.id === page.id);
+        if (!old) insertLocal("content", page);
+        else if (JSON.stringify(old) !== JSON.stringify(page))
+          db.prepare("UPDATE content SET title=?,body=? WHERE id=?").run(
+            JSON.stringify(page.title),
+            JSON.stringify(page.body),
+            page.id,
+          );
+      }
+      if (
+        db
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='site_workspace'",
+          )
+          .get()
+      ) {
+        const workspace = db
+          .prepare("SELECT catalog FROM site_workspace WHERE id='site'")
+          .get() as { catalog: string } | undefined;
+        if (workspace)
+          db.prepare(
+            "UPDATE site_workspace SET catalog=?,revision=revision+1 WHERE id='site'",
+          ).run(
+            JSON.stringify(
+              applyEditorialContent(JSON.parse(workspace.catalog)),
+            ),
+          );
+      }
+      db.prepare("INSERT INTO local_content_updates(id) VALUES (?)").run(
+        editorialVersion,
+      );
       db.exec("COMMIT");
     } catch (error) {
       db.exec("ROLLBACK");

@@ -1,3 +1,4 @@
+import { bestsellersKey, bestsellersSchema } from "./bestsellers";
 import { z } from "zod";
 const id = z
   .string()
@@ -90,7 +91,21 @@ export const schemas = {
       year_to: year,
     })
     .refine((r) => r.year_from <= r.year_to, "Invalid year range"),
-  content: z.object({ id, key: slug, title: localized, body: localized }),
+  content: z
+    .object({ id, key: slug, title: localized, body: localized })
+    .superRefine((row, ctx) => {
+      if (row.key !== bestsellersKey) return;
+      try {
+        bestsellersSchema.parse(JSON.parse(row.body.tr));
+      } catch {
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "Vitrin için en fazla 10 farklı ürün, geçerli kadraj ve 3–20 saniye geçiş süresi seçin.",
+          path: ["body", "tr"],
+        });
+      }
+    }),
   orders: z.object({
     id,
     status: z.enum([

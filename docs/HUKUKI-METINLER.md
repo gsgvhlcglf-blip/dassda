@@ -36,7 +36,7 @@ Bu ortamda resmî mevzuat kaynaklarına erişim ağ politikası tarafından 403 
 
 Resmî kaynak alan adları için ağ erişim taslağı kaydedilmiştir. Taslak, ortam ayarlarında gözden geçirilip kaydedilerek ortam yayımlandığında uygulanabilir; kayıt tek başına erişimi açmaz. Bu, web sitesinin yayın akışından ayrı ortam yapılandırmasıdır.
 
-Gizlilik metni fiili sistemi anlatır: gerekli sepet/oturum/tercih depolaması, 180 günlük çerez tercih kaydı, izinle ve yönetici ayarıyla açılan site içi analiz, DNT/GPC, form içeriklerinin analitiğe alınmaması. Google Analytics veya reklam pikselinin kurulu olduğu söylenmez. Sonradan araç/sağlayıcı eklendiğinde politika ve izin akışı da güncellenmelidir.
+Gizlilik metni fiili sistemi anlatır: gerekli sepet/oturum/tercih depolaması, her yeni ziyarette tekrar gösterilen çerez bildirimi, senkronizasyon için son tercih kaydı, o ziyarete özgü izinle ve yönetici ayarıyla açılan site içi analiz, DNT/GPC, form içeriklerinin analitiğe alınmaması. Google Analytics veya reklam pikselinin kurulu olduğu söylenmez. Sonradan araç/sağlayıcı eklendiğinde politika ve izin akışı da güncellenmelidir.
 
 ## Veritabanı ve mevcut taslaklar
 

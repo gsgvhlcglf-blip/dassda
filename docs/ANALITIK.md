@@ -14,7 +14,7 @@ Bu bölüm yalnızca aynı tarayıcı profili ve aynı adres kökenindeki kendi 
 - Supabase kullanılıyorsa önce mevcut 001 ve 002 göçlerinden sonra `supabase/migrations/003_analytics.sql` dosyasını SQL Editor veya migration aracıyla uygulayın. Yerel SQLite uygulaması tabloları kendisi oluşturur. İlave servis hesabı gerekmiyor.
 - Yönetici hesabıyla `/admin` üzerinden **Analitik & Isı Haritası** bölümünü açın. Editör rolü bu rapora ve ayarlara erişemez.
 - Başlangıçta kayıt kapalıdır. **Kaydı aç** ile etkinleştirin ve 7, 30 veya 90 günlük saklama süresi seçin.
-- Ziyaretçiye istatistik izni sunulur. Kayıt yalnızca izin sonrası başlar; reddetme ve **Çerez tercihleri → Reddet** desteklenir. Do Not Track / Global Privacy Control tercihleri kaydı engeller.
+- Her yeni ziyaret ve yenilemede istatistik izni yeniden sorulur; önceki kabul otomatik izin değildir. Kayıt yalnızca izin sonrası başlar; reddetme ve **Çerez tercihleri → Reddet** desteklenir. Do Not Track / Global Privacy Control tercihleri kaydı engeller.
 - Dağıtımda `NEXT_PUBLIC_ANALYTICS_REVISION` değerini tasarım sürümüne göre değiştirin (örn. `2026-11-v1`). Yalnızca harf, rakam, alt çizgi ve kısa çizgi; en fazla 64 karakter. Bu bir genel sürüm etiketidir, gizli anahtar değildir.
 
 Kaydedilenler: rastgele sekme oturum kimliği, yalnızca izin verilen genel sayfa yolu, sunucunun olay zamanı, olay türü, ekran/belge ölçüleri, sayfa üzerindeki yuvarlanmış tıklama konumu, en derin kaydırma oranı, harici yönlendiren sitenin alan adı ve tasarım sürümü. Oturum sayısı tekil insan sayısı değildir. Aynı sekmenin sayfaları birlikte değerlendirilir; yeni sekmeler ayrı oturum olabilir.

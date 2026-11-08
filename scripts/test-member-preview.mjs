@@ -66,8 +66,7 @@ try {
     });
   assert.deepEqual(typography[0], typography[1]);
   const footer = await frame()
-    .locator(".footer-nav > div")
-    .last()
+    .locator(".footer-nav")
     .locator("a")
     .allTextContents();
   assert.deepEqual(footer, [
@@ -95,12 +94,14 @@ try {
     .locator(".primary-nav")
     .getByRole("link", { name: "Blog", exact: true })
     .click();
-  await frame().getByText("İlk yazılar yakında burada.").waitFor();
+  assert.equal(await frame().locator(".blog-card").count(), 3);
   await page.locator("#site-page").selectOption("tracking");
+  await dismissCookies(frame());
   await frame()
     .getByText(/Kargo firması henüz belirlenmedi/)
     .waitFor();
   await page.locator("#site-page").selectOption("checkout");
+  await dismissCookies(frame());
   await frame()
     .getByRole("heading", { name: "Devam etmek için üye girişi yapın." })
     .waitFor();
@@ -142,6 +143,7 @@ try {
     .getByRole("button", { name: "Sayfa önizlemeleri", exact: true })
     .click();
   await page.locator("#site-page").selectOption("blog");
+  await dismissCookies(frame());
   await frame()
     .locator(".blog-card")
     .filter({ hasText: "Deneme blog başlığı" })
@@ -165,6 +167,7 @@ try {
     .getByRole("button", { name: "Sayfa önizlemeleri", exact: true })
     .click();
   await page.locator("#site-page").selectOption("tracking");
+  await dismissCookies(frame());
   await frame()
     .getByLabel("Kargo takip numarası", { exact: true })
     .fill("TRACK-123");

@@ -251,6 +251,7 @@ try {
     .getByRole("button", { name: "Banner videosunu oynat", exact: true })
     .click();
   await page.reload();
+  await dismissCookies(view());
   await expect(view().locator(".hero-video")).toBeVisible();
   if (!app) {
     await page
@@ -310,6 +311,7 @@ try {
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
+  await dismissCookies(view());
   if (app) {
     await expect(view().locator(".hero-video")).toBeVisible();
     assert(

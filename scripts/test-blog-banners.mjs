@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium, expect } from "@playwright/test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -74,6 +75,17 @@ try {
     await page
       .getByRole("heading", { name: "Genel bakış", exact: true })
       .waitFor();
+    const original = await (
+      await context.request.get(origin + "/api/admin")
+    ).json();
+    for (const record of original.content.filter((row) =>
+      row.key.startsWith("blog-"),
+    )) {
+      const response = await context.request.post(origin + "/api/admin", {
+        data: { table: "content", action: "delete", record: { id: record.id } },
+      });
+      assert(response.ok(), await response.text());
+    }
     for (const record of posts) {
       const response = await context.request.post(origin + "/api/admin", {
         data: { table: "content", action: "insert", record },
@@ -96,21 +108,35 @@ try {
   } else {
     const html = readFileSync("docs/panel.html", "utf8"),
       catalog = JSON.parse(html.match(/const INITIAL = (\{[^\n]*\});/)[1]);
-    catalog.content.push(...posts);
+    catalog.content = catalog.content
+      .filter((row) => !row.key.startsWith("blog-"))
+      .concat(posts);
     await page.addInitScript(
-      ({ key, catalog, design }) => {
+      ({ key, catalog, design, applied }) => {
         if (!localStorage.getItem(key)) {
           localStorage.setItem(key, JSON.stringify(catalog));
           localStorage.setItem(key + ".design", JSON.stringify(design));
+          localStorage.setItem(
+            key + ".catalog-updates",
+            JSON.stringify(applied),
+          );
         }
       },
-      { key, catalog, design },
+      {
+        key,
+        catalog,
+        design,
+        applied: JSON.parse(
+          readFileSync("quick-panel/content-updates.json", "utf8"),
+        ).map((row) => row.id),
+      },
     );
     await page.goto(origin + "/docs/panel.html");
     await page.locator("#site-page").selectOption("blog");
     await page.locator("#site-inspect").uncheck();
   }
   const view = () => (app ? page : page.frameLocator("#site-frame"));
+  await dismissCookies(view());
   await expect(view().locator(".blog-card")).toHaveCount(10);
   assert.equal(await view().locator(".blog-card p").count(), 0);
   assert((await view().locator(".blog-card--wide").count()) >= 2);
@@ -157,6 +183,7 @@ try {
     assert.equal(saved.images["home.gallery.four"], image);
     assert.equal(saved.images["blog:banner-test-0"], image);
     await page.reload();
+    await dismissCookies(view());
     await expect(view().locator(".blog-card")).toHaveCount(10);
     const src = await view()
       .locator('.blog-card [data-visual-image="blog:banner-test-1"] img')

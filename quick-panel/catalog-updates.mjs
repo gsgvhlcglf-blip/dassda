@@ -27,7 +27,7 @@ function mergeFields(record, changes) {
  * Apply requested public catalog edits once without resetting other drafts.
  * @template T
  * @param {T} catalog
- * @param {{id:string,table:string,recordId:string,changes:Record<string,unknown>,createIfMissing?:boolean}[]} updates
+ * @param {{id:string,table:string,recordId:string,changes:Record<string,unknown>,createIfMissing?:boolean,replacements?:{field:string,lang:string,from:string,to:string}[]}[]} updates
  * @param {string[]} [previousIds]
  */
 export function applyCatalogUpdates(catalog, updates, previousIds = []) {
@@ -51,6 +51,23 @@ export function applyCatalogUpdates(catalog, updates, previousIds = []) {
       );
     const row = next[update.table]?.find((r) => r.id === update.recordId);
     if (row) {
+      for (const replacement of update.replacements || []) {
+        if (
+          update.table !== "content" ||
+          !["title", "body"].includes(replacement.field) ||
+          !["tr", "en", "ru"].includes(replacement.lang) ||
+          typeof replacement.from !== "string" ||
+          !replacement.from ||
+          typeof replacement.to !== "string"
+        )
+          throw new Error("Invalid content replacement");
+        const field = row[replacement.field];
+        if (field && typeof field[replacement.lang] === "string")
+          field[replacement.lang] = field[replacement.lang].replaceAll(
+            replacement.from,
+            replacement.to,
+          );
+      }
       mergeFields(row, update.changes);
       changed = true;
     } else if (update.createIfMissing) {

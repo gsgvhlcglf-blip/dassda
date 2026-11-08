@@ -185,6 +185,13 @@ try {
   const secondTab = await visitorContext.newPage();
   await secondTab.goto(origin);
   await secondTab.locator(".hero h1").waitFor();
+  await secondTab
+    .getByRole("button", { name: "Kabul et", exact: true })
+    .waitFor();
+  assert.equal((await report()).report.totals.pageviews, 1);
+  await secondTab
+    .getByRole("button", { name: "Kabul et", exact: true })
+    .click();
   await secondTab.waitForTimeout(5200);
   assert.equal((await report()).report.totals.pageviews, 2);
   await visitor

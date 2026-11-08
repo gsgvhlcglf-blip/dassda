@@ -1,3 +1,4 @@
+import { blogDescription, defaultBlogImage } from "@/lib/blog-media";
 import { publishedDesign } from "@/lib/site-version-store";
 import { VisualStorefront } from "@/components/visual-storefront";
 import { resolveStoreLanguage, supportedLanguages } from "@/lib/settings";
@@ -36,6 +37,29 @@ export async function generateMetadata({ params, searchParams }: Props) {
         }
       : undefined,
   };
+  if (slug[0] === "blog" && slug[1]) {
+    const c = await getCatalog(),
+      post = c.content.find((row) => row.key === "blog-" + slug[1]);
+    if (post) {
+      const title = post.title[lang] || post.title.tr,
+        description = blogDescription(post.body[lang] || post.body.tr),
+        cover = defaultBlogImage(post.key);
+      return {
+        ...common,
+        title,
+        description,
+        openGraph: {
+          title,
+          description,
+          type: "article",
+          ...(base && cover
+            ? { images: [{ url: base + cover, alt: title }] }
+            : {}),
+        },
+        twitter: { card: "summary_large_image", title, description },
+      };
+    }
+  }
   if (slug[0] === "urunler" && slug[1]) {
     const c = await getCatalog(),
       p = c.products.find((p) => p.slug === slug[1]);

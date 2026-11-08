@@ -10,3 +10,7 @@
 ## Curated homepage concepts
 
 `home-editorial-bike.webp`, `home-editorial-weave.webp`, `home-editorial-detail.webp` and `home-editorial-rear.webp` are original AI-generated concept images for the former four-image homepage arrangement, which is no longer displayed. They do not depict verified commercial inventory or supplied customer motorcycles. Optimized WebP copies preserve the generated compositions. Originals remain in the cloud workspace's `generated_images` folder. The files and any owner replacements are retained for existing backups; the current homepage uses brand logos and a custom-request link instead.
+
+## Blog article media
+
+The new educational articles reuse the project's original `home-editorial-weave.webp` and `home-editorial-detail.webp` concept images as covers. Original `process-infusion.svg`, `process-lamination.svg`, `carbon-twill.svg` and `carbon-forged.svg` supply explanatory illustrations. These are conceptual/diagrammatic media, not verified inventory photographs or evidence of a manufacturing certification. Covers and article illustrations have stable editable blog bindings.

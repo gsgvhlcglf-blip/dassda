@@ -9,7 +9,8 @@ export type CookieChoice = {
   savedAt: number;
   expiresAt: number;
 };
-let volatileChoice: CookieChoice | undefined;
+let visitChoice: CookieChoice | null = null;
+let visitInitialized = false;
 export function parseCookieChoice(
   value: unknown,
   now = Date.now(),
@@ -27,14 +28,14 @@ export function parseCookieChoice(
     : null;
 }
 export function readCookieChoice(): CookieChoice | null {
-  if (volatileChoice) return parseCookieChoice(volatileChoice);
+  return parseCookieChoice(visitChoice);
+}
+export function resetCookieVisit() {
+  visitChoice = null;
   try {
-    return parseCookieChoice(
-      JSON.parse(localStorage.getItem(cookieConsentKey) || "null"),
-    );
-  } catch {
-    return null;
-  }
+    sessionStorage.removeItem("kz.analytics.tab");
+  } catch {}
+  window.dispatchEvent(new Event(cookieConsentEvent));
 }
 export function saveCookieChoice(analytics: boolean) {
   const savedAt = Date.now();
@@ -49,7 +50,7 @@ export function saveCookieChoice(analytics: boolean) {
     localStorage.setItem(cookieConsentKey, JSON.stringify(choice));
     persisted = true;
   } catch {}
-  volatileChoice = persisted ? undefined : choice;
+  visitChoice = choice;
   try {
     localStorage.setItem("kz.analytics.consent", analytics ? "yes" : "no");
   } catch {}
@@ -64,6 +65,17 @@ export function useCookieChoice() {
   const [choice, setChoice] = useState<CookieChoice | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
+    if (!visitInitialized) {
+      visitInitialized = true;
+      try {
+        sessionStorage.removeItem("kz.analytics.tab");
+        const previous = JSON.parse(
+          localStorage.getItem(cookieConsentKey) || "null",
+        );
+        if (previous && !parseCookieChoice(previous))
+          localStorage.removeItem(cookieConsentKey);
+      } catch {}
+    }
     const update = () => {
       const next = readCookieChoice();
       setChoice((previous) =>
@@ -76,16 +88,28 @@ export function useCookieChoice() {
       setReady(true);
     };
     const storage = (event: StorageEvent) => {
-      if (event.key === cookieConsentKey || event.key === null) update();
+      if (event.key !== cookieConsentKey && event.key !== null) return;
+      let next: CookieChoice | null = null;
+      try {
+        next = parseCookieChoice(JSON.parse(event.newValue || "null"));
+      } catch {}
+      // A choice in another tab never authorizes this visit. Withdrawal still stops it.
+      if (visitChoice && !next?.analytics) visitChoice = next;
+      update();
+    };
+    const shown = (event: PageTransitionEvent) => {
+      if (event.persisted) resetCookieVisit();
     };
     update();
     window.addEventListener(cookieConsentEvent, update);
     window.addEventListener("storage", storage);
     window.addEventListener("focus", update);
+    window.addEventListener("pageshow", shown);
     return () => {
       window.removeEventListener(cookieConsentEvent, update);
       window.removeEventListener("storage", storage);
       window.removeEventListener("focus", update);
+      window.removeEventListener("pageshow", shown);
     };
   }, []);
   return { choice, ready };

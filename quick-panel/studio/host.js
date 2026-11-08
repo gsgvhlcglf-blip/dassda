@@ -173,6 +173,8 @@ function photoFrameKey(binding) {
   return null;
 }
 function photoFrameHTML(binding) {
+  if (binding?.key?.startsWith("bestseller:"))
+    return bestsellerFrameHTML(binding);
   const key = photoFrameKey(binding);
   if (!key) return "";
   const frame = siteDesign.photoFrames?.[key] || {
@@ -302,4 +304,85 @@ window.addEventListener("message", (event) => {
       { type: "kz-site-config", catalog: state, design: siteDesign },
       "*",
     );
+});
+
+let siteBestsellerGuides = true;
+function sendBestsellerGuides() {
+  $("#site-frame")?.contentWindow.postMessage(
+    { type: "kz-bestseller-guides", enabled: siteBestsellerGuides },
+    "*",
+  );
+}
+function bestsellerFrameHTML(binding) {
+  const id = binding.key.slice(11),
+    config = KZ_MODELS.readBestsellers(state),
+    frame = config.frames[id] || { scale: 100, x: 50, y: 50, role: "overview" };
+  sendBestsellerGuides();
+  return `<div class="site-logo-scale"><p class="eyebrow">VİTRİN GÖRSELİ</p><label>Ölçek · %<output id="bestseller-scale-value">${frame.scale}</output><input id="bestseller-frame-scale" aria-label="Vitrin görsel ölçeği" type="range" min="50" max="200" value="${frame.scale}"></label><label>Yatay konum<input id="bestseller-frame-x" aria-label="Vitrin yatay konumu" type="range" min="0" max="100" value="${frame.x}"></label><label>Dikey konum<input id="bestseller-frame-y" aria-label="Vitrin dikey konumu" type="range" min="0" max="100" value="${frame.y}"></label><label><input id="bestseller-guides" type="checkbox" ${siteBestsellerGuides ? "checked" : ""}>Hizalama kılavuzu</label><button type="button" class="button secondary" data-action="bestseller-center-all">Hepsini ortala</button><p>Seçili ölçeği tüm vitrin görsellerine uygular ve ortalar. Ürün detayındaki fotoğraf kadrajı değişmez.</p></div>`;
+}
+function saveBestsellerConfig(config) {
+  const next = KZ_MODELS.withBestsellers(state, config);
+  validate(next);
+  localStorage.setItem(KEY, JSON.stringify(next));
+  state = next;
+  sendSiteConfig();
+}
+document.addEventListener("input", (event) => {
+  const field = event.target.id?.replace("bestseller-frame-", "");
+  if (
+    !["scale", "x", "y"].includes(field) ||
+    !event.target.id.startsWith("bestseller-frame-")
+  )
+    return;
+  const binding = siteSelection?.binding;
+  if (!binding?.key?.startsWith("bestseller:")) return;
+  try {
+    const id = binding.key.slice(11),
+      config = KZ_MODELS.readBestsellers(state),
+      frame = config.frames[id] || {
+        scale: 100,
+        x: 50,
+        y: 50,
+        role: "overview",
+      };
+    saveBestsellerConfig({
+      ...config,
+      frames: {
+        ...config.frames,
+        [id]: { ...frame, [field]: Number(event.target.value) },
+      },
+    });
+    if (field === "scale")
+      $("#bestseller-scale-value").textContent = event.target.value;
+    $("#site-direct-status").textContent = "✓ Vitrin kadrajı kaydedildi";
+  } catch (error) {
+    $("#site-direct-status").textContent = error.message;
+  }
+});
+document.addEventListener("change", (event) => {
+  if (event.target.id === "bestseller-guides") {
+    siteBestsellerGuides = event.target.checked;
+    sendBestsellerGuides();
+  }
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest('[data-action="bestseller-center-all"]')) return;
+  try {
+    const id = siteSelection.binding.key.slice(11),
+      config = KZ_MODELS.readBestsellers(state),
+      scale = config.frames[id]?.scale || 100;
+    saveBestsellerConfig({
+      ...config,
+      frames: Object.fromEntries(
+        config.productIds.map((id) => [
+          id,
+          { scale, x: 50, y: 50, role: "overview" },
+        ]),
+      ),
+    });
+    paintSiteInspector();
+    toast("Vitrin görselleri ortalandı.");
+  } catch (error) {
+    toast(error.message);
+  }
 });

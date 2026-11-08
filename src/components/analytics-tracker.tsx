@@ -11,6 +11,7 @@ import {
   cookieConsentKey,
   readCookieChoice,
   useCookieChoice,
+  parseCookieChoice,
 } from "@/lib/cookie-consent";
 export function AnalyticsTracker({
   path,
@@ -31,7 +32,12 @@ export function AnalyticsTracker({
       queue.current = [];
     };
     const syncConsent = (event: StorageEvent) => {
-      if (event.key === cookieConsentKey || event.key === null) discard();
+      if (event.key !== cookieConsentKey && event.key !== null) return;
+      let next = null;
+      try {
+        next = parseCookieChoice(JSON.parse(event.newValue || "null"));
+      } catch {}
+      if (!next?.analytics) discard();
     };
     window.addEventListener("storage", syncConsent);
     window.addEventListener(cookieConsentEvent, discard);

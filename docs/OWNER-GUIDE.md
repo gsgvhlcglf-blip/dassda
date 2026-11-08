@@ -73,8 +73,18 @@ Marka → model → yıl seçildikten sonra **Ürününü bulamadın mı?** alan
 
 ## Çerez tercihleri
 
-İlk ziyarette gerekli depolamayı ve isteğe bağlı istatistik/ısı haritası kaydını açıklayan bildirim açılır. **Kabul et**, **Reddet** veya **Tercihleri yönet** kullanılabilir. Gerekli depolama sepet ve oturum için açıktır; analiz varsayılan olarak kapalıdır. Tercih bu tarayıcıda 180 gün tutulur; ardından yeniden sorulur. Alt bilgideki **Çerez tercihleri** üzerinden izin geri çekilebilir. Değişiklik aynı siteye açık diğer sekmelere de uygulanır. Analiz ayrıca yönetici ayarından açık olmalıdır; DNT/GPC kayıt yapılmasını engeller. Önizleme test kaydı hem bu izin hem ayrıca **Test kaydını başlat** seçimini gerektirir. Form içerikleri analitik ve ısı haritasına alınmaz. Reklam çerezi veya pazarlama entegrasyonu eklenmemiştir.
+Siteye her yeni girişte ve sayfa yenilendiğinde gerekli depolamayı ve isteğe bağlı istatistik/ısı haritasını açıklayan bildirim açılır. Önceki kabul yeni ziyaret için otomatik izin sayılmaz. **Kabul et**, **Reddet** veya **Tercihleri yönet** kullanılabilir. Analiz, o ziyaret için seçim yapılana kadar kapalıdır. Site içi sayfa geçişleri aynı ziyareti sürdürür. İzin geri çekme diğer açık sekmelerde de kaydı durdurur; başka sekmedeki kabul bu sekmeye kendiliğinden izin vermez. Son tercih kaydı senkronizasyon için en fazla 180 gün tutulabilir. Alt bilgideki **Çerez tercihleri** üzerinden izin değiştirilebilir. Analiz ayrıca yönetici ayarından açık olmalıdır; DNT/GPC kayıt yapılmasını engeller. Önizleme test kaydı hem bu izin hem ayrıca **Test kaydını başlat** seçimini gerektirir.
 
 ## Alt bilgi ve hukuki sayfalar
 
 Alt bilgideki beş sözleşme/politika sayfasını **Sayfa önizlemeleri** veya **Sayfa içerikleri** bölümünden düzenleyin. `(Buraya … girin)` alanları firma bilgilerinize göre tamamlanır. Müşteri ve sipariş bilgileri kamuya açık metne yazılmaz; siparişe özel belgeye aittir. Alan listesi, hukuki kontrol sınırı ve kurulum ayrıntıları için [Hukuki metinler](HUKUKI-METINLER.md) belgesini kullanın.
+
+## En çok satanlar vitrini
+
+**Veri paneli → En çok satanlar** bölümünde en fazla 10 farklı ürün seçin. Seçili ürünleri yukarı/aşağı taşıyarak sıralayın, geçiş süresini 3–20 saniye arasında seçin ve **Vitrini kaydet** kullanın. 0 seçim alanı gizler; masaüstünde üç kart yan yana görünür. Dört veya daha fazla yayındaki üründe karusel otomatik ilerler. Fare üzerindeyken, klavye odağı içerideyken ve düzenleme modunda otomatik geçiş durur. Hareket azaltma tercihi ve sekmenin görünürlüğü de dikkate alınır. Mobilde kaydırılabilir. Bu alan sahibin seçtiği vitrindir; satış raporuna göre otomatik sıralama yapılmaz. Örnek ürünler DEMO etiketini taşır.
+
+Düzenleme modunda vitrin fotoğrafına tıklayın: **Ölçek (%50–%200)**, yatay/dikey konum, açılıp kapanan **Hizalama kılavuzu** ve **Hepsini ortala** bulunur. Bu kadrajlar ürün detayındaki fotoğrafı değiştirmez. Vitrin görseli ayrıca değiştirilebilir. Yerel sunucudaki yönetim panelinde aynı seçim/kadraj ayarları vardır; normal yayın akışını kullanın.
+
+Üç yeni blog yazısı, **Sayfa içerikleri** bölümünde başlığı/içeriğiyle düzenlenebilir. Blog listesi veya yazıdaki görsele tıklayarak görsel değiştirilebilir. Başlık ve meta açıklama, anlamsal ara başlıklar, ilgili yazı bağlantıları ve örnek/şematik görseller hazırlanmıştır. Diğer diller açılmadan önce makale çevirilerini tamamlayın.
+
+Alt bilgi bağlantıları yatay destek ve hukuk satırları halinde düzenlenmiştir. Sağda gerçek ödeme logoları için ayrılmış alan vardır; logolar paylaşılmadan ödeme işareti gösterilmez.

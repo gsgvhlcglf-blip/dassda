@@ -1,4 +1,6 @@
 "use client";
+import { BestsellersSettings } from "./bestsellers-settings";
+import { bestsellerRecord, bestsellersKey } from "@/lib/bestsellers";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { paymentStatusLabel } from "@/lib/payments/types";
@@ -162,6 +164,7 @@ const sections = [
   ["analytics", "Analitik & Isı Haritası", BarChart3],
   ["requests", "Talepler & CRM", FileText],
   ["releases", "Yayın & sürümler", Layers],
+  ["bestsellers", "En çok satanlar", Images],
   ["photography", "Fotoğraf düzeni", Images],
   ["payments", "Ödeme altyapısı", CreditCard],
   ["models", "Motosiklet modelleri", Bike],
@@ -484,6 +487,7 @@ export function Admin({
             "analytics",
             "releases",
             "photography",
+            "bestsellers",
             "payments",
             "requests",
           ].includes(section) && (
@@ -534,6 +538,32 @@ export function Admin({
           <div className="empty-state" aria-busy="true">
             Yükleniyor…
           </div>
+        ) : section === "bestsellers" ? (
+          <BestsellersSettings
+            key={String(data._workspace?.[0]?.revision || "initial")}
+            catalog={data as unknown as Catalog}
+            onSave={async (config) => {
+              const existing = data.content?.find(
+                (row) => row.key === bestsellersKey,
+              ) as import("@/lib/types").Content | undefined;
+              const response = await fetch("/api/admin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  table: "content",
+                  action: existing ? "update" : "insert",
+                  record: bestsellerRecord(config, existing),
+                  expectedRevision: data._workspace?.[0]?.revision,
+                }),
+              });
+              const body = await response.json();
+              if (!response.ok) throw Error(body.error || "Kaydedilemedi.");
+              await load();
+              setMessage(
+                "Vitrin kaydedildi. Yayın & sürümler bölümünden yayımlayabilirsiniz.",
+              );
+            }}
+          />
         ) : ["releases", "photography"].includes(section) ? (
           <SiteStudio
             mode={section as "releases" | "photography"}

@@ -68,6 +68,7 @@ try {
     await page.waitForFunction(
       () => document.getElementById("site-loading")?.textContent === "Hazır",
     );
+    await dismissCookies(frame());
   }
   await page.evaluate(() =>
     sessionStorage.setItem("kz-preview-member", "true"),
@@ -166,6 +167,7 @@ try {
   await frame().locator(".hero h1").waitFor();
   assert.equal(await frame().locator(".hero h1").innerText(), draftTitle);
   await page.reload();
+  await dismissCookies(frame());
   await frame().locator(".hero h1").waitFor();
   assert.equal(await frame().locator(".hero h1").innerText(), draftTitle);
   assert.equal(await page.locator("#site-inspect").isChecked(), true);

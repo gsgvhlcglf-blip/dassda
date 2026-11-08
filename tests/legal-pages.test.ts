@@ -47,6 +47,12 @@ test("legal pages are editable public content and PostgreSQL migration preserves
     await db.exec(
       readFileSync("supabase/migrations/011_legal_pages.sql", "utf8"),
     );
+    await db.exec(
+      "CREATE TABLE public.products(id text primary key,published boolean not null)",
+    );
+    await db.exec(
+      readFileSync("supabase/migrations/012_home_editorial.sql", "utf8"),
+    );
     const privacy = (
       await db.query<{ body: { tr: string; en: string } }>(
         "SELECT body FROM public.content WHERE key='privacy'",
@@ -64,17 +70,17 @@ test("legal pages are editable public content and PostgreSQL migration preserves
         design: unknown;
       }>("SELECT * FROM public.site_workspace")
     ).rows[0];
-    assert.equal(workspace.catalog.content.length, 5);
+    assert.equal(workspace.catalog.content.length, 9);
     assert.equal(
       workspace.catalog.content.find((row) => row.key === "privacy")?.body.en,
       "Keep draft English",
     );
     assert.equal(workspace.catalog.products[0].price, 9876);
-    assert.equal(Number(workspace.revision), 6);
+    assert.equal(Number(workspace.revision), 7);
 
     assert.equal(
       (await db.query("SELECT * FROM public.content")).rows.length,
-      6,
+      10,
     );
     assert.equal(
       (

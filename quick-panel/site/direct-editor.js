@@ -21,7 +21,7 @@ function directBinding(binding) {
     return binding;
   if (
     binding.type === "image" &&
-    /^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+|blog:[a-zA-Z0-9_-]+|model:[a-z0-9_-]+|product:[a-z0-9_-]+|image:[a-z0-9_-]+)$/.test(
+    /^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+|bestseller:[a-zA-Z0-9_-]+|blog:[a-zA-Z0-9_-]+|model:[a-z0-9_-]+|product:[a-z0-9_-]+|image:[a-z0-9_-]+)$/.test(
       binding.key,
     )
   )
@@ -56,8 +56,25 @@ function directValue(binding) {
     return siteDesign.texts[binding.lang]?.[binding.key] ?? siteSelection.text;
   if (binding.type === "image") {
     const [kind, id] = binding.key.split(":");
-    if (kind === "brand" || kind === "blog")
-      return siteDesign.images[binding.key] || "";
+    if (kind === "bestseller")
+      return (
+        siteDesign.images[binding.key] ||
+        state.product_images
+          .filter((image) => image.product_id === id)
+          .sort((a, b) => a.position - b.position)[0]?.url ||
+        ""
+      );
+    if (kind === "brand") return siteDesign.images[binding.key] || "";
+    if (kind === "blog") {
+      const match = id.match(/-figure-([ab])$/),
+        post = state.content.find(
+          (post) => post.id === (match ? id.replace(/-figure-[ab]$/, "") : id),
+        );
+      const path =
+        post &&
+        KZ_MODELS.defaultBlogImage(post.key, match ? match[1] : "cover");
+      return siteDesign.images[binding.key] || PREVIEW.assets[path] || "";
+    }
     if (kind === "model")
       return state.models.find((model) => model.id === id)?.image || "";
     if (kind === "image")
@@ -291,7 +308,8 @@ function saveDirect(binding, value, inline = false) {
       (b.type === "image" &&
         (!b.key.includes(":") ||
           b.key.startsWith("brand:") ||
-          b.key.startsWith("blog:")))
+          b.key.startsWith("blog:") ||
+          b.key.startsWith("bestseller:")))
     )
       localStorage.setItem(KEY + ".design", JSON.stringify(design));
     else localStorage.setItem(KEY, JSON.stringify(next));

@@ -1,5 +1,6 @@
 "use client";
 import { CustomCarbonPage } from "./request-pages";
+import { HomeBestsellers } from "./home-bestsellers";
 import { QuoteRequest } from "./quote-request";
 import { HeroVideo } from "./hero-video";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
@@ -621,11 +622,23 @@ export function Storefront({
     ].includes(key[s[0]]);
     return (
       <section
-        className={`page-section prose-page${legal ? " legal-page" : ""}`}
+        className={`page-section prose-page${legal ? " legal-page" : ""}${key[s[0]] === "about" ? " about-page" : ""}`}
       >
         <p className="eyebrow">
           KUZMIN / {legal ? "BİLGİLENDİRME" : key[s[0]]}
         </p>
+        {key[s[0]] === "about" && (
+          <div className="about-brand">
+            <div className="wordmark">
+              <b data-visual-text="slot:header.brand">
+                {copy("header.brand", "KUZMIN")}
+              </b>
+              <span data-visual-text="slot:header.tagline">
+                {copy("header.tagline", "CARBON MOTORCYCLE PARTS")}
+              </span>
+            </div>
+          </div>
+        )}
         <h1 data-edit-text={row && `content:${row.id}:title`}>
           {row?.title[lang] || t("notProvided")}
         </h1>
@@ -651,8 +664,13 @@ export function Storefront({
               ),
             )}
         </div>
-        <Link className="text-link" href={href("/motosikletler")}>
-          {t("explore")}
+        <Link
+          className="text-link"
+          href={href(
+            key[s[0]] === "about" ? "/parcani-urettir" : "/motosikletler",
+          )}
+        >
+          {key[s[0]] === "about" ? t("customCarbon") : t("explore")}
           <ArrowUpRight size={16} />
         </Link>
       </section>
@@ -759,6 +777,7 @@ export function Storefront({
               </h2>
               {brandCards(true)}
             </section>
+            <HomeBestsellers catalog={c} lang={lang} />
             <QuoteRequest home lang={lang} />
           </>
         ) : s[0] === "motosikletler" ? (
@@ -851,24 +870,33 @@ export function Storefront({
             KUZMIN<span>CARBON MOTORCYCLE PARTS</span>
           </Link>
         </div>
-        <div className="footer-nav">
-          <div>
-            {(
-              [
+        <div className="footer-main">
+          <nav className="footer-nav" aria-label="Alt bilgi bağlantıları">
+            <div className="footer-support">
+              {[
                 ["/sss", "faq"],
                 ["/kargo-takip", "tracking"],
+              ].map(([url, k]) => (
+                <Link key={url} href={href(url)}>
+                  {t(k as MessageKey)}
+                </Link>
+              ))}
+            </div>
+            <div className="footer-legal">
+              {[
                 ["/gizlilik", "privacyPolicy"],
                 ["/mesafeli-satis-sozlesmesi", "distanceSales"],
                 ["/on-bilgilendirme-formu", "preInformation"],
                 ["/iptal-iade-kosullari", "cancellationReturns"],
                 ["/kosullar", "userAgreement"],
-              ] as [string, MessageKey][]
-            ).map(([url, k]) => (
-              <Link key={url} href={href(url)}>
-                {t(k)}
-              </Link>
-            ))}
-          </div>
+              ].map(([url, k]) => (
+                <Link key={url} href={href(url)}>
+                  {t(k as MessageKey)}
+                </Link>
+              ))}
+            </div>
+          </nav>
+          <div className="footer-payments" aria-hidden="true" />
         </div>
         <div className="footer-bottom">
           <p>

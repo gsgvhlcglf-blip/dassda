@@ -1,4 +1,5 @@
 "use client";
+import { defaultBlogImage, blogFigureCaptions } from "@/lib/blog-media";
 import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -374,9 +375,16 @@ export function TrackingPage({ c, lang }: { c: Catalog; lang: Lang }) {
     </section>
   );
 }
-function BlogArtwork({ post }: { post: Content }) {
-  const key = blogImageKey(post.id);
-  const image = useVisualImage(key, undefined);
+function BlogArtwork({
+  post,
+  variant = "cover",
+}: {
+  post: Content;
+  variant?: "cover" | "a" | "b";
+}) {
+  const key =
+    blogImageKey(post.id) + (variant === "cover" ? "" : "-figure-" + variant);
+  const image = useVisualImage(key, defaultBlogImage(post.key, variant));
   return (
     <div className="blog-banner-media" data-visual-image={key}>
       {image ? (
@@ -432,10 +440,50 @@ export function BlogPage({
           className="content-body"
           data-edit-text={"content:" + post.id + ":body"}
         >
-          {(post.body[lang] || post.body.tr).split("\n").map((text, i) => (
-            <p key={i}>{text}</p>
-          ))}
+          {(post.body[lang] || post.body.tr)
+            .split("\n")
+            .filter((text) => text.trim())
+            .map((text, i) => (
+              <div key={i}>
+                {text.startsWith("### ") ? (
+                  <h3>{text.slice(4)}</h3>
+                ) : text.startsWith("## ") ? (
+                  <h2>{text.slice(3)}</h2>
+                ) : (
+                  <p>{text}</p>
+                )}
+                {i === 0 && blogFigureCaptions(post.key).length > 0 && (
+                  <div className="blog-figures">
+                    {blogFigureCaptions(post.key).map((caption, n) => (
+                      <figure key={caption}>
+                        <BlogArtwork
+                          post={post}
+                          variant={n === 0 ? "a" : "b"}
+                        />
+                        <figcaption>{caption}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
         </div>
+        <aside className="blog-related">
+          <h2>Keşfetmeye devam et.</h2>
+          {posts
+            .filter((row) => row.id !== post.id)
+            .slice(0, 3)
+            .map((row) => (
+              <Link key={row.id} href={href("/blog/" + row.key.slice(5))}>
+                {row.title[lang] || row.title.tr}
+                <ArrowUpRight size={15} />
+              </Link>
+            ))}
+          <Link className="button" href={href("/parcani-urettir")}>
+            Kendi parçan için talep oluştur
+            <ArrowUpRight size={15} />
+          </Link>
+        </aside>
       </section>
     );
   }

@@ -97,9 +97,11 @@ export function CookieNotice() {
                 />
               </label>
               <p>
-                Tercihin bu tarayıcıda 180 gün saklanır. Alt bilgideki “Çerez
-                tercihleri” bağlantısından iznini değiştirebilir veya geri
-                çekebilirsin. Reklam ve pazarlama çerezleri kullanılmaz.
+                Bu seçim bu ziyaret için geçerlidir. Siteye her yeni girişte ve
+                sayfa yenilendiğinde bildirim yeniden açılır; önceki kabul
+                otomatik izin sayılmaz. Alt bilgideki “Çerez tercihleri”
+                bağlantısından iznini geri çekebilirsin. Reklam ve pazarlama
+                çerezleri kullanılmaz.
               </p>
             </div>
           )}

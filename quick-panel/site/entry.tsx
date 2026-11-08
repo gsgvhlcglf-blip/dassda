@@ -35,6 +35,7 @@ const regions: [string, string, string][] = [
   [".home-brands h2", "home.brands.title", "Ana sayfa · Markanı seç başlığı"],
   [".home-brands .brand-word", "home.brand.logo", "Ana sayfa · Marka logosu"],
   [".home-brands .brand-card", "home.brand", "Ana sayfa · Marka bağlantısı"],
+  [".home-bestsellers", "home.bestsellers", "Ana sayfa · En çok satanlar"],
   [".home-brands", "home.brands", "Ana sayfa · Marka seçimi"],
   [
     ".quote-request:not(.home-custom)",
@@ -320,6 +321,10 @@ document.addEventListener(
 window.addEventListener("message", (event) => {
   if (event.source !== window.parent) return;
   handleLogoGuideMessage(event.data || {});
+  if (event.data?.type === "kz-bestseller-guides")
+    document.documentElement.dataset.bestsellerGuides = String(
+      Boolean(event.data.enabled),
+    );
   if (event.data?.type === "kz-site-inspect") {
     inspect = Boolean(event.data.enabled);
     document.documentElement.dataset.kuzminEditing = String(inspect);

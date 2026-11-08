@@ -79,6 +79,7 @@ try {
   assert.equal(await page.locator("#site-photo").count(), 0);
   assert.equal(await frame().locator(".hero img").count(), 0);
   await page.reload();
+  await dismissCookies(frame());
   await frame().locator(".hero h1").waitFor();
   assert.equal(
     await frame().locator(".hero h1").innerText(),
@@ -101,7 +102,7 @@ try {
   await customer
     .getByRole("heading", { name: "İki sekmede aynı sonuç", exact: true })
     .waitFor();
-  assert.equal(await frame().locator("#main > section").count(), 3);
+  assert.equal(await frame().locator("#main > section").count(), 4);
   assert.equal(
     await frame().locator(".home-photo-slot,.home-photo-grid").count(),
     0,
@@ -120,6 +121,7 @@ try {
     .filter({ hasText: "Motosiklet markanı seç." })
     .waitFor();
   await page.reload();
+  await dismissCookies(frame());
   await frame().locator("#home-brands-title").waitFor();
   assert.equal(
     await frame().locator("#home-brands-title").innerText(),

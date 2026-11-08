@@ -89,7 +89,7 @@ export function validateDesign(value) {
   }
   for (const [key, url] of Object.entries(value.images)) {
     if (
-      !/^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+|blog:[a-zA-Z0-9_-]+)$/.test(
+      !/^((home|requests)\.[a-z_.]+|brand:[a-z0-9_-]+|bestseller:[a-zA-Z0-9_-]+|blog:[a-zA-Z0-9_-]+)$/.test(
         key,
       ) ||
       typeof url !== "string" ||

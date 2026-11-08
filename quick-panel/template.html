@@ -895,6 +895,7 @@
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
           releases: ["Yayın & sürümler", "Taslağı inceleyin, yayımlayın veya önceki sürüme dönün.", "↻"],
           payments: ["Ödeme altyapısı", "PayTR / iyzico tercihi ve canlı kurulum bilgileri.", "▱"],
+          bestsellers: ["En çok satanlar", "Ana sayfa vitrin ürünlerini, sıralamasını ve kadrajını seçin.", "▣"],
           photography: ["Fotoğraf düzeni", "Ürün fotoğraflarında ortak kadraj, arka plan ve ölçek.", "▣"],
           analytics: ["Analitik & Isı Haritası", "Ziyaretleri, tıklamaları ve kaydırmayı inceleyin.", "▥"],
           sitePreview: [
@@ -1207,6 +1208,7 @@
           if (section === "requests") { view.innerHTML = ""; crmRoot = KZ_MODELS.mountCRM(view, state); return; }
           if (section === "releases") { void renderReleaseWorkspace(view); return; }
           if (section === "payments") { renderPaymentWorkspace(view); return; }
+          if (section === "bestsellers") { view.innerHTML="";crmRoot=KZ_MODELS.mountBestsellers(view,state,async config=>{const next=KZ_MODELS.withBestsellers(state,config);validate(next);localStorage.setItem(KEY,JSON.stringify(next));state=next;sendSiteConfig();toast("Vitrin kaydedildi.");});return; }
           if (section === "photography") { renderPhotoWorkspace(view); return; }
           if (section === "analytics") {
             renderAnalyticsPreview(view);

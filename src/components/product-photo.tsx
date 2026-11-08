@@ -10,14 +10,19 @@ export function ProductPhoto({
   imageKey,
   className,
   children,
+  frameOverride,
+  settingsOverride,
 }: {
   imageKey: string;
   className: string;
   children: ReactNode;
+  frameOverride?: import("@/lib/photography").PhotoFrame;
+  settingsOverride?: import("@/lib/photography").Photography;
 }) {
   const design = useContext(VisualContext),
-    settings = design.photography || defaultPhotography,
-    frame = design.photoFrames?.[imageKey] || defaultPhotoFrame;
+    settings = settingsOverride || design.photography || defaultPhotography,
+    frame =
+      frameOverride || design.photoFrames?.[imageKey] || defaultPhotoFrame;
   return (
     <div
       className={className}

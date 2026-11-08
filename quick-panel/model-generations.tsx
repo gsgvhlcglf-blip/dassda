@@ -1,3 +1,4 @@
+import { BestsellersSettings } from "../src/components/bestsellers-settings";
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
 import { ModelGenerationsEditor } from "../src/components/model-generations-editor";
@@ -69,3 +70,18 @@ export function mountProductEditor(
   root.render(<Editor />);
   return { read: () => current, unmount: () => root.unmount() };
 }
+
+export { readBestsellers, withBestsellers } from "../src/lib/bestsellers";
+export function mountBestsellers(
+  host: HTMLElement,
+  catalog: Catalog,
+  onSave: (
+    value: import("../src/lib/bestsellers").BestsellersConfig,
+  ) => Promise<void>,
+) {
+  const root = createRoot(host);
+  root.render(<BestsellersSettings catalog={catalog} onSave={onSave} />);
+  return { unmount: () => root.unmount() };
+}
+
+export { defaultBlogImage } from "../src/lib/blog-media";

@@ -1,3 +1,4 @@
+import { dismissCookies } from "./test-cookie-helper.mjs";
 import { chromium, expect } from "@playwright/test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
@@ -39,18 +40,19 @@ try {
     errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   const view = () => (app ? page : page.frameLocator("#site-frame"));
-  const fitment = async () => {
+  const fitment = async (dismiss = true) => {
     if (app) await page.goto(origin + "/motosikletler/yamaha/mt-25/2024");
     else {
       await page.locator("#site-page").selectOption("fitment");
       await page.locator("#site-inspect").uncheck();
     }
     await view().locator(".request-options").waitFor();
+    if (dismiss) await dismissCookies(view());
   };
   await page.goto(
     origin + (app ? "/motosikletler/yamaha/mt-25/2024" : "/docs/panel.html"),
   );
-  if (!app) await fitment();
+  if (!app) await fitment(false);
   await expect(
     view().getByRole("region", { name: "Çerez bildirimi" }),
   ).toBeVisible();
@@ -99,9 +101,15 @@ try {
   await view().getByRole("button", { name: "Reddet", exact: true }).click();
   await expect(view().locator(".cookie-notice")).toHaveCount(0);
   await page.reload();
-  if (!app) await fitment();
-  await view().locator(".cookie-preferences").waitFor();
-  await expect(view().locator(".cookie-notice")).toHaveCount(0);
+  if (!app) await fitment(false);
+  await expect(view().locator(".cookie-notice")).toBeVisible();
+  assert.equal(
+    await view()
+      .locator("html")
+      .evaluate(() => sessionStorage.getItem("kz.analytics.tab")),
+    null,
+  );
+  await dismissCookies(view());
   if (app) await page.setViewportSize({ width: 1440, height: 1000 });
   else
     await page.getByRole("button", { name: "Masaüstü", exact: true }).click();
@@ -192,7 +200,7 @@ try {
   await privacy.close();
   assert.deepEqual(errors, []);
   console.log(
-    `PASS (${app ? "app" : "preview"}): quote below products/centered when empty, bike and product context, explicit cookie choices, persisted rejection, no prior tracking, mobile and GPC.`,
+    `PASS (${app ? "app" : "preview"}): quote below products/centered when empty, bike and product context, explicit cookie choices, renewed consent on every reload, no prior tracking, mobile and GPC.`,
   );
 } finally {
   await browser.close();
