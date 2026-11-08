@@ -72,7 +72,24 @@ try {
     buffer: Buffer.from(fixture, "base64"),
   };
   const view = () => (app ? page : page.frameLocator("#site-frame"));
-  await expect(view().locator(".home-photo-slot img")).toHaveCount(4);
+  await expect(view().locator(".home-photo-grid,.home-photo-slot")).toHaveCount(
+    0,
+  );
+  await expect(view().locator(".home-brands .brand-card")).toHaveCount(3);
+  if (!app) await page.locator("#site-inspect").uncheck();
+  for (const brand of ["BMW", "DUCATI", "YAMAHA"]) {
+    await view()
+      .locator(".home-brands .brand-card")
+      .filter({ hasText: brand })
+      .click();
+    await expect(view().locator(".model-card").first()).toBeVisible();
+    await expect(view().locator(".breadcrumbs")).toContainText(brand);
+    await view().locator(".header-wordmark").click();
+    await expect(view().locator(".home-brands")).toBeVisible();
+  }
+  await view().locator(".home-custom .button").click();
+  await expect(view().locator(".request-simple-form")).toBeVisible();
+  await view().locator(".header-wordmark").click();
   await expect(view().locator(".hero img")).toHaveCount(0);
   const assertBottomLeft = async () => {
     const layout = await view()
@@ -102,20 +119,9 @@ try {
     );
   };
   await assertBottomLeft();
-  const spacing = await view()
-    .locator("#main")
-    .evaluate((main) => {
-      const hero = main.querySelector(".hero").getBoundingClientRect(),
-        grid = main.querySelector(".home-photo-grid");
-      return {
-        top: grid.getBoundingClientRect().top - hero.bottom,
-        gap: parseFloat(getComputedStyle(grid).gap),
-      };
-    });
-  assert(spacing.top >= 70 && spacing.gap >= 24);
   if (app)
     await page.screenshot({
-      path: "/tmp/home-curated-desktop.png",
+      path: "/tmp/home-brands-desktop.png",
       fullPage: true,
     });
   let video;
@@ -312,7 +318,7 @@ try {
     await page.setViewportSize({ width: 390, height: 844 });
     await assertBottomLeft();
     await page.screenshot({
-      path: "/tmp/home-curated-mobile.png",
+      path: "/tmp/home-brands-mobile.png",
       fullPage: true,
     });
   }
@@ -320,7 +326,7 @@ try {
   console.log(
     "PASS (" +
       (app ? "production app" : "browser workspace") +
-      "): curated photos, spacing, video upload/play/pause/reload, reduced motion and media backup.",
+      "): brand/model links, custom request form, video upload/play/pause/reload, reduced motion and media backup.",
   );
 } finally {
   await browser.close();

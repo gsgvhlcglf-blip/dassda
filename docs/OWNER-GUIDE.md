@@ -11,17 +11,15 @@
 
 Gelişmiş **Nesiller** ekranında tek kayıt değiştirirken mevcut yıllar veya uyumluluklar aralığın dışına düşecekse değişiklik reddedilir; önce bağlı kayıtları düzeltin. Model formundaki çoklu aralık düzenleyicisi ise bağlı yılları ve uyumlulukları birlikte günceller. Model silmek, bağlı nesil/yıl/uyumluluk kayıtlarını da siler; ürünleri silmez. Formdaki silme işlemi ikinci bir onay ister. Sipariş geçmişinde kullanılan ürünler silinemez; bunları yayından kaldırın.
 
-## Ana sayfa fotoğrafları
+## Ana sayfa: marka seçimi ve özel üretim
 
-Ana sayfada banner ve dört görselli fotoğraf düzeni bulunur. Geniş motosiklet kadrajları karbon doku ve parça detaylarıyla eşleşir; mobilde geniş görsellerin arasına iki detay yan yana yerleşir. Bölüm başlıkları ve koleksiyon numaraları gösterilmez.
+Video banner'ın altında **Markanı seç** alanı ve BMW, Ducati, Yamaha logoları yer alır. Her karta tıklamak ilgili markanın model sayfasını açar. Üç logo, motosikletler sayfasındaki logo kayıtlarıyla ortaktır; yüklediğiniz görseller, ölçek ve hizalama ayarları her iki yerde de kullanılır.
 
-1. **Sayfa önizlemeleri → Ana sayfa** açın ve **Düzenleme modu** seçili olsun.
-2. Fotoğraf eklemek istediğiniz alana tıklayın. Örnek konsept fotoğrafların her birini kendi görselinizle değiştirebilirsiniz.
-3. Sağdaki **Yeni fotoğraf seç** alanından JPEG, PNG veya WebP yükleyin (en fazla 5 MB). Değişiklik bu tarayıcıdaki taslağa otomatik kaydolur.
-4. **Müşteri önizlemesi** ile sonucu kontrol edin. Aynı tarayıcıda açık müşteri sekmesi de güncellenir. Fotoğraf çerçeveyi doldurur; uzun ve dar alanlar için uygun kadrajlı fotoğraflar seçin.
-5. Mevcut yayın akışında **Yayın & sürümler → Taslağı yayınla** kullanın; farklı cihazda görünmesi için yayın gerekir. Yedek tasarım ve fotoğraf kayıtlarını da içerir.
+**Sayfa önizlemeleri → Ana sayfa** bölümünde **Düzenleme modu** açıkken başlığa tıklayıp yazıyı, logoya tıklayıp görseli ve ölçeğini düzenleyebilirsiniz. Normal gezinme için düzenleme modunu kapatın veya **Müşteri önizlemesi** açın.
 
-Önceki sekizli düzene yüklediğiniz görseller tasarım kaydınızda ve yedeğinizde korunur. Yeni dört alan bağımsızdır. Banner altında masaüstünde 72 px, görseller arasında 24 px boşluk vardır; mobilde bu boşluklar 36 ve 16 px olur. Banner başlığına tıklayarak metni düzenleyebilirsiniz. Banner yalnızca video kullanır; başlık ve düğme sol alttadır.
+Logoların altındaki **Ürününü bulamadın mı?** alanında **Talep oluştur** düğmesi mevcut **Parçanı ürettir** formunu açar. Başlık ve teklif çağrısı da önizlemede düzenlenebilir. Formun işleyişi değişmez.
+
+Önceki fotoğraf galerisi ana sayfada gösterilmez; yüklediğiniz fotoğraf kayıtları tasarım verilerinde ve yedeklerde korunur. Banner yalnızca video kullanır; başlık ve düğme sol alttadır.
 
 ## Banner videosu yükleme
 

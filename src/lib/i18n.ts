@@ -1,6 +1,18 @@
 import { storeSettings } from "./settings";
 import type { Lang } from "./types";
 const messages = {
+  homeChooseBrand: ["Markanı seç.", "Choose your brand.", "Выберите марку."],
+  homeCustomTitle: [
+    "Ürününü bulamadın mı?",
+    "Can’t find your part?",
+    "Не нашли нужную деталь?",
+  ],
+  homeCustomIntro: [
+    "Talep oluştur, hızlı teklif al.",
+    "Send a request, get a quick quote.",
+    "Отправьте заявку и получите предложение.",
+  ],
+  homeCustomAction: ["Talep oluştur", "Request a quote", "Оставить заявку"],
   customCarbon: ["Parçanı ürettir", "Custom Carbon", "Изготовление на заказ"],
   orderPending: ["Talep alındı", "Request received", "Заявка получена"],
   orderReviewing: ["İnceleniyor", "Under review", "На рассмотрении"],

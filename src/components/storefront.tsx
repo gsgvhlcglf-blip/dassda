@@ -105,56 +105,6 @@ function BrandVisual({
     </div>
   );
 }
-const homePhotoSlots = [
-  {
-    visualId: "home.editorial.bike",
-    src: "/images/home-editorial-bike.webp",
-    alt: "Karbon motosiklet konsepti, ön çapraz görünüm",
-  },
-  {
-    visualId: "home.editorial.weave",
-    src: "/images/home-editorial-weave.webp",
-    alt: "Karbon dokusunun konsept yakın çekimi",
-  },
-  {
-    visualId: "home.editorial.detail",
-    src: "/images/home-editorial-detail.webp",
-    alt: "Karbon parça ve bağlantı detayının konsept yakın çekimi",
-  },
-  {
-    visualId: "home.editorial.rear",
-    src: "/images/home-editorial-rear.webp",
-    alt: "Karbon motosiklet konsepti, arka çapraz görünüm",
-  },
-] as const;
-function HomePhotoSlot({
-  visualId,
-  index,
-  src,
-  alt,
-}: {
-  visualId: string;
-  index: number;
-  src: string;
-  alt: string;
-}) {
-  const image = useVisualImage(visualId, src);
-  return (
-    <figure
-      className="home-photo-slot"
-      data-visual-image={visualId}
-      aria-label={`Ana sayfa fotoğraf alanı ${index + 1}`}
-    >
-      {image ? (
-        <Art src={image} alt={alt} visualId={visualId} />
-      ) : (
-        <div className="home-photo-placeholder" aria-hidden="true">
-          <Plus size={28} strokeWidth={1} />
-        </div>
-      )}
-    </figure>
-  );
-}
 export function Storefront({
   catalog,
   segments: s,
@@ -320,7 +270,7 @@ export function Storefront({
       </p>
     </Link>
   );
-  const brandCards = () => (
+  const brandCards = (home = false) => (
     <div className="brand-grid">
       {c.brands
         .sort((a, b) => a.position - b.position)
@@ -330,7 +280,7 @@ export function Storefront({
             href={href(`/motosikletler/${b.slug}`)}
             key={b.id}
           >
-            <span className="brand-index">0{i + 1}</span>
+            {!home && <span className="brand-index">0{i + 1}</span>}
             <div
               className={`brand-word ${b.slug}`}
               data-visual-image={`brand:${b.id}`}
@@ -357,7 +307,8 @@ export function Storefront({
               </BrandVisual>
             </div>
             <span className="brand-discover">
-              {b.name} · {t("discover")} <ArrowUpRight size={14} />
+              {b.name}
+              {!home && ` · ${t("discover")}`} <ArrowUpRight size={14} />
             </span>
           </Link>
         ))}
@@ -767,10 +718,44 @@ export function Storefront({
                 </Link>
               </div>
             </section>
-            <section className="home-photo-grid" aria-label="Fotoğraf galerisi">
-              {homePhotoSlots.map((slot, index) => (
-                <HomePhotoSlot key={slot.visualId} {...slot} index={index} />
-              ))}
+            <section
+              className="home-brands"
+              aria-labelledby="home-brands-title"
+            >
+              <h2
+                id="home-brands-title"
+                data-visual-text="slot:home.brands.title"
+              >
+                {copy("home.brands.title", t("homeChooseBrand"))}
+              </h2>
+              {brandCards(true)}
+            </section>
+            <section
+              className="home-custom"
+              aria-labelledby="home-custom-title"
+            >
+              <div className="home-custom-card">
+                <div>
+                  <p className="eyebrow">{t("customCarbon")}</p>
+                  <h2
+                    id="home-custom-title"
+                    data-visual-text="slot:home.custom.title"
+                  >
+                    {copy("home.custom.title", t("homeCustomTitle"))}
+                  </h2>
+                </div>
+                <div className="home-custom-action">
+                  <p data-visual-text="slot:home.custom.intro">
+                    {copy("home.custom.intro", t("homeCustomIntro"))}
+                  </p>
+                  <Link className="button" href={href("/parcani-urettir")}>
+                    <span data-visual-text="slot:home.custom.action">
+                      {copy("home.custom.action", t("homeCustomAction"))}
+                    </span>
+                    <ArrowUpRight size={16} />
+                  </Link>
+                </div>
+              </div>
             </section>
           </>
         ) : s[0] === "motosikletler" ? (

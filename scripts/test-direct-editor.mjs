@@ -99,71 +99,48 @@ try {
   await customer
     .getByRole("heading", { name: "İki sekmede aynı sonuç", exact: true })
     .waitFor();
-  assert.equal(await frame().locator("#main > section").count(), 2);
-  assert.equal(await frame().locator(".home-photo-slot").count(), 4);
+  assert.equal(await frame().locator("#main > section").count(), 3);
   assert.equal(
-    await frame()
-      .locator(
-        ".hero-bottom,.hero-side,.hero-content p,.editorial-section,.bike-section,.featured-section,.craft-section",
-      )
-      .count(),
+    await frame().locator(".home-photo-slot,.home-photo-grid").count(),
     0,
   );
-  // Legacy photo slots remain usable; new slots save independently and sync to the customer tab.
-  for (const slot of ["home.editorial.bike", "home.editorial.weave"]) {
-    await frame()
-      .locator('.home-photo-slot[data-visual-image="' + slot + '"]')
-      .click();
-    await page.waitForFunction(
-      (slot) =>
-        document
-          .querySelector("#site-photo")
-          ?.getAttribute("data-image-key") === slot,
-      slot,
-    );
-    await page.locator("#site-photo").setInputFiles("public/images/hero.webp");
-    await page.waitForFunction(
-      ({ key, slot }) =>
-        !!JSON.parse(localStorage.getItem(key + ".design"))?.images[slot],
-      { key, slot },
-    );
-    await customer
-      .locator('.home-photo-slot[data-visual-image="' + slot + '"] img')
-      .waitFor();
-  }
-  const gallery = await page.evaluate(
-    (key) => JSON.parse(localStorage.getItem(key + ".design")).images,
-    key,
+  assert.equal(await frame().locator(".home-brands .brand-card").count(), 3);
+  await frame().locator("#home-brands-title").click();
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector(".site-direct-editor")
+        ?.getAttribute("data-edit-key") === "slot:home.brands.title",
   );
-  await page.reload();
-  await frame()
-    .locator('.home-photo-slot[data-visual-image="home.editorial.weave"] img')
-    .waitFor();
-  assert.equal(
-    await frame()
-      .locator('.home-photo-slot[data-visual-image="home.editorial.bike"] img')
-      .getAttribute("src"),
-    gallery["home.editorial.bike"],
-  );
-  assert.equal(
-    await frame()
-      .locator('.home-photo-slot[data-visual-image="home.editorial.weave"] img')
-      .getAttribute("src"),
-    gallery["home.editorial.weave"],
-  );
-  assert.equal(await customer.locator(".home-photo-slot img").count(), 4);
+  await page.getByLabel("Seçili metni düzenle").fill("Motosiklet markanı seç.");
   await customer
-    .locator(".home-photo-grid")
-    .screenshot({ path: "/tmp/home-photo-mosaic-desktop.png" });
+    .locator("#home-brands-title")
+    .filter({ hasText: "Motosiklet markanı seç." })
+    .waitFor();
+  await page.reload();
+  await frame().locator("#home-brands-title").waitFor();
+  assert.equal(
+    await frame().locator("#home-brands-title").innerText(),
+    "Motosiklet markanı seç.",
+  );
+  await customer.screenshot({
+    path: "/tmp/home-brand-desktop.png",
+    fullPage: true,
+  });
   await customer.setViewportSize({ width: 390, height: 844 });
   assert(
     await customer.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   );
-  await customer
-    .locator(".home-photo-grid")
-    .screenshot({ path: "/tmp/home-photo-mosaic-mobile.png" });
+  await customer.screenshot({
+    path: "/tmp/home-brand-mobile.png",
+    fullPage: true,
+  });
+  await customer.locator(".home-custom .button").click();
+  await customer.locator(".request-simple-form").waitFor();
+  await customer.locator(".header-wordmark").click();
+  await customer.locator(".home-brands .brand-card").first().waitFor();
   await customer.setViewportSize({ width: 1440, height: 1000 });
   await customer.locator(".hero .button").click();
   await customer.locator(".brand-card").filter({ hasText: "YAMAHA" }).click();
@@ -211,7 +188,7 @@ try {
   assert.deepEqual(errors, []);
   await page.screenshot({ path: "/tmp/direct-editor.png", fullPage: true });
   console.log(
-    "PASS: minimal homepage, photo mosaic uploads/legacy slots/reload/customer sync, direct editing, customer journey and cart persistence.",
+    "PASS: homepage brand cards/custom request link, editable headings/reload/customer sync, direct editing, customer journey and cart persistence.",
   );
 } finally {
   await browser.close();

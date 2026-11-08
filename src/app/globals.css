@@ -386,22 +386,35 @@ label {
   min-width: 230px;
   margin-top: 30px;
 }
-.home-photo-grid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: clamp(320px, 34vw, 510px);
-  gap: 24px;
-  max-width: 1680px;
-  padding: 0 var(--space);
-  margin: 72px auto 96px;
+/* Homepage: direct access to compatible parts and custom requests. */
+.home-brands { max-width: 1680px; margin: 0 auto; padding: 80px var(--space) 64px; }
+.home-brands h2 { font-size: clamp(34px, 3.8vw, 52px); letter-spacing: -0.045em; margin-bottom: 32px; }
+.home-brands .brand-card { height: 300px; background: #111; border-color: #252525; }
+.home-brands .brand-card:hover, .home-brands .brand-card:focus-visible { background: #191919; border-color: #777; }
+.home-brands .brand-discover { font-size: 9px; }
+.home-brands .brand-discover svg { opacity: 1; right: 12px; transition: transform 0.25s; }
+.home-brands .brand-card:hover .brand-discover svg { transform: translate(2px, -2px); }
+.home-custom { max-width: 1680px; margin: 0 auto 96px; padding: 0 var(--space); }
+.home-custom-card { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 48px; padding: 56px; border: 1px solid #292929; background: #111; }
+.home-custom .eyebrow { color: #a5a5a5; margin-bottom: 20px; }
+.home-custom h2 { max-width: 480px; font-size: clamp(36px, 4vw, 58px); line-height: 1.06; letter-spacing: -0.045em; text-wrap: balance; }
+.home-custom-action { justify-self: end; }
+.home-custom-action > p { font-size: clamp(19px, 2vw, 26px); color: #b8b8b8; line-height: 1.4; max-width: 300px; margin-bottom: 24px; }
+.home-custom .button { min-width: 220px; }
+.home-custom .button svg { transition: transform 0.25s; }
+.home-custom .button:hover svg { transform: translate(2px, -2px); }
+@media (max-width: 760px) {
+  .home-brands { padding-top: 48px; padding-bottom: 32px; }
+  .home-brands h2 { margin-bottom: 24px; }
+  .home-brands .brand-card { height: 190px; padding: 24px 8px; }
+  .home-brands .brand-discover { font-size: 8px; }
+  .home-custom { margin-bottom: 56px; }
+  .home-custom-card { grid-template-columns: 1fr; padding: 32px 24px; gap: 28px; }
+  .home-custom .eyebrow { margin-bottom: 16px; }
+  .home-custom-action { justify-self: stretch; }
+  .home-custom-action > p { max-width: none; font-size: 20px; margin-bottom: 20px; }
+  .home-custom .button { width: 100%; }
 }
-.home-photo-slot { position: relative; min-width: 0; overflow: hidden; margin: 0; background: #141414; }
-.home-photo-slot > img { object-fit: cover; }
-.home-photo-slot:nth-child(1) { grid-column: 1 / span 8; }
-.home-photo-slot:nth-child(2) { grid-column: 9 / span 4; }
-.home-photo-slot:nth-child(3) { grid-column: 1 / span 4; }
-.home-photo-slot:nth-child(4) { grid-column: 5 / span 8; }
-html[data-kuzmin-editing="true"] .home-photo-slot:hover { outline: 1px solid #888; outline-offset: -1px; }
 .hero-video-canvas { position: absolute; inset: 0; }
 .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .hero-video-toggle { position: absolute; z-index: 4; right: 24px; bottom: 24px; width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #ffffff66; background: #0007; color: #fff; border-radius: 50%; }
@@ -409,12 +422,6 @@ html[data-kuzmin-editing="true"] .home-photo-slot:hover { outline: 1px solid #88
 .site-video-controls { border-top: 1px solid #333; margin-top: 22px; padding-top: 18px; }
 .site-video-controls h4 { margin: 0 0 12px; font-size: 13px; }
 .site-video-controls p { font-size: 11px; color: #aaa; line-height: 1.7; }
-@media (max-width: 760px) {
-  .home-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; gap: 16px; padding: 0 20px; margin: 36px auto 56px; }
-  .home-photo-slot:nth-child(1), .home-photo-slot:nth-child(4) { grid-column: 1 / -1; aspect-ratio: 16 / 10; }
-  .home-photo-slot:nth-child(2) { grid-column: 1; aspect-ratio: 4 / 5; }
-  .home-photo-slot:nth-child(3) { grid-column: 2; aspect-ratio: 4 / 5; }
-}
 .hero-bottom {
   position: absolute;
   bottom: 29px;
