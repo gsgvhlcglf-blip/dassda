@@ -884,8 +884,11 @@ export function Storefront({
           </div>
         </div>
         <div className="footer-bottom">
-          <p>
-            © {new Date().getFullYear()} KUZMIN. {t("independent")}
+          <p data-visual-text="slot:footer.legal.notice">
+            {copy(
+              "footer.legal.notice",
+              `© ${new Date().getFullYear()} KUZMIN. ${t("independent")}`,
+            )}
           </p>
           <span className="demo-indicator">
             {!live ? "LOCAL DEMO" : "ORDER REQUESTS"}

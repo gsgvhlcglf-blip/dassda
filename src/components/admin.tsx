@@ -622,9 +622,11 @@ export function Admin({
                   ["about", "Hakkımızda"],
                   ["contact", "İletişim bilgileri"],
                   ["faq", "Sık sorulan sorular"],
-                  ["shipping", "Teslimat ve iade"],
-                  ["privacy", "Gizlilik politikası"],
-                  ["terms", "Kullanım koşulları"],
+                  ["shipping", "İptal ve İade Koşulları"],
+                  ["privacy", "Gizlilik ve Çerez Politikası"],
+                  ["distance-sales", "Mesafeli Satış Sözleşmesi"],
+                  ["pre-information", "Ön Bilgilendirme Formu"],
+                  ["terms", "Kullanıcı Sözleşmesi / Şartlar ve Koşullar"],
                 ].map(([key, label]) => (
                   <button
                     key={key}

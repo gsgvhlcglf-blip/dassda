@@ -929,6 +929,11 @@
             "Ana sayfa ve diğer sayfaların metinlerini düzenleyin.",
             "≡",
           ],
+          legal: [
+            "Yasal metinler",
+            "Alt menüdeki sözleşme ve politika sayfalarının yazılarını düzenleyin.",
+            "§",
+          ],
           settings: [
             "Taslak & yedek",
             "Çalışmanızı dışa aktarın ve daha sonra devam edin.",
@@ -1279,6 +1284,11 @@
           ) {
             view.innerHTML = search();
             renderRows();
+            return;
+          }
+          if (section === "legal") {
+            const keys = ["privacy", "distance-sales", "pre-information", "shipping", "terms"];
+            view.innerHTML = `<p class="help">Düzenlemek istediğiniz belgeyi seçin. Başlık ve içerik alanlarını değiştirip Değişiklikleri kaydet'e basın. Önizleme güncellenir; tarayıcı taslağı canlı mağazaya otomatik aktarılmaz.</p><div class="grid">${keys.map(key => state.content.find(row => row.key === key)).filter(Boolean).map(row => `<section class="content-card" data-legal-key="${esc(row.key)}"><h3>${esc(row.title.tr)}</h3><p>${esc(row.body.tr.slice(0, 160))}${row.body.tr.length > 160 ? "…" : ""}</p>${action("Metni düzenle ↗", "edit-legal", row.id, "ghost")}</section>`).join("")}</div>`;
             return;
           }
           if (section === "content") {
@@ -1915,6 +1925,7 @@
           if (a === "section") goto(id);
           if (a === "new") openEditor();
           if (a === "edit") openEditor(id);
+          if (a === "edit-legal") openEditor(id, "content");
           if (a === "new-product") {
             goto("products");
             openEditor();

@@ -23,7 +23,7 @@ export function FooterNavigation({
           ["/sss", "faq"],
           ["/kargo-takip", "tracking"],
         ].map(([url, key]) => (
-          <Link key={url} href={href(url)}>
+          <Link key={url} href={href(url)} data-visual-text={`ui:${key}`}>
             {t(key as "faq" | "tracking")}
           </Link>
         ))}
@@ -48,7 +48,7 @@ export function FooterNavigation({
             ["/iptal-iade-kosullari", "cancellationReturns"],
             ["/kosullar", "userAgreement"],
           ].map(([url, key]) => (
-            <Link key={url} href={href(url)}>
+            <Link key={url} href={href(url)} data-visual-text={`ui:${key}`}>
               {t(
                 key as
                   | "privacyPolicy"

@@ -2,6 +2,28 @@
 
 `/admin` adresinden giriş yapın. Canlı ortamda hesabınız Supabase Authentication üzerinden oluşturulur. Windows paketinde `demo@local.test` adresini ve ilk kurulumda kendiniz belirlediğiniz şifreyi kullanın. Komut satırıyla oluşturulan demoda rastgele şifre özel `.env.local` dosyasındadır.
 
+## Yasal metinleri ve alt bilgi açıklamasını düzenleme
+
+İndirmesiz panelde **Paneli göster → Yasal metinler** bölümünü açın. İlgili belgenin
+**Metni düzenle** düğmesine basın; **Başlık / TR** ve **İçerik / TR** alanlarını
+değiştirip **Değişiklikleri kaydet** kullanın. Gizlilik ve Çerez Politikası, Mesafeli Satış
+Sözleşmesi, Ön Bilgilendirme Formu, İptal ve İade Koşulları ile Kullanıcı Sözleşmesi
+aynı katalogdaki mevcut kayıtları kullanır; kopya sayfalar oluşturulmaz.
+
+En alttaki © ile başlayan yasal açıklama için **Sayfa önizlemeleri** ekranında
+**Düzenleme modu** açıkken açıklamaya tıklayın. Metni doğrudan veya sağdaki
+**Seçili metni düzenle** alanından değiştirin. Bu alan otomatik taslak kaydı yapar;
+değişiklik aynı tarayıcıdaki müşteri ön izlemesine yansır ve yenilemede korunur.
+Bu yöntem açıklamanın tamamını değiştirir; metne sabit bir yıl yazarsanız sonraki
+yıllarda da sizin yazdığınız metin gösterilir.
+
+Sunucudaki kimlik doğrulamalı yönetimde aynı sözleşmeler **Yapılandırma** içindeki
+sayfa kısayollarından veya **Sayfa içerikleri** listesinden düzenlenebilir.
+Kaydetme taslağı günceller; müşteriye sunmak için **Yayın & sürümler → Taslağı
+yayınla** kullanılır. İndirmesiz tarayıcı paneli canlı veritabanına otomatik kayıt
+yapmaz. Sözleşme içerikleri düzenlenirken diğer diller ve ilişkisiz katalog
+kayıtları korunur.
+
 ## Yeni motosiklet ekleme
 
 1. **Motosiklet modelleri → Yeni kayıt**: Ducati, BMW veya Yamaha'yı seçin. Model adını, küçük harf ve tirelerden oluşan URL adını ve fotoğrafını girin. Örnek URL adı: `mt-25`.
