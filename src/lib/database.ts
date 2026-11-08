@@ -44,7 +44,7 @@ function decode(r: Record<string, unknown>): Row {
       (jsonFields.has(k) || k === "name") &&
       v.startsWith("{")
         ? JSON.parse(v)
-        : ["featured", "published", "demo"].includes(k)
+        : ["featured", "published", "demo", "matte_enabled"].includes(k)
           ? !!v
           : v,
     ]),
@@ -82,6 +82,18 @@ export function localDB() {
     db.exec(
       "ALTER TABLE models ADD COLUMN published INTEGER NOT NULL DEFAULT 1",
     );
+  const productColumns = db.prepare("PRAGMA table_info(products)").all() as {
+    name: string;
+  }[];
+  for (const [column, definition] of [
+    [
+      "discount_percent",
+      "REAL NOT NULL DEFAULT 0 CHECK(discount_percent BETWEEN 0 AND 100)",
+    ],
+    ["matte_enabled", "INTEGER NOT NULL DEFAULT 0"],
+  ])
+    if (!productColumns.some((item) => item.name === column))
+      db.exec(`ALTER TABLE products ADD COLUMN ${column} ${definition}`);
   db.exec(
     "CREATE TABLE IF NOT EXISTS customers(id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL)",
   );

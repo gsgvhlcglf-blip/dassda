@@ -207,25 +207,13 @@ export async function preparePayment(
       throw Error("ORDER_EXPIRED");
     const items = db
       .prepare(
-        "SELECT i.*,p.stock AS product_stock,p.published,v.stock AS variant_stock FROM order_items i JOIN products p ON p.id=i.product_id JOIN variants v ON v.id=i.variant_id AND v.product_id=i.product_id WHERE i.order_id=?",
+        "SELECT i.*,p.published,p.matte_enabled,v.finish FROM order_items i JOIN products p ON p.id=i.product_id JOIN variants v ON v.id=i.variant_id AND v.product_id=i.product_id WHERE i.order_id=?",
       )
       .all(o.id as string);
     if (!items.length) throw Error("INVALID_AMOUNT");
-    for (const i of items)
-      if (
-        !i.published ||
-        Number(i.quantity) > Number(i.product_stock) ||
-        Number(i.quantity) > Number(i.variant_stock)
-      )
-        throw Error("OUT_OF_STOCK");
-    for (const id of new Set(items.map((i) => i.product_id)))
-      if (
-        items
-          .filter((i) => i.product_id === id)
-          .reduce((n, i) => n + Number(i.quantity), 0) >
-        Number(items.find((i) => i.product_id === id)!.product_stock)
-      )
-        throw Error("OUT_OF_STOCK");
+    for (const item of items)
+      if (!item.published || (item.finish === "matte" && !item.matte_enabled))
+        throw Error("INVALID_VARIANT");
     const amount = items.reduce(
       (n, i) => n + minorUnits(i.unit_price) * Number(i.quantity),
       0,

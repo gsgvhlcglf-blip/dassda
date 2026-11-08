@@ -35,7 +35,7 @@ test("a product can match multiple brands and models", () => {
     ),
   );
 });
-test("quote uses stored variant prices and combines duplicate lines", () => {
+test("quote uses stored product prices and combines duplicate lines", () => {
   const q = quote(seed, [
     { productId: "p1", variantId: "p1-gloss", quantity: 2 },
     { productId: "p1", variantId: "p1-gloss", quantity: 1 },
@@ -44,16 +44,16 @@ test("quote uses stored variant prices and combines duplicate lines", () => {
   assert.equal(q.items.length, 1);
   assert.equal(q.demo, true);
 });
-test("reject invalid variants, quantities, stock and unpublished products", () => {
+test("reject invalid variants, quantities, disabled finishes and unpublished products", () => {
   assert.throws(
     () =>
       quote(seed, [{ productId: "p2", variantId: "p1-gloss", quantity: 1 }]),
     /INVALID_VARIANT/,
   );
-  assert.throws(
-    () =>
-      quote(seed, [{ productId: "p1", variantId: "p1-gloss", quantity: 7 }]),
-    /OUT_OF_STOCK/,
+  assert.equal(
+    quote(seed, [{ productId: "p1", variantId: "p1-gloss", quantity: 7 }])
+      .total,
+    6850 * 7,
   );
   assert.throws(
     () =>
@@ -74,7 +74,7 @@ test("reject invalid variants, quantities, stock and unpublished products", () =
         { productId: "p1", variantId: "p1-gloss", quantity: 1 },
         { productId: "p1", variantId: "p1-matte", quantity: 1 },
       ]),
-    /OUT_OF_STOCK/,
+    /INVALID_VARIANT/,
   );
 });
 test("validation requires consent and rejects illegal year ranges", () => {

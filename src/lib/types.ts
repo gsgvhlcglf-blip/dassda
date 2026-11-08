@@ -29,6 +29,8 @@ export type Product = Row & {
   category_id: string;
   material: string;
   price: number;
+  discount_percent?: number;
+  matte_enabled?: boolean;
   stock: number;
   featured: boolean;
   published: boolean;

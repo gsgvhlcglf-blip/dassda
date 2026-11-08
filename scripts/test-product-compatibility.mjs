@@ -158,10 +158,11 @@ try {
       .getByLabel("URL adı", { exact: true })
       .fill("compatibility-editor-test");
     await page.getByLabel("Kategori", { exact: true }).selectOption("body");
-  } else await page.getByLabel("Parlak yüzey stoku", { exact: true }).fill("5");
+  }
   await page.getByLabel("SKU", { exact: true }).fill("TEST-FIT-EDITOR");
-  await page.getByLabel("Görünen fiyat (TRY)", { exact: true }).fill("2500");
-  await page.getByLabel("Toplam stok", { exact: true }).fill("5");
+  await page
+    .getByLabel("Ürün fiyatı (TRY, KDV dahil)", { exact: true })
+    .fill("2500");
   await page.getByLabel("Yayında", { exact: true }).check();
   await fit(1, "yamaha", "yamaha-mt-25", 2024, 2025);
   await fit(2, "bmw", "bmw-s1000rr", 2023, 2024);

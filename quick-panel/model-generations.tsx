@@ -16,6 +16,7 @@ import {
 import type { Catalog } from "../src/lib/types";
 export { applyModelGenerations } from "../src/lib/model-generations";
 export { applyProductCompatibility } from "../src/lib/product-compatibility";
+export { salePrice } from "../src/lib/product-commerce";
 
 export function mountCRM(host: HTMLElement, catalog: Catalog) {
   const root = createRoot(host),

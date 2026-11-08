@@ -28,9 +28,9 @@ try {
     .getByLabel("Ürün adı", { exact: true })
     .fill("Yeni test karbon parça");
   await page.getByLabel("SKU", { exact: true }).fill("TEST-QUICK-001");
-  await page.getByLabel("Görünen fiyat (TRY)", { exact: true }).fill("4500");
-  await page.getByLabel("Toplam stok", { exact: true }).fill("10");
-  await page.getByLabel("Parlak yüzey stoku", { exact: true }).fill("5");
+  await page
+    .getByLabel("Ürün fiyatı (TRY, KDV dahil)", { exact: true })
+    .fill("4500");
   await page.getByLabel("Yayında", { exact: true }).check();
   await page.locator("#photo-file").setInputFiles("public/images/hero.webp");
   await page.waitForFunction(() =>

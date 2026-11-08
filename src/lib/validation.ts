@@ -23,7 +23,7 @@ const asset = z
       /^https:\/\/[^\s]+$/.test(v),
     "Use a local image or HTTPS URL",
   );
-const price = z.number().min(0).max(1e8),
+const price = z.number().min(0).max(1e8).multipleOf(0.01),
   stock = z.number().int().min(0).max(1e7),
   year = z.number().int().min(1900).max(2100);
 export const schemas = {
@@ -56,7 +56,9 @@ export const schemas = {
     category_id: id,
     material: z.enum(["full_carbon", "hybrid", "forged", "carbon_finish"]),
     price,
-    stock,
+    discount_percent: z.number().min(0).max(100).multipleOf(0.01).default(0),
+    matte_enabled: z.boolean().default(false),
+    stock: stock.default(0),
     featured: z.boolean(),
     published: z.boolean(),
     demo: z.boolean(),
@@ -70,8 +72,8 @@ export const schemas = {
     product_id: id,
     name: localized,
     sku: z.string().min(1).max(100),
-    price,
-    stock,
+    price: price.default(0),
+    stock: stock.default(0),
     finish: z.enum(["gloss", "matte"]),
   }),
   product_images: z.object({

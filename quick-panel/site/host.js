@@ -8,7 +8,7 @@ const sitePages = {
   catalog: ["Tüm ürünler", "/urunler"],
   product: ["Ürün detayı", ""],
   cart: ["Sepet", "/sepet"],
-  checkout: ["Sipariş talebi", "/odeme"],
+  checkout: ["Ödeme", "/odeme"],
   about: ["Hakkımızda", "/hakkimizda"],
   blog: ["Blog", "/blog"],
   tracking: ["Kargo takip", "/kargo-takip"],

@@ -83,7 +83,7 @@ try {
         await frame().getByLabel("Ad soyad", { exact: true }).isDisabled(),
       );
       await frame()
-        .getByRole("button", { name: "Talebi gönder", exact: true })
+        .getByRole("button", { name: "iyzico ile ödemeye geç", exact: true })
         .click();
       await frame().getByRole("alert").waitFor();
     }

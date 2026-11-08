@@ -3,6 +3,13 @@ import { CustomCarbonPage } from "./request-pages";
 import { HomeBestsellers } from "./home-bestsellers";
 import { QuoteRequest } from "./quote-request";
 import { FooterNavigation } from "./footer-navigation";
+import { ProductPrice } from "./product-price";
+import {
+  salePrice,
+  productVariants,
+  variantAvailable,
+  maxLineQuantity,
+} from "@/lib/product-commerce";
 import { HeroVideo } from "./hero-video";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
@@ -175,13 +182,10 @@ export function Storefront({
     const v = c.variants.find(
       (v) => v.id === variantId && v.product_id === p.id,
     );
-    if (!v) return;
+    if (!v || !variantAvailable(p, v)) return;
     const existing = cart.find((l) => l.variantId === variantId)?.quantity || 0;
-    const productQuantity = cart
-      .filter((l) => l.productId === p.id)
-      .reduce((a, l) => a + l.quantity, 0);
-    if (existing + quantity > v.stock || productQuantity + quantity > p.stock) {
-      setToast(t("stockError"));
+    if (existing + quantity > maxLineQuantity) {
+      setToast(t("quantityError"));
       return;
     }
     setCart((old) => {
@@ -205,11 +209,7 @@ export function Storefront({
             l.variantId === id
               ? {
                   ...l,
-                  quantity: Math.min(
-                    n,
-                    c.variants.find((v) => v.id === id)?.stock || 0,
-                    99,
-                  ),
+                  quantity: Math.min(n, maxLineQuantity),
                 }
               : l,
           ),
@@ -255,7 +255,7 @@ export function Storefront({
           visualId={`product:${p.id}`}
         />
         <span className="product-label">
-          {p.demo ? "DEMO" : p.stock > 0 ? t("available") : t("outStock")}
+          {p.demo ? "DEMO" : t("madeToOrder")}
         </span>
         <span className="product-open">
           <ArrowUpRight size={20} />
@@ -264,12 +264,11 @@ export function Storefront({
       <div className="product-heading">
         <h3 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h3>
         <span data-edit-text={`products:${p.id}:price`}>
-          {money(p.price, lang)}
+          <ProductPrice product={p} lang={lang} />
         </span>
       </div>
       <p className="micro muted">
-        {t(p.material as MessageKey)} <span> / </span>{" "}
-        {p.stock > 0 ? (p.demo ? t("inStock") : t("available")) : t("outStock")}
+        {t(p.material as MessageKey)} <span> / </span> {t("madeToOrder")}
       </p>
     </Link>
   );
@@ -506,8 +505,11 @@ export function Storefront({
     p: c.products.find((p) => p.id === l.productId),
     v: c.variants.find((v) => v.id === l.variantId),
   }));
+  const cartValid = cartItems.every(
+    (line) => line.p && line.v && variantAvailable(line.p, line.v),
+  );
   const total = cartItems.reduce(
-    (sum, l) => sum + (l.v?.price || 0) * l.quantity,
+    (sum, l) => sum + (l.p ? salePrice(l.p) : 0) * l.quantity,
     0,
   );
   const cartPage = () => (
@@ -542,8 +544,11 @@ export function Storefront({
                     <h3>{l.p?.title[lang] || t("notProvided")}</h3>
                   </Link>
                   <p className="muted micro">
-                    {l.v?.name[lang]} / {l.v?.sku}
+                    {l.v ? t(l.v.finish as "gloss" | "matte") : ""} / {l.v?.sku}
                   </p>
+                  {(!l.p || !l.v || !variantAvailable(l.p, l.v)) && (
+                    <p className="form-error">{t("finishUnavailable")}</p>
+                  )}
                   <button
                     className="under-link"
                     onClick={() => update(l.variantId, 0)}
@@ -552,7 +557,9 @@ export function Storefront({
                   </button>
                 </div>
                 <div className="cart-controls">
-                  <span>{money((l.v?.price || 0) * l.quantity, lang)}</span>
+                  <span>
+                    {money((l.p ? salePrice(l.p) : 0) * l.quantity, lang)}
+                  </span>
                   <div className="quantity">
                     <button
                       aria-label={t("quantity") + " −"}
@@ -562,7 +569,7 @@ export function Storefront({
                     </button>
                     <span>{l.quantity}</span>
                     <button
-                      disabled={l.quantity >= (l.v?.stock || 0)}
+                      disabled={l.quantity >= maxLineQuantity}
                       aria-label={t("quantity") + " +"}
                       onClick={() => update(l.variantId, l.quantity + 1)}
                     >
@@ -583,11 +590,17 @@ export function Storefront({
             <Link
               className="button wide"
               href={href(member ? "/odeme" : "/giris?next=%2Fodeme")}
+              aria-disabled={!cartValid}
+              onClick={(event) => {
+                if (!cartValid) {
+                  event.preventDefault();
+                  setToast(t("finishUnavailable"));
+                }
+              }}
             >
               {t("checkout")}
               <ArrowUpRight size={16} />
             </Link>
-            <p className="micro muted">{t("orderNote")}</p>
           </aside>
         </div>
       )}
@@ -854,7 +867,7 @@ export function Storefront({
               cart={cart}
               total={total}
               href={href}
-              clear={() => setCart([])}
+              valid={cartValid}
               preview={preview}
               customerId={member.id}
             />
@@ -931,8 +944,7 @@ function ProductListing({
   const [search, setSearch] = useState(""),
     [category, setCategory] = useState(""),
     [material, setMaterial] = useState(""),
-    [sort, setSort] = useState("recommended"),
-    [stock, setStock] = useState(false);
+    [sort, setSort] = useState("recommended");
   useEffect(() => {
     setCategory(
       new URLSearchParams(queryString ?? window.location.search).get(
@@ -947,19 +959,18 @@ function ProductListing({
           (p) =>
             (!category || p.category_id === category) &&
             (!material || p.material === material) &&
-            (!stock || p.stock > 0) &&
             `${p.title[lang]} ${p.sku}`
               .toLowerCase()
               .includes(search.toLowerCase()),
         )
         .sort((a, b) =>
           sort === "asc"
-            ? a.price - b.price
+            ? salePrice(a) - salePrice(b)
             : sort === "desc"
-              ? b.price - a.price
+              ? salePrice(b) - salePrice(a)
               : Number(b.featured) - Number(a.featured),
         ),
-    [products, category, material, stock, search, lang, sort],
+    [products, category, material, search, lang, sort],
   );
   if (!products.length && requestContext)
     return <QuoteRequest lang={lang} context={requestContext} empty />;
@@ -1020,14 +1031,6 @@ function ProductListing({
         <span>
           {String(list.length).padStart(2, "0")} {t("products")}
         </span>
-        <label>
-          <input
-            type="checkbox"
-            checked={stock}
-            onChange={(e) => setStock(e.target.checked)}
-          />
-          {t("availability")}
-        </label>
       </div>
       {list.length ? (
         <div className="product-grid catalog-grid">{list.map(card)}</div>
@@ -1040,7 +1043,6 @@ function ProductListing({
               setSearch("");
               setMaterial("");
               setCategory("");
-              setStock(false);
             }}
           >
             {t("reset")}
@@ -1074,7 +1076,7 @@ function ProductDetail({
   add: (p: Product, v: string, q: number) => void;
 }) {
   const t = useVisualTranslate(lang),
-    variants = c.variants.filter((v) => v.product_id === p.id),
+    variants = productVariants(p, c.variants),
     images = c.product_images
       .filter((i) => i.product_id === p.id)
       .sort((a, b) => a.position - b.position);
@@ -1082,8 +1084,8 @@ function ProductDetail({
     [quantity, setQuantity] = useState(1),
     [image, setImage] = useState(0),
     [tab, setTab] = useState("specs");
-  const v = variants.find((v) => v.id === variant),
-    max = Math.min(p.stock, v?.stock || 0);
+  const v = variants.find((v) => v.id === variant) || variants[0],
+    max = maxLineQuantity;
   return (
     <section className="page-section product-page">
       <nav className="breadcrumbs">
@@ -1132,20 +1134,10 @@ function ProductDetail({
           </p>
           <h1 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h1>
           <div className="detail-price">
-            <span
-              data-edit-text={
-                v ? `variants:${v.id}:price` : `products:${p.id}:price`
-              }
-            >
-              {money(v?.price ?? p.price, lang)}
+            <span data-edit-text={`products:${p.id}:price`}>
+              <ProductPrice product={p} lang={lang} />
             </span>
-            <span className="stock-dot">
-              {max > 0
-                ? p.demo
-                  ? t("inStock")
-                  : t("available")
-                : t("outStock")}
-            </span>
+            <span className="production-note">{t("madeToOrder")}</span>
           </div>
           <p
             className="description"
@@ -1159,14 +1151,14 @@ function ProductDetail({
             {variants.map((vv) => (
               <button
                 key={vv.id}
-                className={variant === vv.id ? "selected" : ""}
+                className={v?.id === vv.id ? "selected" : ""}
                 onClick={() => {
                   setVariant(vv.id);
                   setQuantity(1);
                 }}
               >
-                {vv.name[lang]}
-                {variant === vv.id && <Check size={13} />}
+                {t(vv.finish as "gloss" | "matte")}
+                {v?.id === vv.id && <Check size={13} />}
               </button>
             ))}
           </fieldset>
@@ -1191,7 +1183,7 @@ function ProductDetail({
             <button
               className="button"
               disabled={!v || max < 1}
-              onClick={() => add(p, variant, quantity)}
+              onClick={() => v && add(p, v.id, quantity)}
             >
               {t("addCart")}
               <Plus size={16} />
@@ -1307,7 +1299,7 @@ function Checkout({
   cart,
   total,
   href,
-  clear,
+  valid,
   preview = false,
 }: {
   preview?: boolean;
@@ -1316,13 +1308,10 @@ function Checkout({
   cart: CartLine[];
   total: number;
   href: (p: string) => string;
-  clear: () => void;
+  valid: boolean;
 }) {
   const t = useVisualTranslate(lang),
     [status, setStatus] = useState(""),
-    [result, setResult] = useState<{ reference: string; demo: boolean } | null>(
-      null,
-    ),
     [busy, setBusy] = useState(false);
   const payment = useHostedPayment(preview, customerId, cart);
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -1337,10 +1326,18 @@ function Checkout({
       );
       return;
     }
+    if (!valid) {
+      setStatus(t("finishUnavailable"));
+      return;
+    }
     setBusy(true);
     setStatus("");
     const form = new FormData(e.currentTarget);
     try {
+      if (!payment.config.ready || !payment.config.enabled) {
+        setStatus(t("paymentUnavailable"));
+        return;
+      }
       if (payment.config.ready && payment.reference) {
         await payment.open(payment.reference, form);
         return;
@@ -1365,8 +1362,7 @@ function Checkout({
         await payment.open(data.reference, form);
         return;
       }
-      setResult(data);
-      clear();
+      setStatus(t("paymentUnavailable"));
     } catch (e) {
       setStatus(
         e instanceof Error && e.message === "OUT_OF_STOCK"
@@ -1388,18 +1384,9 @@ function Checkout({
   return (
     <section className="page-section checkout-page">
       <p className="eyebrow">KUZMIN / {t("checkout")}</p>
-      <h1>{result ? t("success") : t("checkoutTitle")}</h1>
-      {result ? (
-        <div className="confirmation">
-          <Check size={32} />
-          <p className="reference">{result.reference}</p>
-          <p>{result.demo ? t("successDemo") : t("successLive")}</p>
-          <Link className="button" href={href("/urunler")}>
-            {t("continue")}
-            <ArrowUpRight size={16} />
-          </Link>
-        </div>
-      ) : !cart.length ? (
+      <h1>{t("checkoutTitle")}</h1>
+      <p className="checkout-intro">{t("personalDetails")}</p>
+      {!cart.length ? (
         <div className="empty-state">
           <h2>{t("emptyBag")}</h2>
           <Link className="button" href={href("/urunler")}>
@@ -1414,7 +1401,7 @@ function Checkout({
                 ? payment.config.mode === "test"
                   ? "Test ödeme modu · Gerçek tahsilat yapılmaz."
                   : "Kart bilgileriniz sağlayıcının güvenli ödeme ekranına girilir."
-                : t("orderNote")}
+                : t("paymentUnavailable")}
             </p>
             {(
               ["customer_name", "email", "phone", "address", "note"] as const
@@ -1550,9 +1537,9 @@ function Checkout({
             >
               {busy
                 ? t("sending")
-                : payment.config.ready
-                  ? "Güvenli ödemeye geç"
-                  : t("submit")}
+                : payment.config.ready && payment.config.provider === "paytr"
+                  ? "PayTR ile ödemeye geç"
+                  : t("payWithIyzico")}
               <ArrowRight size={16} />
             </button>
           </form>

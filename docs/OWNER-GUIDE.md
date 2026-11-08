@@ -55,10 +55,32 @@ Gerçek sunucudaki yönetim panelinde **Fotoğraf düzeni → Ana sayfa banner v
 
 ## Yeni ürün ekleme
 
+Ürünler sipariş üzerine üretim içindir; stok sayısı girilmez. **Ürün fiyatı
+(TRY, KDV dahil)** liste fiyatıdır. **İndirim oranı (%)** alanına 0–100 arasında
+oran girin; indirimli fiyat ürün kartında, detayda, sepette ve sunucu sipariş
+hesabında aynıdır. Vergi veya kargo ücreti üzerine eklenmez. Tüm ürünlerde kargo
+ücretsizdir; ürünler 7–15 iş gününde kargoya verilir. Bu süre teslim tarihi değildir.
+
+Yeni üründe **Parlak vernik** otomatik hazırlanır. **Mat vernik seçeneğini ekle**
+kutusunu işaretlerseniz mat da sunulur. İşareti kaldırmak eski varyant/sipariş
+kayıtlarını silmez; müşterinin yeni seçim yapmasını engeller. Stok alanları eski
+kayıt uyumluluğu için veritabanında korunur ve satışa sınır koymaz.
+
+Sepette **Ödeme yapın** ile üyelik/bilgi ekranına geçilir. **Son bir detay. →
+Kişisel bilgilerinizi girin. → iyzico ile ödemeye geç** akışı kullanılır. Gerçek
+iyzico ayarları etkinleşmediyse bilgi gönderilmez, sepet silinmez ve ödeme sonucu
+üretilmez. İndirmesiz ön izleme kişisel bilgi ve ödeme göndermez. PayTR ayrıca
+etkinleştirilirse düğme seçilen sağlayıcının adını gösterir.
+
+Mevcut Supabase kurulumu için `013_product_commerce.sql` göçü gereklidir; göç
+dosyası uygulama tarafından uzaktan çalıştırılmaz. Yerel demo şeması otomatik
+güncellenir. Gelecekteki MySQL kurulumu için `database/mysql/002_product_commerce.sql`
+şeması hazırlanmıştır. MySQL bağlantısı ve adaptörü henüz etkin değildir.
+
 1. Gerekirse **Kategoriler** bölümünde kategori oluşturun.
-2. **Ürünler → Yeni kayıt**: ad, URL, benzersiz SKU, kategori, malzeme, görünen fiyat ve toplam stok girin. Ağırlık ve medya bağlantıları isteğe bağlıdır. Bilmediğiniz teknik özellikleri uydurmayın.
+2. **Ürünler → Yeni kayıt**: ad, URL, benzersiz SKU, kategori, malzeme, KDV dahil fiyat ve indirim oranını girin. Ağırlık ve medya bağlantıları isteğe bağlıdır. Bilmediğiniz teknik özellikleri uydurmayın.
 3. TR, EN ve RU sekmelerinde metinleri doldurun. Açıklama ve sayfa metinleri düz metindir; HTML çalıştırılmaz.
-4. **Varyantlar & stok**: her yüzey için ayrı varyant, benzersiz SKU, gerçek satış fiyatı ve stok ekleyin. Sepette varyant fiyatı kullanılır; ürün kartındaki fiyatı buna uygun tutun. Varyant oluşturulmadan ürün sepete eklenemez.
+4. Parlak vernik otomatik oluşturulur. Mat vernik de sunmak isterseniz ürün formundaki kutuyu işaretleyin; ayrı bir varyant veya stok kaydı girmeniz gerekmez.
 5. **Ürün fotoğrafları**: aynı ürün için birden fazla kayıt ekleyebilirsiniz. Sıra 0 kapak görselidir. Yüklenen fotoğraflar herkese açık mağaza görselleridir; kişisel belge yüklemeyin.
 6. Ürün formundaki **Uyumlu modeller ve yıllar → + Uyumlu model ekle** düğmesini kullanın. Her satırda marka, model ve başlangıç/bitiş yıllarını seçin. İsterseniz **Nesil / yıl grubu** seçerek kayıtlı yılları doldurun ve aralığı daraltın. Başka marka veya modeller için yeni satır ekleyin. Mevcut eşleştirmeler ürün düzenlenirken otomatik yüklenir; **Kaldır** yalnızca o uyumluluğu kaldırır. Ürün ve eşleştirmeleri birlikte kaydedilir. Yalnızca doğruladığınız uyumlulukları girin; aynı modelde çakışan yeni aralıklar reddedilir. Üretim yılları motosiklet kayıtlarından gelir; eksikse önce motosikleti düzenleyin. Ayrı **Uyumluluk** bölümü de kullanılabilir. Bir ürün için ayrı sayfa veya koleksiyon açmanız gerekmez.
 7. Üründe **Yayında** seçeneğini açın. **Ana sayfada öne çıkar** seçeneği ana sayfada gösterir. **Örnek ürün** işaretini yalnızca bilgileriniz ve ürününüz gerçek satışa hazırsa kaldırın.
@@ -66,7 +88,7 @@ Gerçek sunucudaki yönetim panelinde **Fotoğraf düzeni → Ana sayfa banner v
 
 ## Sipariş talepleri
 
-**Sipariş talepleri** bölümünde iletişim, adres, ürünler, fiyatlar ve toplam görüntülenir. Durumu inceleme, onay, gönderim veya iptal olarak güncelleyebilirsiniz. Bunlar ödeme durumları değildir. Sistem kart ödemesi almaz, otomatik e-posta göndermez ve talep oluşturulduğunda stok ayırmaz. Gerçek sipariş onayından önce stok, vergi, teslimat ve ücretleri müşteriye bildirin. `Demo talebi` gerçek ticari sipariş değildir.
+**Sipariş talepleri** bölümünde iletişim, adres, ürünler, fiyatlar ve toplam görüntülenir. Durumu inceleme, onay, gönderim veya iptal olarak güncelleyebilirsiniz. Bunlar ödeme durumları değildir. Kartlı sipariş yalnızca doğrulanmış sağlayıcı sonucu ile ödenmiş sayılır. Sipariş üzerine üretimde stok ayırma yapılmaz. Kargo ücretsiz, fiyatlar KDV dahildir; kargoya verme süresi 7–15 iş günüdür. `Demo talebi` gerçek ticari sipariş değildir.
 
 ## Sayfalar ve ana sayfa
 

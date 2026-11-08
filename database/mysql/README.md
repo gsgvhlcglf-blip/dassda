@@ -10,3 +10,8 @@ sonraki entegrasyon aşamasında tamamlanır. `DATA_PROVIDER=mysql` bugün açı
 verir ve demo depoya geri dönmez.
 
 Kapsam, tablo ilişkileri ve geçiş adımları: [Veri mimarisi](../../docs/VERI-MIMARISI.md).
+
+`002_product_commerce.sql` ürünün indirim oranını ve isteğe bağlı mat verniği ekler.
+Ürünler sipariş üzerine üretilir; stok kolonları eski kayıt uyumluluğu içindir.
+Uyarlama sırasında sipariş/ödeme miktarı ürünün KDV dahil indirimli fiyatından
+hesaplanmalı, ücretsiz kargo için ek tutar alınmamalı ve stok rezerve edilmemelidir.

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { schemas } from "./validation";
+import { withProductFinishes } from "./product-commerce";
 import type { Catalog, Row } from "./types";
 export const catalogTables = [
   "brands",
@@ -135,5 +136,9 @@ export function editCatalog(
           (r) => r.model_id !== record.id,
         ) as never;
   } else throw Error("İşlem geçersiz.");
-  return validateCatalog(next);
+  return validateCatalog(
+    table === "products" && action !== "delete"
+      ? withProductFinishes(next, record.id)
+      : next,
+  );
 }

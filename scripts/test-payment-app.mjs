@@ -230,7 +230,7 @@ try {
   };
   await fill();
   await page
-    .getByRole("button", { name: "Güvenli ödemeye geç", exact: true })
+    .getByRole("button", { name: "PayTR ile ödemeye geç", exact: true })
     .click();
   await page
     .frameLocator("iframe.payment-gateway-frame")
@@ -301,7 +301,7 @@ try {
     .getByLabel("T.C. kimlik / pasaport numarası", { exact: true })
     .fill("TESTPASSPORT");
   await page
-    .getByRole("button", { name: "Güvenli ödemeye geç", exact: true })
+    .getByRole("button", { name: "iyzico ile ödemeye geç", exact: true })
     .click();
   await page.waitForURL("https://sandbox-cpp.iyzipay.com/**");
   assert.equal(startPayload.identity, "TESTPASSPORT");

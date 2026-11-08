@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { dismissCookies } from "../scripts/test-cookie-helper.mjs";
 const password =
   process.env.LOCAL_ADMIN_PASSWORD ||
   readFileSync(".env.local", "utf8").match(
@@ -8,10 +9,11 @@ const password =
   "";
 const stamp = Date.now().toString(),
   slug = `test-${stamp}`;
-test("customer journey, persistence, Turkish-only storefront and a real demo order request", async ({
+test("customer journey preserves cart and requires configured payment before submitting", async ({
   page,
 }) => {
   await page.goto("/");
+  await dismissCookies(page);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Detayda fark yarat",
   );
@@ -31,12 +33,11 @@ test("customer journey, persistence, Turkish-only storefront and a real demo ord
   await page.getByRole("button", { name: "Sepete ekle", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Sepete eklendi");
   await page.reload();
+  await dismissCookies(page);
   await page.getByRole("link", { name: "Sepet (1)", exact: true }).click();
   await page.getByRole("button", { name: "Adet +", exact: true }).click();
   await expect(page.locator(".cart-controls .quantity span")).toHaveText("2");
-  await page
-    .getByRole("link", { name: "Sipariş talebi oluştur", exact: true })
-    .click();
+  await page.getByRole("link", { name: "Ödeme yapın", exact: true }).click();
   await expect(page).toHaveURL(/giris/);
   await page
     .locator(".member-form")
@@ -54,6 +55,7 @@ test("customer journey, persistence, Turkish-only storefront and a real demo ord
     .getByRole("button", { name: "Üye ol", exact: true })
     .click();
   await expect(page).toHaveURL(/odeme/);
+  await dismissCookies(page);
   await page.getByLabel("Ad soyad", { exact: true }).fill("Demo Customer");
   await page
     .getByLabel("E-posta", { exact: true })
@@ -64,15 +66,17 @@ test("customer journey, persistence, Turkish-only storefront and a real demo ord
     .fill("Demo street 10, test address");
   await page.getByLabel("Verilerimin").check();
   await page
-    .getByRole("button", { name: "Talebi gönder", exact: true })
+    .getByRole("button", { name: "iyzico ile ödemeye geç", exact: true })
     .click();
-  await expect(
-    page.getByRole("heading", { name: "Talebiniz kaydedildi." }),
-  ).toBeVisible();
-  await expect(page.locator(".reference")).toContainText("KZ-");
-  await expect(page.locator(".confirmation")).toContainText(
-    "Gerçek bir sipariş veya ödeme oluşturulmadı",
+  await expect(page.locator(".form-error")).toContainText(
+    "Ödeme altyapısı henüz etkin değil",
   );
+  await expect(page.locator(".confirmation")).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("kz-cart") || "[]")[0].quantity,
+    ),
+  ).toBe(2);
   await expect(page.locator("#language")).toHaveCount(0);
   await page.goto("/?lang=en");
   await expect(page.locator("html")).toHaveAttribute("lang", "tr");
@@ -174,21 +178,10 @@ test("owner can visually create a model, generation, year, product, variant, ima
   await page.getByLabel("URL adı", { exact: true }).fill(slug);
   await page.getByLabel("SKU", { exact: true }).fill(`TEST-${stamp}`);
   await page.getByLabel("Kategori", { exact: true }).selectOption("body");
-  await page.getByLabel("Görünen fiyat (TRY)", { exact: true }).fill("1234");
-  await page.getByLabel("Toplam stok", { exact: true }).fill("5");
+  await page
+    .getByLabel("Ürün fiyatı (TRY, KDV dahil)", { exact: true })
+    .fill("1234");
   await page.getByLabel("Yayında", { exact: true }).check();
-  await save();
-  await section("Varyantlar & stok");
-  await create();
-  await page
-    .getByLabel("Ürün", { exact: true })
-    .selectOption({ label: `Test product ${stamp}` });
-  await page
-    .getByLabel("Varyant adı / TR", { exact: true })
-    .fill("Parlak test");
-  await page.getByLabel("Varyant SKU", { exact: true }).fill(`TEST-G-${stamp}`);
-  await page.getByLabel("Satış fiyatı (TRY)", { exact: true }).fill("1234");
-  await page.getByLabel("Varyant stoku", { exact: true }).fill("5");
   await save();
   await section("Ürün fotoğrafları");
   await create();

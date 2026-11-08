@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import type { Row } from "@/lib/types";
 import { money } from "@/lib/i18n";
+import { salePrice } from "@/lib/product-commerce";
 type Data = Record<string, Row[]>;
 type Field = {
   key: string;
@@ -91,8 +92,13 @@ const fields: Record<string, Field[]> = {
       label: "Malzeme",
       options: ["full_carbon", "hybrid", "forged", "carbon_finish"],
     },
-    { key: "price", label: "Görünen fiyat (TRY)", type: "number" },
-    { key: "stock", label: "Toplam stok", type: "number" },
+    { key: "price", label: "Ürün fiyatı (TRY, KDV dahil)", type: "number" },
+    { key: "discount_percent", label: "İndirim oranı (%)", type: "number" },
+    {
+      key: "matte_enabled",
+      label: "Mat vernik seçeneğini ekle",
+      type: "checkbox",
+    },
     {
       key: "weight",
       label: "Ağırlık (gram, isteğe bağlı)",
@@ -112,9 +118,7 @@ const fields: Record<string, Field[]> = {
     { key: "product_id", label: "Ürün", relation: "products" },
     { key: "name", label: "Varyant adı", type: "localized" },
     { key: "sku", label: "Varyant SKU" },
-    { key: "price", label: "Satış fiyatı (TRY)", type: "number" },
-    { key: "stock", label: "Varyant stoku", type: "number" },
-    { key: "finish", label: "Yüzey", options: ["gloss", "matte"] },
+    { key: "finish", label: "Vernik", options: ["gloss", "matte"] },
   ],
   product_images: [
     { key: "product_id", label: "Ürün", relation: "products" },
@@ -171,7 +175,7 @@ const sections = [
   ["generations", "Nesiller", Layers],
   ["model_years", "Üretim yılları", CalendarDays],
   ["products", "Ürünler", Package],
-  ["variants", "Varyantlar & stok", Tags],
+  ["variants", "Vernik seçenekleri", Tags],
   ["product_images", "Ürün fotoğrafları", Images],
   ["compatibility", "Uyumluluk", Link2],
   ["categories", "Kategoriler", Layers],
@@ -195,8 +199,8 @@ const labels: Record<string, string> = {
   hybrid: "Karbon / cam elyaf",
   forged: "Forged karbon",
   carbon_finish: "Karbon dış yüzey",
-  gloss: "Parlak",
-  matte: "Mat",
+  gloss: "Parlak vernik",
+  matte: "Mat vernik",
 };
 export function Admin({
   role,
@@ -752,7 +756,7 @@ export function Admin({
                     "products",
                     "03",
                     "Ürünü oluşturun",
-                    "Ürün bilgilerini, varyant fiyatlarını ve stokları girin.",
+                    "Ürün fiyatını, indirim oranını ve vernik seçeneklerini girin.",
                   ],
                   [
                     "product_images",
@@ -840,7 +844,12 @@ export function Admin({
                             alt="Ürün fotoğrafı"
                           />
                         ) : r.price !== undefined ? (
-                          money(Number(r.price))
+                          money(
+                            salePrice({
+                              price: Number(r.price),
+                              discount_percent: Number(r.discount_percent || 0),
+                            }),
+                          )
                         ) : (
                           String(
                             r.year ||
@@ -886,7 +895,8 @@ export function Admin({
                         ) : (
                           String(
                             r.brand_id ||
-                              (r.stock !== undefined && `Stok: ${r.stock}`) ||
+                              (section === "products" &&
+                                "Sipariş üzerine üretim") ||
                               "—",
                           )
                         )}
@@ -1138,8 +1148,13 @@ export function Admin({
                       aria-label={f.label}
                       type={f.type === "number" ? "number" : "text"}
                       min={f.type === "number" ? 0 : undefined}
+                      max={f.key === "discount_percent" ? 100 : undefined}
                       step={
-                        f.key === "price" || f.key === "weight" ? "0.01" : 1
+                        f.key === "price" ||
+                        f.key === "weight" ||
+                        f.key === "discount_percent"
+                          ? "0.01"
+                          : 1
                       }
                       required={!f.optional && f.type !== "image"}
                       value={value === null ? "" : String(value ?? "")}
@@ -1159,6 +1174,17 @@ export function Admin({
               {error && (
                 <p role="alert" className="form-error">
                   {error}
+                </p>
+              )}
+              {section === "products" && (
+                <p className="micro muted">
+                  Parlak vernik varsayılan · İndirimli fiyat (KDV dahil):{" "}
+                  {money(
+                    salePrice({
+                      price: Number(editing?.price || 0),
+                      discount_percent: Number(editing?.discount_percent || 0),
+                    }),
+                  )}
                 </p>
               )}
               {section === "models" && (

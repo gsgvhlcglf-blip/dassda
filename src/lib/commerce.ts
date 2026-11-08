@@ -1,4 +1,9 @@
 import type { Catalog, CartLine, Product } from "./types";
+import {
+  salePrice,
+  variantAvailable,
+  maxLineQuantity,
+} from "./product-commerce";
 export function compatibleProducts(
   c: Catalog,
   modelId: string,
@@ -40,20 +45,10 @@ export function quote(c: Catalog, lines: CartLine[]) {
       v = c.variants.find(
         (v) => v.id === l.variantId && v.product_id === l.productId,
       );
-    if (!p || !v) throw new Error("INVALID_VARIANT");
-    if (l.quantity > v.stock || l.quantity > p.stock)
-      throw new Error("OUT_OF_STOCK");
-    return { ...l, product: p, variant: v, unit_price: v.price };
+    if (!p || !v || !variantAvailable(p, v)) throw new Error("INVALID_VARIANT");
+    if (l.quantity > maxLineQuantity) throw new Error("INVALID_QUANTITY");
+    return { ...l, product: p, variant: v, unit_price: salePrice(p) };
   });
-  for (const p of new Set(items.map((i) => i.product.id))) {
-    if (
-      items
-        .filter((i) => i.product.id === p)
-        .reduce((a, i) => a + i.quantity, 0) >
-      items.find((i) => i.product.id === p)!.product.stock
-    )
-      throw new Error("OUT_OF_STOCK");
-  }
   return {
     items,
     total:

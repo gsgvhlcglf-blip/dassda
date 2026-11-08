@@ -905,7 +905,7 @@
           ],
           products: [
             "Ürünler",
-            "Fiyatları, stokları ve ürün detaylarını düzenleyin.",
+            "Fiyat, indirim, vernik ve ürün detaylarını düzenleyin.",
             "▣",
           ],
           models: [
@@ -1107,8 +1107,8 @@
               typeof p.title?.tr !== "string" ||
               !Number.isFinite(p.price) ||
               p.price < 0 ||
-              !Number.isInteger(p.stock) ||
-              p.stock < 0
+              !Number.isInteger(p.stock ?? 0) ||
+              (p.stock ?? 0) < 0 || !Number.isFinite(p.discount_percent ?? 0) || (p.discount_percent ?? 0) < 0 || (p.discount_percent ?? 0) > 100 || (p.matte_enabled !== undefined && typeof p.matte_enabled !== "boolean")
             )
               throw Error("Ürün bilgileri geçersiz.");
           }
@@ -1255,7 +1255,7 @@
                 "products",
                 "02",
                 "Ürününüzü hazırlayın",
-                "Açıklama, fiyat, yüzey ve stok.",
+                "Açıklama, fiyat, indirim ve vernik.",
               ],
               [
                 "compatibility",
@@ -1336,11 +1336,11 @@
           let body = "";
           if (section === "products")
             body = table(
-              ["Ürün", "Fiyat / Stok", "Görünürlük", "İşlem"],
+              ["Ürün", "Fiyat", "Görünürlük", "İşlem"],
               rows
                 .map(
                   (p) =>
-                    `<tr><td><div class="row-name">${imageTag(imageFor(p), p.title.tr)}<div><strong>${esc(p.title.tr)}</strong><small>${esc(p.sku)}</small></div></div></td><td>${money(p.price)}<small>Toplam stok: ${p.stock}</small></td><td><span class="pill">${p.published ? "Yayında" : "Yayında değil"}${p.featured ? " · Öne çıkan" : ""}</span></td><td>${action("Düzenle ↗", "edit", p.id, "ghost")}</td></tr>`,
+                    `<tr><td><div class="row-name">${imageTag(imageFor(p), p.title.tr)}<div><strong>${esc(p.title.tr)}</strong><small>${esc(p.sku)}</small></div></div></td><td>${money(KZ_MODELS.salePrice(p))}<small>Sipariş üzerine üretim</small></td><td><span class="pill">${p.published ? "Yayında" : "Yayında değil"}${p.featured ? " · Öne çıkan" : ""}</span></td><td>${action("Düzenle ↗", "edit", p.id, "ghost")}</td></tr>`,
                 )
                 .join(""),
             );
@@ -1449,33 +1449,15 @@
                 record?.material || "full_carbon",
               ) +
               field(
-                "Görünen fiyat (TRY)",
+                "Ürün fiyatı (TRY, KDV dahil)",
                 "price",
                 record?.price || 0,
                 "number",
                 'required min="0" max="100000000" step="0.01"',
               ) +
-              field(
-                "Toplam stok",
-                "stock",
-                record?.stock || 0,
-                "number",
-                'required min="0" max="1000000" step="1"',
-              ) +
-              field(
-                "Parlak yüzey stoku",
-                "gloss_stock",
-                v.find((v) => v.finish === "gloss")?.stock || 0,
-                "number",
-                'min="0" step="1"',
-              ) +
-              field(
-                "Mat yüzey stoku",
-                "matte_stock",
-                v.find((v) => v.finish === "matte")?.stock || 0,
-                "number",
-                'min="0" step="1"',
-              ) +
+              field("İndirim oranı (%)", "discount_percent", record?.discount_percent ?? 0, "number", 'min="0" max="100" step="0.01"') +
+              `<p class="help span-2" id="product-sale-price">İndirimli satış fiyatı (KDV dahil): ${money(KZ_MODELS.salePrice({price:record?.price || 0,discount_percent:record?.discount_percent || 0}))}</p>` +
+              `<div class="span-2 checks"><span>Parlak vernik varsayılan</span><label><input type="checkbox" name="matte_enabled" ${record?.matte_enabled === true ? "checked" : ""}>Mat vernik seçeneğini ekle</label></div>` +
               area("Açıklama", "description", record?.description.tr || "") +
               area(
                 "Malzeme ve teknik detaylar",
@@ -1620,11 +1602,13 @@
                 category_id: str("category_id"),
                 material: str("material"),
                 price: num("price"),
-                stock: num("stock"),
+                stock: current?.stock ?? 0,
+                discount_percent: num("discount_percent"),
+                matte_enabled: form.has("matte_enabled"),
                 published: form.has("published"),
                 featured: form.has("featured"),
               };
-              for (const finish of ["gloss", "matte"]) {
+              for (const finish of r.matte_enabled ? ["gloss", "matte"] : ["gloss"]) {
                 const old = next.variants.find(
                   (v) => v.product_id === id && v.finish === finish,
                 );
@@ -1634,13 +1618,13 @@
                     product_id: id,
                     name:
                       finish === "gloss"
-                        ? { tr: "Parlak", en: "Gloss", ru: "Глянец" }
-                        : { tr: "Mat", en: "Matte", ru: "Матовый" },
+                        ? { tr: "Parlak vernik", en: "Gloss clear coat", ru: "Глянцевый лак" }
+                        : { tr: "Mat vernik", en: "Matte clear coat", ru: "Матовый лак" },
                     finish,
                   }),
                   sku: r.sku + (finish === "gloss" ? "-G" : "-M"),
                   price: r.price,
-                  stock: num(finish + "_stock"),
+                  stock: old?.stock ?? 0,
                 };
                 if (old) Object.assign(old, variant);
                 else next.variants.push(variant);
@@ -1814,7 +1798,7 @@
             ? state.products.filter((p) => p.published && ids.has(p.id))
             : [];
           $("#preview-results").innerHTML =
-            `<p class="eyebrow">${products.length} UYUMLU TASLAK ÜRÜN</p><div class="preview-products">${products.map((p) => `<article class="product">${imageTag(imageFor(p), p.title.tr, "product-photo")}<div><h3>${esc(p.title.tr)}</h3><b>${money(p.price)}</b><p>${esc(p.sku)} · Stok: ${p.stock}</p>${action("Düzenle ↗", "preview-edit", p.id, "ghost")}</div></article>`).join("")}</div>${!products.length ? '<p class="empty">Bu seçim için görünür bir ürün bulunmuyor.</p>' : ""}`;
+            `<p class="eyebrow">${products.length} UYUMLU TASLAK ÜRÜN</p><div class="preview-products">${products.map((p) => `<article class="product">${imageTag(imageFor(p), p.title.tr, "product-photo")}<div><h3>${esc(p.title.tr)}</h3><b>${money(KZ_MODELS.salePrice(p))}</b><p>${esc(p.sku)} · Sipariş üzerine üretim</p>${action("Düzenle ↗", "preview-edit", p.id, "ghost")}</div></article>`).join("")}</div>${!products.length ? '<p class="empty">Bu seçim için görünür bir ürün bulunmuyor.</p>' : ""}`;
         }
         async function exportData() {
           try {
@@ -1867,6 +1851,13 @@
           }
         });
         document.addEventListener("input", (event) => {
+          const output = $("#product-sale-price");
+          if (output && ["price", "discount_percent"].includes(event.target.name)) {
+            const form = $("#edit-form"), price = Number(form.elements.price.value), discount = Number(form.elements.discount_percent.value);
+            output.textContent = Number.isFinite(price) && discount >= 0 && discount <= 100
+              ? "İndirimli satış fiyatı (KDV dahil): " + money(KZ_MODELS.salePrice({price,discount_percent:discount}))
+              : "İndirim oranını 0–100 arasında girin.";
+          }
           if (event.target.id === "search") {
             query = event.target.value;
             renderRows();

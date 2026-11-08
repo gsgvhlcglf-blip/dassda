@@ -1,4 +1,5 @@
 "use client";
+import { ProductPrice } from "./product-price";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -6,7 +7,6 @@ import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { ProductPhoto } from "./product-photo";
 import { useVisualCopy, useVisualImage } from "@/lib/visual";
 import { readBestsellers, centeredBestsellerFrame } from "@/lib/bestsellers";
-import { money } from "@/lib/i18n";
 import type { Catalog, Lang, Product } from "@/lib/types";
 function BestsellerImage({
   product,
@@ -218,7 +218,7 @@ export function HomeBestsellers({
             </ProductPhoto>
             <div className="bestseller-copy">
               <h3 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h3>
-              <span>{money(p.price, lang)}</span>
+              <ProductPrice product={p} lang={lang} />
             </div>
           </Link>
         ))}

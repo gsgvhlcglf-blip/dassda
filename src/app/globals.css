@@ -2899,6 +2899,11 @@ html[data-kuzmin-editing="true"][data-bestseller-guides="true"] .bestseller-guid
 .footer-payments { min-width: 0; max-width: 100%; align-self: end; justify-self: end; padding: 8px 0; }
 .footer-payments img { display: block; width: 342px; max-width: 100%; height: auto; }
 .checkout-provider-logo { display: block; width: 210px; max-width: 100%; height: auto; margin: 8px 0 20px; }
+.product-price { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.product-price del { color: #888; font-size: .75em; font-weight: 400; }
+.discount-badge { color: #d6aba4; font-size: 10px; font-weight: 400; white-space: nowrap; }
+.production-note { color: #aaa; font-size: 11px; }
+.checkout-intro { color: #aaa; font-size: 14px; margin: -12px 0 30px; }
 @media(max-width:760px) { .home-bestsellers { padding-bottom: 32px; } .bestsellers-heading { margin-bottom: 24px; } .bestseller-card { flex-basis: 82%; } .bestsellers-rail { gap: 16px; } .bestsellers-picker { grid-template-columns: 1fr; } .about-page { grid-template-columns: 1fr; gap: 32px; } .about-page > .eyebrow, .about-page > h1, .about-page > .content-body, .about-page > .text-link { grid-column: 1; } .about-brand { grid-column: 1; grid-row: auto; min-height: 160px; } }
 
 @media (max-width: 1399px) {
