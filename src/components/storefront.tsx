@@ -896,7 +896,15 @@ export function Storefront({
               ))}
             </div>
           </nav>
-          <div className="footer-payments" aria-hidden="true" />
+          <div className="footer-payments">
+            <Image
+              src="/images/iyzico-footer-white.svg"
+              alt="iyzico ile Öde, Mastercard, Visa, American Express ve Troy logoları"
+              width={456}
+              height={32}
+              unoptimized
+            />
+          </div>
         </div>
         <div className="footer-bottom">
           <p>
@@ -1532,6 +1540,16 @@ function Checkout({
               <p role="alert" className="form-error">
                 {status}
               </p>
+            )}
+            {payment.config.ready && payment.config.provider === "iyzico" && (
+              <Image
+                className="checkout-provider-logo"
+                src="/images/iyzico-checkout-tr-white.svg"
+                alt="iyzico ile Öde"
+                width={210}
+                height={31}
+                unoptimized
+              />
             )}
             <button
               className="button wide"

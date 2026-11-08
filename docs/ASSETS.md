@@ -14,3 +14,21 @@
 ## Blog article media
 
 The new educational articles reuse the project's original `home-editorial-weave.webp` and `home-editorial-detail.webp` concept images as covers. Original `process-infusion.svg`, `process-lamination.svg`, `carbon-twill.svg` and `carbon-forged.svg` supply explanatory illustrations. These are conceptual/diagrammatic media, not verified inventory photographs or evidence of a manufacturing certification. Covers and article illustrations have stable editable blog bindings.
+
+## Owner-supplied iyzico logos
+
+The owner supplied `iyzico-logo-pack.zip`. Two original SVG files were copied
+without altering their artwork or proportions:
+
+- `public/images/iyzico-footer-white.svg`: `footer_iyzico_ile_ode/White/logo_band_white.svg`
+  (456 × 32), the supplied iyzico/Mastercard/Visa/American Express/Troy footer band.
+  Its white artwork is displayed on the existing dark footer, aligned to the right.
+- `public/images/iyzico-checkout-tr-white.svg`: `checkout_iyzico_ile_ode/TR/Tr_White_Horizontal/iyzico_ile_ode_horizontal_white.svg`
+  (210 × 31), the Turkish checkout mark. It appears beside the payment action only
+  when the configured, ready payment provider is iyzico.
+
+The package includes color, language and format alternatives; they are not all
+displayed together. These are owner-provided brand assets, not generated artwork.
+Their display does not enable card payments or establish a merchant connection.
+No credentials, payment settings, accepted-card configuration or provider callbacks
+were changed. The preview embeds these same local assets without external requests.

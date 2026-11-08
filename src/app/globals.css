@@ -2890,12 +2890,18 @@ html[data-kuzmin-editing="true"][data-bestseller-guides="true"] .bestseller-guid
 .about-brand .wordmark { text-align: center; font-size: clamp(48px,5vw,82px); letter-spacing: -.065em; }
 .about-brand .wordmark b { font-weight: 600; }
 .about-brand .wordmark span { font-size: 8px; letter-spacing: .12em; margin-top: 14px; }
-.footer-main { display: grid; grid-template-columns: minmax(0,1fr) 180px; gap: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.footer-main { display: grid; grid-template-columns: minmax(0,1fr) 342px; gap: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
 .footer-nav { display: block; border: 0; padding: 0; }
 .footer-nav > .footer-support, .footer-nav > .footer-legal { display: flex; flex-wrap: wrap; gap: 16px 28px; width: 100%; }
 .footer-support { margin-bottom: 24px; }
-.footer-payments { min-height: 54px; align-self: end; }
+.footer-payments { min-width: 0; max-width: 100%; align-self: end; justify-self: end; padding: 8px 0; }
+.footer-payments img { display: block; width: 342px; max-width: 100%; height: auto; }
+.checkout-provider-logo { display: block; width: 210px; max-width: 100%; height: auto; margin: 8px 0 20px; }
 @media(max-width:760px) { .home-bestsellers { padding-bottom: 32px; } .bestsellers-heading { margin-bottom: 24px; } .bestseller-card { flex-basis: 82%; } .bestsellers-rail { gap: 16px; } .bestsellers-picker { grid-template-columns: 1fr; } .about-page { grid-template-columns: 1fr; gap: 32px; } .about-page > .eyebrow, .about-page > h1, .about-page > .content-body, .about-page > .text-link { grid-column: 1; } .about-brand { grid-column: 1; grid-row: auto; min-height: 160px; } }
+
+@media (max-width: 1399px) {
+  .footer-main { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
 
 @media (max-width: 1199px) {
   .footer-top { margin-bottom: 24px; }
