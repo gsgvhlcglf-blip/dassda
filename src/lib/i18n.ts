@@ -236,6 +236,17 @@ const messages = {
   ],
   discover: ["Keşfedin", "Discover", "Открыть"],
   chooseModel: ["Modelinizi seçin.", "Choose your model.", "Выберите модель."],
+  modelSearch: [
+    "Model adıyla ara",
+    "Search by model name",
+    "Поиск по названию модели",
+  ],
+  modelSearchClear: ["Aramayı temizle", "Clear search", "Очистить поиск"],
+  noMatchingModels: [
+    "Aramana uygun model bulunamadı.",
+    "No matching models found.",
+    "Подходящие модели не найдены.",
+  ],
   chooseYear: ["Yılınızı seçin.", "Choose your year.", "Выберите год."],
   yearIntro: [
     "Motosikletinizin üretim yılını seçerek uyumlu parçaları keşfedin.",

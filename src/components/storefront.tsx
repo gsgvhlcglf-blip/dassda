@@ -57,6 +57,13 @@ import {
 } from "./customer-pages";
 import { resolveStoreLanguage } from "@/lib/settings";
 import { compatibleProducts } from "@/lib/commerce";
+function modelSearchText(value: string) {
+  return value
+    .toLocaleLowerCase("tr")
+    .normalize("NFD")
+    .replace(/ı/g, "i")
+    .replace(/[^\p{L}\p{N}]/gu, "");
+}
 function Art({
   src,
   alt,
@@ -146,6 +153,7 @@ export function Storefront({
       return pathname + (query.size ? "?" + query.toString() : "");
     };
   const [cart, setCart] = useCart();
+  const [modelSearch, setModelSearch] = useState<Record<string, string>>({});
   const [previewMember, setPreviewMember] = useState<CustomerView | null>(null);
   const member = preview ? previewMember : customer;
   useEffect(() => {
@@ -340,7 +348,12 @@ export function Storefront({
           {brandCards()}
         </section>
       );
-    if (!m)
+    if (!m) {
+      const query = modelSearch[b.id] || "";
+      const models = c.models.filter((model) => model.brand_id === b.id);
+      const matchingModels = models.filter((model) =>
+        modelSearchText(model.name).includes(modelSearchText(query)),
+      );
       return (
         <section className="page-section">
           {crumbs([{ label: b.name }])}
@@ -354,38 +367,73 @@ export function Storefront({
               {t("back")}
             </Link>
           </div>
-          <div className="model-grid">
-            {c.models
-              .filter((m) => m.brand_id === b.id)
-              .map((m, i) => (
-                <Link
-                  className="model-card"
-                  key={m.id}
-                  href={href(`/motosikletler/${b.slug}/${m.slug}`)}
-                >
-                  <div className="model-art">
-                    <Art
-                      visualId={`model:${m.id}`}
-                      src={m.image}
-                      alt={`${b.name} ${m.name} — ${t("imageLabel")}`}
-                    />
-                    <span className="micro">{t("imageLabel")}</span>
-                  </div>
-                  <div className="model-heading">
-                    <span className="micro muted">
-                      0{i + 1} / {b.name}
-                    </span>
-                    <h2 data-edit-text={`models:${m.id}:name`}>{m.name}</h2>
-                    <ArrowUpRight />
-                  </div>
-                </Link>
-              ))}
+          <div
+            className="model-search"
+            role="search"
+            aria-label={t("modelSearch")}
+            data-no-editor
+          >
+            <Search size={18} aria-hidden="true" />
+            <input
+              type="search"
+              aria-label={t("modelSearch")}
+              aria-controls="motorcycle-models"
+              placeholder={t("modelSearch")}
+              autoComplete="off"
+              value={query}
+              onChange={(e) =>
+                setModelSearch((current) => ({
+                  ...current,
+                  [b.id]: e.target.value,
+                }))
+              }
+            />
+            {query && (
+              <button
+                type="button"
+                className="model-search-clear"
+                aria-label={t("modelSearchClear")}
+                onClick={() =>
+                  setModelSearch((current) => ({ ...current, [b.id]: "" }))
+                }
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            )}
           </div>
-          {!c.models.some((m) => m.brand_id === b.id) && (
-            <p className="empty">{t("noModels")}</p>
+          <div className="model-grid" id="motorcycle-models">
+            {matchingModels.map((m, i) => (
+              <Link
+                className="model-card"
+                key={m.id}
+                href={href(`/motosikletler/${b.slug}/${m.slug}`)}
+              >
+                <div className="model-art">
+                  <Art
+                    visualId={`model:${m.id}`}
+                    src={m.image}
+                    alt={`${b.name} ${m.name} — ${t("imageLabel")}`}
+                  />
+                  <span className="micro">{t("imageLabel")}</span>
+                </div>
+                <div className="model-heading">
+                  <span className="micro muted">
+                    0{i + 1} / {b.name}
+                  </span>
+                  <h2 data-edit-text={`models:${m.id}:name`}>{m.name}</h2>
+                  <ArrowUpRight />
+                </div>
+              </Link>
+            ))}
+          </div>
+          {!matchingModels.length && (
+            <p className="empty" role="status">
+              {t(models.length ? "noMatchingModels" : "noModels")}
+            </p>
           )}
         </section>
       );
+    }
     if (!s[3])
       return (
         <section className="page-section year-page">
