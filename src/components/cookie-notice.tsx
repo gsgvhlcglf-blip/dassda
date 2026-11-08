@@ -109,17 +109,17 @@ export function CookieNotice() {
             <button
               type="button"
               className="button secondary"
-              onClick={() => choose(false)}
-            >
-              Reddet
-            </button>
-            <button
-              type="button"
-              className="button secondary"
               disabled={blocked}
               onClick={() => choose(true)}
             >
               Kabul et
+            </button>
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => choose(false)}
+            >
+              Reddet
             </button>
             {preferences ? (
               <button
