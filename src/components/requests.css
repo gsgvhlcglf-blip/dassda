@@ -902,6 +902,12 @@
   color: #fff;
   pointer-events: none;
 }
+html[data-kuzmin-editing="true"] .request-image-choice > input[type="radio"] {
+  pointer-events: none;
+}
+html[data-kuzmin-editing="true"] .request-choice-caption {
+  pointer-events: auto;
+}
 .request-choice-caption strong {
   display: block;
   font-size: 18px;

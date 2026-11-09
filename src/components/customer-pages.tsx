@@ -1,4 +1,5 @@
 "use client";
+import { VisualText, useSiteText } from "./visual-text";
 import { defaultBlogImage, blogFigureCaptions } from "@/lib/blog-media";
 import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
@@ -29,15 +30,26 @@ export function MemberGate({ lang, href }: Props) {
   return (
     <section className="page-section member-gate">
       <UserRound size={30} strokeWidth={1} />
-      <p className="eyebrow">KUZMIN / {t("account")}</p>
-      <h1>{t("membershipRequired")}</h1>
-      <p className="intro">{t("membershipIntro")}</p>
+      <p className="eyebrow">
+        <VisualText textKey={"slot:copy.customer.lekgnpiaicpa"} />
+        {<VisualText textKey={"ui:" + "account"} />}
+      </p>
+      <h1 data-visual-text={"ui:" + "membershipRequired"}>
+        {t("membershipRequired")}
+      </h1>
+      <p className="intro" data-visual-text={"ui:" + "membershipIntro"}>
+        {t("membershipIntro")}
+      </p>
       <div className="member-actions">
         <Link className="button" href={href("/giris?next=%2Fodeme")}>
-          {t("login")}
+          {<VisualText textKey={"ui:" + "login"} />}
           <ArrowUpRight size={16} />
         </Link>
-        <Link className="button outline" href={href("/uye-ol?next=%2Fodeme")}>
+        <Link
+          className="button outline"
+          href={href("/uye-ol?next=%2Fodeme")}
+          data-visual-text={"ui:" + "signup"}
+        >
           {t("signup")}
         </Link>
       </div>
@@ -159,11 +171,25 @@ export function CustomerPage({
   if (mode === "account")
     return (
       <section className="page-section account-page">
-        <p className="eyebrow">KUZMIN / {t("account")}</p>
-        <h1>{t("myOrders")}</h1>
+        <p className="eyebrow">
+          <VisualText textKey={"slot:copy.customer.lekgnpiaicpa"} />
+          {<VisualText textKey={"ui:" + "account"} />}
+        </p>
+        <h1 data-visual-text={"ui:" + "myOrders"}>{t("myOrders")}</h1>
         <div className="account-meta">
-          <p>{preview ? t("accountDemo") : user?.email}</p>
-          <button className="text-link" onClick={logout} disabled={busy}>
+          <p>
+            {preview ? (
+              <VisualText textKey={"ui:" + "accountDemo"} />
+            ) : (
+              user?.email
+            )}
+          </p>
+          <button
+            className="text-link"
+            onClick={logout}
+            disabled={busy}
+            data-visual-text={"ui:" + "logout"}
+          >
             {t("logout")}
           </button>
         </div>
@@ -171,8 +197,12 @@ export function CustomerPage({
         {!orders.length ? (
           <div className="empty-state">
             <PackageCheck size={32} />
-            <p>{t("noOrders")}</p>
-            <Link className="button" href={href("/urunler")}>
+            <p data-visual-text={"ui:" + "noOrders"}>{t("noOrders")}</p>
+            <Link
+              className="button"
+              href={href("/urunler")}
+              data-visual-text={"ui:" + "continue"}
+            >
               {t("continue")}
             </Link>
           </div>
@@ -217,19 +247,34 @@ export function CustomerPage({
     <section className="page-section account-page">
       <div className="account-layout">
         <div>
-          <p className="eyebrow">KUZMIN / {t("account")}</p>
-          <h1>{t(mode === "signup" ? "signup" : "login")}</h1>
-          <p className="intro">{t("accountIntro")}</p>
-          <p className="muted">{t("membershipIntro")}</p>
+          <p className="eyebrow">
+            <VisualText textKey={"slot:copy.customer.lekgnpiaicpa"} />
+            {<VisualText textKey={"ui:" + "account"} />}
+          </p>
+          <h1
+            data-visual-text={"ui:" + (mode === "signup" ? "signup" : "login")}
+          >
+            {t(mode === "signup" ? "signup" : "login")}
+          </h1>
+          <p className="intro" data-visual-text={"ui:" + "accountIntro"}>
+            {t("accountIntro")}
+          </p>
+          <p className="muted" data-visual-text={"ui:" + "membershipIntro"}>
+            {t("membershipIntro")}
+          </p>
         </div>
         <form className="member-form" onSubmit={submit}>
           {preview ? (
-            <p className="demo-box">{t("accountDemo")}</p>
+            <p className="demo-box" data-visual-text={"ui:" + "accountDemo"}>
+              {t("accountDemo")}
+            </p>
           ) : !live ? (
-            <p className="demo-box">{t("accountLocal")}</p>
+            <p className="demo-box" data-visual-text={"ui:" + "accountLocal"}>
+              {t("accountLocal")}
+            </p>
           ) : null}
           <label>
-            {t("accountEmail")}
+            {<VisualText textKey={"ui:" + "accountEmail"} />}
             <input
               name="email"
               type="email"
@@ -239,7 +284,7 @@ export function CustomerPage({
             />
           </label>
           <label>
-            {t("accountPassword")}
+            {<VisualText textKey={"ui:" + "accountPassword"} />}
             <input
               name="password"
               type="password"
@@ -251,7 +296,9 @@ export function CustomerPage({
               required
               disabled={preview}
             />
-            <small>{t("accountPasswordHint")}</small>
+            <small data-visual-text={"ui:" + "accountPasswordHint"}>
+              {t("accountPasswordHint")}
+            </small>
           </label>
           {mode === "signup" && (
             <>
@@ -262,13 +309,21 @@ export function CustomerPage({
                   required
                   disabled={preview}
                 />
-                {t("accountConsent")}
+                {<VisualText textKey={"ui:" + "accountConsent"} />}
               </label>
               <div className="member-actions">
-                <Link className="under-link" href={href("/gizlilik")}>
+                <Link
+                  className="under-link"
+                  href={href("/gizlilik")}
+                  data-visual-text={"ui:" + "privacy"}
+                >
                   {t("privacy")}
                 </Link>
-                <Link className="under-link" href={href("/kosullar")}>
+                <Link
+                  className="under-link"
+                  href={href("/kosullar")}
+                  data-visual-text={"ui:" + "terms"}
+                >
                   {t("terms")}
                 </Link>
               </div>
@@ -288,14 +343,18 @@ export function CustomerPage({
                 go(next());
               }}
             >
-              {t("demoMember")}
+              {<VisualText textKey={"ui:" + "demoMember"} />}
               <ArrowUpRight size={16} />
             </button>
           ) : (
             <button className="button wide" disabled={busy}>
-              {busy
-                ? t("accountBusy")
-                : t(mode === "signup" ? "signup" : "login")}
+              {busy ? (
+                <VisualText textKey={"ui:" + "accountBusy"} />
+              ) : (
+                <VisualText
+                  textKey={"ui:" + (mode === "signup" ? "signup" : "login")}
+                />
+              )}
               <ArrowUpRight size={16} />
             </button>
           )}
@@ -309,7 +368,11 @@ export function CustomerPage({
                 ),
             )}
           >
-            {t(mode === "signup" ? "login" : "signup")}
+            {
+              <VisualText
+                textKey={"ui:" + (mode === "signup" ? "login" : "signup")}
+              />
+            }
             <ArrowUpRight size={14} />
           </Link>
         </form>
@@ -334,16 +397,21 @@ export function TrackingPage({ c, lang }: { c: Catalog; lang: Lang }) {
   }
   return (
     <section className="page-section tracking-page">
-      <p className="eyebrow">KUZMIN / {t("tracking")}</p>
-      <h1>{t("tracking")}</h1>
-      <p className="intro">{t("trackingIntro")}</p>
+      <p className="eyebrow">
+        <VisualText textKey={"slot:copy.customer.lekgnpiaicpa"} />
+        {<VisualText textKey={"ui:" + "tracking"} />}
+      </p>
+      <h1 data-visual-text={"ui:" + "tracking"}>{t("tracking")}</h1>
+      <p className="intro" data-visual-text={"ui:" + "trackingIntro"}>
+        {t("trackingIntro")}
+      </p>
       <div className="tracking-card">
         {config.ready ? (
           <>
             <p className="eyebrow">{config.carrier}</p>
             <form onSubmit={submit}>
               <label>
-                {t("trackingNumber")}
+                {<VisualText textKey={"ui:" + "trackingNumber"} />}
                 <input
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
@@ -355,20 +423,26 @@ export function TrackingPage({ c, lang }: { c: Catalog; lang: Lang }) {
                 />
               </label>
               <button className="button" type="submit">
-                {t("trackAction")}
+                {<VisualText textKey={"ui:" + "trackAction"} />}
                 <ArrowUpRight size={16} />
               </button>
             </form>
-            <p className="muted">{t("trackingExternal")}</p>
+            <p className="muted" data-visual-text={"ui:" + "trackingExternal"}>
+              {t("trackingExternal")}
+            </p>
             {!config.template.includes("{tracking}") && (
-              <p>{t("trackingManual")}</p>
+              <p data-visual-text={"ui:" + "trackingManual"}>
+                {t("trackingManual")}
+              </p>
             )}
             {message && <p role="alert">{message}</p>}
           </>
         ) : (
           <div className="empty-state">
             <PackageCheck size={32} strokeWidth={1} />
-            <p>{t("trackingUnconfigured")}</p>
+            <p data-visual-text={"ui:" + "trackingUnconfigured"}>
+              {t("trackingUnconfigured")}
+            </p>
           </div>
         )}
       </div>
@@ -410,6 +484,8 @@ export function BlogPage({
   href,
   query,
 }: Props & { c: Catalog; slug?: string; query?: string }) {
+  const fixedText = useSiteText();
+
   const t = useVisualTranslate(lang);
   const params = new URLSearchParams(query || "");
   const { posts, visible, page, pages } = paginateBlog(
@@ -427,7 +503,7 @@ export function BlogPage({
           href={listLink(Math.min(pages, blogPageNumber(params.get("page"))))}
         >
           <ArrowLeft size={14} />
-          {t("blog")}
+          {<VisualText textKey={"ui:" + "blog"} />}
         </Link>
         <header className="blog-article-banner">
           <BlogArtwork post={post} />
@@ -469,7 +545,9 @@ export function BlogPage({
             ))}
         </div>
         <aside className="blog-related">
-          <h2>Keşfetmeye devam et.</h2>
+          <h2 data-visual-text={"slot:copy.customer.bpdbkpldfmcd"}>
+            {fixedText("copy.customer.bpdbkpldfmcd")}
+          </h2>
           {posts
             .filter((row) => row.id !== post.id)
             .slice(0, 3)
@@ -480,7 +558,7 @@ export function BlogPage({
               </Link>
             ))}
           <Link className="button" href={href("/parcani-urettir")}>
-            Kendi parçan için talep oluştur
+            <VisualText textKey={"slot:copy.customer.pjihkafdlndo"} />
             <ArrowUpRight size={15} />
           </Link>
         </aside>
@@ -493,12 +571,14 @@ export function BlogPage({
   return (
     <section className="page-section blog-page">
       <header className="blog-page-heading">
-        <h1>{t("blog")}</h1>
-        <p className="intro">{t("blogIntro")}</p>
+        <h1 data-visual-text={"ui:" + "blog"}>{t("blog")}</h1>
+        <p className="intro" data-visual-text={"ui:" + "blogIntro"}>
+          {t("blogIntro")}
+        </p>
       </header>
       {!posts.length ? (
         <div className="empty-state blog-empty">
-          <p>{t("blogEmpty")}</p>
+          <p data-visual-text={"ui:" + "blogEmpty"}>{t("blogEmpty")}</p>
         </div>
       ) : (
         <>
@@ -538,7 +618,7 @@ export function BlogPage({
                   rel="prev"
                 >
                   <ArrowLeft size={15} />
-                  {t("blogPrevious")}
+                  {<VisualText textKey={"ui:" + "blogPrevious"} />}
                 </Link>
               )}
               <div className="blog-page-numbers">
@@ -565,7 +645,7 @@ export function BlogPage({
                   href={listLink(page + 1)}
                   rel="next"
                 >
-                  {t("blogNext")}
+                  {<VisualText textKey={"ui:" + "blogNext"} />}
                   <ArrowUpRight size={15} />
                 </Link>
               )}

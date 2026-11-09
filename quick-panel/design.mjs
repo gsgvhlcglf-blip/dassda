@@ -79,7 +79,7 @@ export function validateDesign(value) {
     result.texts[lang] = {};
     for (const [key, text] of Object.entries(entries)) {
       if (
-        !/^(ui:[a-zA-Z][a-zA-Z0-9]*|slot:[a-z.]+)$/.test(key) ||
+        !/^(ui:[a-zA-Z][a-zA-Z0-9_]*|slot:[a-z.]+)$/.test(key) ||
         typeof text !== "string" ||
         text.length > 12000
       )

@@ -4,12 +4,13 @@ import type { Workspace } from "@/lib/site-version";
 import { defaultPhotography, type Photography } from "@/lib/photography";
 import { HeroVideoSettings } from "./hero-video-settings";
 import type { HeroVideoAsset } from "@/lib/hero-video";
+import { SiteTextsEditor } from "./site-texts-editor";
 export function SiteStudio({
   mode,
   role,
   onSaved,
 }: {
-  mode: "releases" | "photography";
+  mode: "releases" | "photography" | "texts";
   role: "admin" | "editor";
   onSaved: () => void;
 }) {
@@ -92,6 +93,26 @@ export function SiteStudio({
     setData(body);
     onSaved();
   }
+  async function saveText(key: string, value: string | null) {
+    if (!data) return;
+    const design = structuredClone(data.snapshot.design);
+    design.texts.tr ||= {};
+    if (value === null) delete design.texts.tr[key];
+    else design.texts.tr[key] = value;
+    const response = await fetch("/api/admin/studio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "design",
+        expectedRevision: data.revision,
+        design,
+      }),
+    });
+    const body = await response.json();
+    if (!response.ok) throw Error(body.error || "Metin kaydedilemedi.");
+    setData(body);
+    onSaved();
+  }
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (
@@ -123,7 +144,9 @@ export function SiteStudio({
           {error}
         </p>
       )}
-      {mode === "releases" ? (
+      {mode === "texts" ? (
+        <SiteTextsEditor design={data.snapshot.design} onSave={saveText} />
+      ) : mode === "releases" ? (
         <>
           <section className="analytics-card">
             <p className="eyebrow">TASLAK → YAYIN → GERİ AL</p>

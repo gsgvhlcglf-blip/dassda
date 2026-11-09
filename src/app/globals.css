@@ -2,6 +2,7 @@
 @import "../components/model-generations-editor.css";
 @import "../components/requests.css";
 @import "../components/bestsellers-settings.css";
+@import "../components/site-texts-editor.css";
 @source not "../../docs/panel.html";
 @source not "../../docs/store.html";
 :root {

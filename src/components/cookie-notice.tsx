@@ -1,9 +1,12 @@
 "use client";
+import { VisualText, useSiteText } from "./visual-text";
 import { useState } from "react";
 import Link from "next/link";
 import { privacyPreference } from "@/lib/analytics-recorder";
 import { saveCookieChoice, useCookieChoice } from "@/lib/cookie-consent";
 export function CookieNotice() {
+  const fixedText = useSiteText();
+
   const { choice, ready } = useCookieChoice();
   const [open, setOpen] = useState(false),
     [preferences, setPreferences] = useState(false),
@@ -32,8 +35,9 @@ export function CookieNotice() {
         type="button"
         className="cookie-preferences under-link"
         onClick={manage}
+        data-visual-text={"slot:copy.cookie.nknbhplnipga"}
       >
-        Çerez tercihleri
+        {fixedText("copy.cookie.nknbhplnipga")}
       </button>
       {feedback && (
         <p role="status" className="cookie-feedback">
@@ -44,48 +48,48 @@ export function CookieNotice() {
         <section
           className="cookie-notice"
           role="region"
-          aria-label="Çerez bildirimi"
+          aria-label={fixedText("copy.cookie.chjfgeglamhb")}
         >
           <h2>
-            {preferences ? "Çerez tercihlerini yönet" : "Çerez tercihlerin"}
+            {preferences ? (
+              <VisualText textKey={"slot:copy.cookie.iajaaoafmbjm"} />
+            ) : (
+              <VisualText textKey={"slot:copy.cookie.kdmaadjagpjg"} />
+            )}
           </h2>
-          <p>
-            Sepet, oturum ve tercihlerini hatırlamak için gerekli çerezler ve
-            tarayıcı depolaması kullanılır. Onayınla ziyaret, tıklama ve
-            kaydırma verilerini istatistik ve ısı haritası için kaydederiz.
-            Formlara yazdığın bilgiler analitik kaydına alınmaz. İsteğe bağlı
-            analizi reddederek de siteyi kullanabilirsin.
+          <p data-visual-text={"slot:copy.cookie.hommmdiikecn"}>
+            {fixedText("copy.cookie.hommmdiikecn")}
           </p>
           {blocked && (
-            <p role="status">
-              Tarayıcının gizlilik tercihi (DNT / GPC) nedeniyle isteğe bağlı
-              analiz kapalı tutulur.
+            <p role="status" data-visual-text={"slot:copy.cookie.lmbaeklpejhp"}>
+              {fixedText("copy.cookie.lmbaeklpejhp")}
             </p>
           )}
           {preferences && (
             <div className="cookie-categories">
               <label>
                 <span>
-                  <b>Gerekli depolama</b>
-                  <small>
-                    Sepet, güvenli oturum ve tercih kaydı için gereklidir. Her
-                    zaman açıktır.
+                  <b data-visual-text={"slot:copy.cookie.cegnlgalncml"}>
+                    {fixedText("copy.cookie.cegnlgalncml")}
+                  </b>
+                  <small data-visual-text={"slot:copy.cookie.ngkeejdcadok"}>
+                    {fixedText("copy.cookie.ngkeejdcadok")}
                   </small>
                 </span>
                 <input
                   type="checkbox"
                   checked
                   disabled
-                  aria-label="Gerekli depolama"
+                  aria-label={fixedText("copy.cookie.cegnlgalncml")}
                 />
               </label>
               <label>
                 <span>
-                  <b>İstatistik ve ısı haritası</b>
-                  <small>
-                    Sayfa ziyaretleri, tıklama konumları ve kaydırma derinliği.
-                    Yalnızca iznin varsa ve site yöneticisi analizi
-                    etkinleştirmişse çalışır.
+                  <b data-visual-text={"slot:copy.cookie.ldehimblhnjg"}>
+                    {fixedText("copy.cookie.ldehimblhnjg")}
+                  </b>
+                  <small data-visual-text={"slot:copy.cookie.ahjmdjnfggpa"}>
+                    {fixedText("copy.cookie.ahjmdjnfggpa")}
                   </small>
                 </span>
                 <input
@@ -93,15 +97,11 @@ export function CookieNotice() {
                   checked={analytics && !blocked}
                   disabled={blocked}
                   onChange={(e) => setAnalytics(e.target.checked)}
-                  aria-label="İstatistik ve ısı haritası"
+                  aria-label={fixedText("copy.cookie.ldehimblhnjg")}
                 />
               </label>
-              <p>
-                Bu seçim bu ziyaret için geçerlidir. Siteye her yeni girişte ve
-                sayfa yenilendiğinde bildirim yeniden açılır; önceki kabul
-                otomatik izin sayılmaz. Alt bilgideki “Çerez tercihleri”
-                bağlantısından iznini geri çekebilirsin. Reklam ve pazarlama
-                çerezleri kullanılmaz.
+              <p data-visual-text={"slot:copy.cookie.lnaakaehboao"}>
+                {fixedText("copy.cookie.lnaakaehboao")}
               </p>
             </div>
           )}
@@ -111,27 +111,35 @@ export function CookieNotice() {
               className="button secondary"
               disabled={blocked}
               onClick={() => choose(true)}
+              data-visual-text={"slot:copy.cookie.efidadjehgno"}
             >
-              Kabul et
+              {fixedText("copy.cookie.efidadjehgno")}
             </button>
             <button
               type="button"
               className="button secondary"
               onClick={() => choose(false)}
+              data-visual-text={"slot:copy.cookie.enodnkabjbhk"}
             >
-              Reddet
+              {fixedText("copy.cookie.enodnkabjbhk")}
             </button>
             {preferences ? (
               <button
                 type="button"
                 className="button"
                 onClick={() => choose(analytics)}
+                data-visual-text={"slot:copy.cookie.fnoaebndjioj"}
               >
-                Tercihleri kaydet
+                {fixedText("copy.cookie.fnoaebndjioj")}
               </button>
             ) : (
-              <button type="button" className="under-link" onClick={manage}>
-                Tercihleri yönet
+              <button
+                type="button"
+                className="under-link"
+                onClick={manage}
+                data-visual-text={"slot:copy.cookie.hechlogifgko"}
+              >
+                {fixedText("copy.cookie.hechlogifgko")}
               </button>
             )}
             {choice && open && (
@@ -139,12 +147,17 @@ export function CookieNotice() {
                 type="button"
                 className="under-link"
                 onClick={() => setOpen(false)}
+                data-visual-text={"slot:copy.cookie.dogiepolnbkn"}
               >
-                Kapat
+                {fixedText("copy.cookie.dogiepolnbkn")}
               </button>
             )}
-            <Link className="under-link" href="/gizlilik">
-              Gizlilik politikası
+            <Link
+              className="under-link"
+              href="/gizlilik"
+              data-visual-text={"slot:copy.cookie.jplhlgifpcdg"}
+            >
+              {fixedText("copy.cookie.jplhlgifpcdg")}
             </Link>
           </div>
         </section>

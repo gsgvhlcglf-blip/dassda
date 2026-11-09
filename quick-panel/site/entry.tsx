@@ -4,6 +4,7 @@ import { HeatmapMessageLayer } from "../../src/components/analytics-heatmap";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Storefront } from "../../src/components/storefront";
+import { SiteTextLanguage } from "../../src/components/visual-text";
 import { VisualContext } from "../../src/lib/visual";
 import { messageEntries } from "../../src/lib/i18n";
 import { resolveStoreLanguage } from "../../src/lib/settings";
@@ -159,7 +160,8 @@ function bindingFor(
 ): { binding: Binding; element: Element; value: string } | null {
   const lang = document.documentElement.lang as Lang;
   const image = target.closest("[data-visual-image]");
-  if (image)
+  const explicitText = target.closest("[data-visual-text],[data-edit-text]");
+  if (image && (!explicitText || !image.contains(explicitText)))
     return {
       binding: {
         type: "image",
@@ -172,7 +174,9 @@ function bindingFor(
           ? image.src
           : image.querySelector("img")?.src) || "",
     };
-  const record = target.closest("[data-edit-text]");
+  const record = explicitText?.hasAttribute("data-edit-text")
+    ? explicitText
+    : null;
   if (record) {
     const key = record.getAttribute("data-edit-text")!;
     const [table, id, field] = key.split(":");
@@ -193,7 +197,9 @@ function bindingFor(
       value: value || "",
     };
   }
-  const slot = target.closest("[data-visual-text]");
+  const slot = explicitText?.hasAttribute("data-visual-text")
+    ? explicitText
+    : null;
   if (slot)
     return {
       binding: {
@@ -439,16 +445,18 @@ function App() {
     );
   const shop = (
     <VisualContext.Provider value={config.design || { texts: {}, images: {} }}>
-      <Storefront
-        key={route.pathname + route.search}
-        catalog={config.catalog}
-        segments={segments}
-        lang={language}
-        live={false}
-        preview
-        previewQuery={route.search}
-        onNavigate={navigate}
-      />
+      <SiteTextLanguage.Provider value={language}>
+        <Storefront
+          key={route.pathname + route.search}
+          catalog={config.catalog}
+          segments={segments}
+          lang={language}
+          live={false}
+          preview
+          previewQuery={route.search}
+          onNavigate={navigate}
+        />
+      </SiteTextLanguage.Provider>
     </VisualContext.Provider>
   );
   if (config.heatmap) return <HeatmapMessageLayer>{shop}</HeatmapMessageLayer>;

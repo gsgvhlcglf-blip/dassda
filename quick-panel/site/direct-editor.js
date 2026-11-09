@@ -7,6 +7,44 @@ try {
 let siteDirectDirty = false;
 let logoAlignmentRequest = "";
 let logoAlignmentSequence = 0;
+function openSiteTextManager() {
+  if (document.querySelector("#site-text-dialog")) return;
+  const dialog = document.createElement("dialog");
+  dialog.id = "site-text-dialog";
+  dialog.setAttribute("aria-labelledby", "site-text-dialog-title");
+  dialog.innerHTML =
+    '<header class="modal-head"><h2 id="site-text-dialog-title">Tüm site metinleri</h2><button type="button" class="close" aria-label="Metin penceresini kapat">×</button></header><div class="modal-body" id="site-text-manager"></div>';
+  document.body.appendChild(dialog);
+  const editor = KZ_MODELS.mountTextManager(
+    dialog.querySelector("#site-text-manager"),
+    siteDesign,
+    (key, value) => {
+      if (!directBinding({ type: "text", key, lang: "tr" }))
+        throw Error("Metin alanı geçersiz.");
+      const next = clone(siteDesign);
+      next.texts.tr ||= {};
+      if (value === null) delete next.texts.tr[key];
+      else next.texts.tr[key] = value;
+      const design = validateDesign(next);
+      localStorage.setItem(KEY + ".design", JSON.stringify(design));
+      siteDesign = design;
+      sendSiteConfig();
+      return design;
+    },
+  );
+  dialog
+    .querySelector(".close")
+    .addEventListener("click", () => dialog.close());
+  dialog.addEventListener(
+    "close",
+    () => {
+      editor.unmount();
+      dialog.remove();
+    },
+    { once: true },
+  );
+  dialog.showModal();
+}
 function directBinding(binding) {
   if (
     !binding ||
@@ -16,7 +54,7 @@ function directBinding(binding) {
     return null;
   if (
     binding.type === "text" &&
-    /^(ui:[a-zA-Z][a-zA-Z0-9]*|slot:[a-z.]+)$/.test(binding.key)
+    /^(ui:[a-zA-Z][a-zA-Z0-9_]*|slot:[a-z.]+)$/.test(binding.key)
   )
     return binding;
   if (
@@ -244,7 +282,7 @@ function directEditorHTML() {
   if (b.type === "image")
     return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${b.key.startsWith("brand:") ? "Logo ayarları" : "Fotoğrafı değiştir"}</h3>${directValue(b) ? `<img class="site-direct-photo" src="${esc(directValue(b))}" alt="Seçili fotoğraf">` : ""}${logoScaleHTML(b)}${photoFrameHTML(b)}<label class="site-upload-label">Yeni fotoğraf seç<input id="site-photo" data-image-key="${esc(b.key)}" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Yeni fotoğraf seç"></label><p>JPEG, PNG veya WebP · En fazla 5 MB. Seçtiğiniz fotoğraf hemen görünür.</p>${heroVideoEditorHTML(b)}<div id="site-direct-status" role="status"></div></section>`;
   const number = b.key.endsWith(":price");
-  return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label><p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
+  return `<section class="site-direct-editor" data-edit-key="${esc(b.key)}"><h3>${number ? "Fiyatı değiştir (TRY)" : "Metni düzenle"}</h3><label>${b.lang.toUpperCase()} ${number ? `<input id="site-direct-text" aria-label="Seçili metni düzenle" type="number" min="0" step="1" value="${esc(directValue(b))}">` : `<textarea id="site-direct-text" aria-label="Seçili metni düzenle" maxlength="12000">${esc(directValue(b))}</textarea>`}</label>${number ? "" : '<button type="button" class="ghost" data-action="site-text-remove">Metni kaldır</button>'}<p>Yazarken önizleme güncellenir ve bu tarayıcıya kaydedilir.${number ? "" : " Düz metinlere doğrudan sayfanın üzerinde de yazabilirsiniz."}</p><div id="site-direct-status" role="status">Kaydedildi</div></section>`;
 }
 function saveDirect(binding, value, inline = false) {
   const b = directBinding(binding);
@@ -315,7 +353,7 @@ function saveDirect(binding, value, inline = false) {
     else localStorage.setItem(KEY, JSON.stringify(next));
     state = next;
     siteDesign = design;
-    siteSelection.text = value;
+    if (siteSelection) siteSelection.text = value;
     siteDirectDirty = false;
     if (!inline) sendSiteConfig();
     const status = $("#site-direct-status");
@@ -379,6 +417,16 @@ document.addEventListener("change", async (event) => {
   }
 });
 document.addEventListener("click", (event) => {
+  if (event.target.closest('[data-action="site-text-remove"]')) {
+    saveDirect(siteSelection?.binding, "");
+    if (!siteDirectDirty && $("#site-direct-text"))
+      $("#site-direct-text").value = "";
+    return;
+  }
+  if (event.target.closest('[data-action="site-texts"]')) {
+    openSiteTextManager();
+    return;
+  }
   if (event.target.closest('[data-action="site-logo-align"]')) {
     requestLogoAlignment();
     return;

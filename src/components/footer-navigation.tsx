@@ -1,4 +1,5 @@
 "use client";
+import { VisualText } from "./visual-text";
 
 import { useId, useState } from "react";
 import Link from "next/link";
@@ -37,7 +38,7 @@ export function FooterNavigation({
           aria-controls={legalId}
           onClick={() => setOpen((value) => !value)}
         >
-          {t("legalDocuments")}
+          {<VisualText textKey={"ui:" + "legalDocuments"} />}
           <ChevronDown size={16} aria-hidden="true" />
         </button>
         <div className="footer-legal" id={legalId} data-open={open}>

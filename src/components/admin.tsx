@@ -171,6 +171,7 @@ const sections = [
   ["analytics", "Analitik & Isı Haritası", BarChart3],
   ["requests", "Talepler & CRM", FileText],
   ["releases", "Yayın & sürümler", Layers],
+  ["texts", "Site metinleri", FileText],
   ["bestsellers", "En çok satanlar", Images],
   ["photography", "Fotoğraf düzeni", Images],
   ["payments", "Ödeme altyapısı", CreditCard],
@@ -232,8 +233,8 @@ export function Admin({
     [message, setMessage] = useState(""),
     [language, setLanguage] = useState<"tr" | "en" | "ru">("tr"),
     [deletePending, setDeletePending] = useState(false);
-  async function load() {
-    setLoading(true);
+  async function load(quiet = false) {
+    if (!quiet) setLoading(true);
     try {
       const r = await fetch("/api/admin", { cache: "no-store" }),
         d = await r.json();
@@ -242,7 +243,7 @@ export function Admin({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Yüklenemedi");
     } finally {
-      setLoading(false);
+      if (!quiet) setLoading(false);
     }
   }
   useEffect(() => {
@@ -495,6 +496,7 @@ export function Admin({
             "settings",
             "analytics",
             "releases",
+            "texts",
             "photography",
             "bestsellers",
             "payments",
@@ -538,7 +540,7 @@ export function Admin({
         {error && !editing && (
           <p className="form-error" role="alert">
             {error}
-            <button className="under-link" onClick={load}>
+            <button className="under-link" onClick={() => void load()}>
               Tekrar yükle
             </button>
           </p>
@@ -573,11 +575,11 @@ export function Admin({
               );
             }}
           />
-        ) : ["releases", "photography"].includes(section) ? (
+        ) : ["releases", "photography", "texts"].includes(section) ? (
           <SiteStudio
-            mode={section as "releases" | "photography"}
+            mode={section as "releases" | "photography" | "texts"}
             role={role}
-            onSaved={load}
+            onSaved={() => void load(true)}
           />
         ) : section === "payments" && role === "admin" ? (
           <PaymentSettings />

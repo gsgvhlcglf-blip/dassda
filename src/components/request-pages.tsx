@@ -1,10 +1,11 @@
 "use client";
+import { VisualText, useSiteText } from "./visual-text";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Check, X } from "lucide-react";
 import type { Catalog, Lang } from "@/lib/types";
-import { useVisualImage } from "@/lib/visual";
+import { useVisualImage, useVisualCopy } from "@/lib/visual";
 import {
   publicRequestSchema,
   requestMaterialLabels,
@@ -27,6 +28,9 @@ function RequestImageChoice({
 }) {
   const visualKey = "requests." + name + "." + value;
   const src = useVisualImage(visualKey, image);
+  const captionKey =
+    value === "forged" ? "copy.request.jolmjcldghco" : visualKey + ".title";
+  const caption = useVisualCopy("tr")(captionKey, title);
   return (
     <label className="request-image-choice" data-visual-image={visualKey}>
       <input
@@ -34,7 +38,7 @@ function RequestImageChoice({
         name={name}
         value={value}
         required
-        aria-label={subtitle ? title + " (" + subtitle + ")" : title}
+        aria-label={subtitle ? caption + " (" + subtitle + ")" : caption}
       />
       <Image
         src={src || image}
@@ -44,7 +48,7 @@ function RequestImageChoice({
         unoptimized
       />
       <span className="request-choice-caption">
-        <strong>{title}</strong>
+        <strong data-visual-text={"slot:" + captionKey}>{caption}</strong>
         {subtitle && <span>{subtitle}</span>}
       </span>
       <span className="request-choice-check" aria-hidden="true">
@@ -66,6 +70,8 @@ export function CustomCarbonPage({
   query?: string;
   userEmail?: string;
 }) {
+  const fixedText = useSiteText();
+
   const params = new URLSearchParams(query || ""),
     kind: RequestKind = params.get("type") === "demand" ? "demand" : "custom";
   const brand = c.brands.find((b) => b.id === params.get("brand")),
@@ -207,34 +213,52 @@ export function CustomCarbonPage({
       <section className="page-section request-thanks">
         <Check size={36} strokeWidth={1} />
         <p className="eyebrow">
-          {result.demo ? "YEREL DEMO KAYDI" : "TALEBİN ALINDI"}
+          {result.demo ? (
+            <VisualText textKey={"slot:copy.request.anlmpdolffpn"} />
+          ) : (
+            <VisualText textKey={"slot:copy.request.ehcipfajkomj"} />
+          )}
         </p>
-        <h1>Teşekkürler.</h1>
+        <h1 data-visual-text={"slot:copy.request.oogaocmkjjgl"}>
+          {fixedText("copy.request.oogaocmkjjgl")}
+        </h1>
         <p>
-          Başvuru referansın: <strong>{result.reference}</strong>
+          <VisualText textKey={"slot:copy.request.omboehnljbpk"} />
+          <strong>{result.reference}</strong>
         </p>
-        <p>
-          Parçanı inceleyip paylaştığın iletişim bilgisinden sana ulaşacağız.
-          Fiyat ve üretim süresi değerlendirme sonrasında netleşir.
+        <p data-visual-text={"slot:copy.request.aakafdkgdoda"}>
+          {fixedText("copy.request.aakafdkgdoda")}
         </p>
-        <p className="muted">
-          Gönderim koşulları onaylanmadan orijinal parçanı kargolama.
+        <p
+          className="muted"
+          data-visual-text={"slot:copy.request.fbalnbkldbbc"}
+        >
+          {fixedText("copy.request.fbalnbkldbbc")}
         </p>
         <Link className="text-link" href="/">
-          Ana sayfaya dön <ArrowUpRight size={16} />
+          <VisualText textKey={"slot:copy.request.hnelfmeolkmc"} />
+          <ArrowUpRight size={16} />
         </Link>
       </section>
     );
   return (
     <section className="page-section custom-simple-page" id="talep-formu">
       <header className="request-simple-heading">
-        <p className="eyebrow">KUZMIN / CUSTOM CARBON</p>
+        <p
+          className="eyebrow"
+          data-visual-text={"slot:copy.request.opnkcnafdbao"}
+        >
+          {fixedText("copy.request.opnkcnafdbao")}
+        </p>
         <h1>
-          {kind === "demand" ? "Aradığın parçayı anlat." : "Parçanı ürettir."}
+          {kind === "demand" ? (
+            <VisualText textKey={"slot:copy.request.dnooihdecbpf"} />
+          ) : (
+            <VisualText textKey={"slot:copy.request.lbdooicebipa"} />
+          )}
         </h1>
-        <p>
-          Motorunu, parçanın ölçülerini ve fotoğraflarını paylaş. Detayları
-          birlikte netleştirelim.
+        <p data-visual-text={"slot:copy.request.kjgahmdjbobb"}>
+          {fixedText("copy.request.kjgahmdjbobb")}
         </p>
       </header>
       {preview && (
@@ -246,13 +270,13 @@ export function CustomCarbonPage({
       <form className="request-form request-simple-form" onSubmit={submit}>
         <div className="request-vehicle-grid">
           <label>
-            Marka
+            <VisualText textKey={"slot:copy.request.mcbkhgmmhhdg"} />
             <input
               name="brand_name"
-              aria-label="Marka"
+              aria-label={fixedText("copy.request.mcbkhgmmhhdg")}
               required
               maxLength={200}
-              placeholder="Örn. Honda"
+              placeholder={fixedText("copy.request.jcopchmcmlnb")}
               defaultValue={
                 params.get("brand_name") ||
                 brand?.name ||
@@ -262,13 +286,13 @@ export function CustomCarbonPage({
             />
           </label>
           <label>
-            Model
+            <VisualText textKey={"slot:copy.request.lbjpeklegppn"} />
             <input
               name="model_name"
-              aria-label="Model"
+              aria-label={fixedText("copy.request.lbjpeklegppn")}
               required
               maxLength={200}
-              placeholder="Örn. CBR650R"
+              placeholder={fixedText("copy.request.nilbibemaopa")}
               defaultValue={
                 params.get("model_name") ||
                 model?.name ||
@@ -278,10 +302,10 @@ export function CustomCarbonPage({
             />
           </label>
           <label>
-            Yıl
+            <VisualText textKey={"slot:copy.request.ehfdmjajbnbl"} />
             <input
               name="year"
-              aria-label="Yıl"
+              aria-label={fixedText("copy.request.ehfdmjajbnbl")}
               type="text"
               inputMode="numeric"
               pattern="[0-9]{4}"
@@ -293,12 +317,14 @@ export function CustomCarbonPage({
           </label>
         </div>
         <fieldset className="request-image-fieldset">
-          <legend>Karbon görünümü</legend>
+          <legend data-visual-text={"slot:copy.request.cngekfnobkdp"}>
+            {fixedText("copy.request.cngekfnobkdp")}
+          </legend>
           <div className="request-image-grid">
             <RequestImageChoice
               name="material"
               value="forged"
-              title="Forged Carbon"
+              title={fixedText("copy.request.jolmjcldghco")}
               image="/images/carbon-forged.svg"
             />
             <RequestImageChoice
@@ -310,7 +336,9 @@ export function CustomCarbonPage({
           </div>
         </fieldset>
         <fieldset className="request-image-fieldset request-method-fieldset">
-          <legend>Üretim yöntemi</legend>
+          <legend data-visual-text={"slot:copy.request.njimkgmjkhjc"}>
+            {fixedText("copy.request.njimkgmjkhjc")}
+          </legend>
           <div className="request-method-options">
             <label className="request-method-option">
               <input
@@ -321,8 +349,12 @@ export function CustomCarbonPage({
                 aria-label={requestMethodLabels.lamination}
               />
               <span>
-                <strong>Laminasyon</strong>
-                <small>Mevcut parça üzerine kaplama</small>
+                <strong data-visual-text={"slot:copy.request.dmjohmpekjoh"}>
+                  {fixedText("copy.request.dmjohmpekjoh")}
+                </strong>
+                <small data-visual-text={"slot:copy.request.glcmlekdpcfd"}>
+                  {fixedText("copy.request.glcmlekdpcfd")}
+                </small>
               </span>
             </label>
             <label className="request-method-option">
@@ -334,15 +366,19 @@ export function CustomCarbonPage({
                 aria-label={requestMethodLabels.infusion}
               />
               <span>
-                <strong>İnfüzyon</strong>
-                <small>Kalıptan yeni parça üretimi</small>
+                <strong data-visual-text={"slot:copy.request.kpaglkibnmck"}>
+                  {fixedText("copy.request.kpaglkibnmck")}
+                </strong>
+                <small data-visual-text={"slot:copy.request.olglhhnklaeg"}>
+                  {fixedText("copy.request.olglhhnklaeg")}
+                </small>
               </span>
             </label>
           </div>
         </fieldset>
         <div className="request-field-grid">
           <label>
-            Parça uzunluğu (cm)
+            <VisualText textKey={"slot:copy.request.hbmoemiiobno"} />
             <input
               name="length_cm"
               type="number"
@@ -350,11 +386,11 @@ export function CustomCarbonPage({
               max="10000"
               step="any"
               required
-              placeholder="Parçanın uzunluğu"
+              placeholder={fixedText("copy.request.ealgpkdmcgko")}
             />
           </label>
           <label>
-            Parça genişliği (cm)
+            <VisualText textKey={"slot:copy.request.ldbdhecccaji"} />
             <input
               name="width_cm"
               type="number"
@@ -362,19 +398,19 @@ export function CustomCarbonPage({
               max="10000"
               step="any"
               required
-              placeholder="Parçanın genişliği"
+              placeholder={fixedText("copy.request.enfblnboakph")}
             />
           </label>
         </div>
         <label>
-          Açıklama
+          <VisualText textKey={"slot:copy.request.fgengbbdlegh"} />
           <textarea
             name="part_description"
             required
             minLength={3}
             maxLength={6000}
             rows={3}
-            placeholder="Hangi parçayı ürettirmek istiyorsun? Kısaca anlat."
+            placeholder={fixedText("copy.request.ajaoflhajkib")}
             defaultValue={
               c.products.find((p) => p.id === params.get("product"))?.title[
                 lang
@@ -383,16 +419,16 @@ export function CustomCarbonPage({
           />
         </label>
         <label className="request-simple-upload">
-          Fotoğraflar (en az 3)
+          <VisualText textKey={"slot:copy.request.lcedmpfoldoa"} />
           <input
-            aria-label="Fotoğraflar (en az 3)"
+            aria-label={fixedText("copy.request.lcedmpfoldoa")}
             type="file"
             accept="image/jpeg,image/png,image/webp"
             multiple
             onChange={addPhotos}
           />
-          <span>
-            Parçayı farklı açılardan göster. En az 3, en fazla 8 fotoğraf.
+          <span data-visual-text={"slot:copy.request.adjdmfpjknff"}>
+            {fixedText("copy.request.adjdmfpjknff")}
           </span>
         </label>
         {!!photos.length && (
@@ -423,7 +459,7 @@ export function CustomCarbonPage({
             : photos.length + " fotoğraf eklendi."}
         </p>
         <label>
-          Adınız
+          <VisualText textKey={"slot:copy.request.eippgkgpjbme"} />
           <input
             name="name"
             required
@@ -434,25 +470,25 @@ export function CustomCarbonPage({
         </label>
         <div className="request-field-grid">
           <label>
-            Cep telefonu
+            <VisualText textKey={"slot:copy.request.hlghgelhmnch"} />
             <input
               name="phone"
               type="tel"
               required
               maxLength={30}
               autoComplete="tel"
-              placeholder="+90 5XX XXX XX XX"
+              placeholder={fixedText("copy.request.amfdmpnohinl")}
             />
           </label>
           <label>
-            E-posta
+            <VisualText textKey={"slot:copy.request.dgnfmijcnnii"} />
             <input
               name="email"
               type="email"
               required
               maxLength={254}
               autoComplete="email"
-              placeholder="ornek@eposta.com"
+              placeholder={fixedText("copy.request.gmddjnddpmik")}
               defaultValue={userEmail}
             />
           </label>
@@ -463,8 +499,13 @@ export function CustomCarbonPage({
         </label>
         <label className="request-check">
           <input type="checkbox" name="permission" required />
-          Talebim için benimle iletişime geçilmesini kabul ediyorum.{" "}
-          <Link href="/gizlilik">Gizlilik</Link>
+          <VisualText textKey={"slot:copy.request.fepgbffalddh"} />{" "}
+          <Link
+            href="/gizlilik"
+            data-visual-text={"slot:copy.request.eajpchngmfic"}
+          >
+            {fixedText("copy.request.eajpchngmfic")}
+          </Link>
         </label>
         {error && (
           <p className="form-error" role="alert">
@@ -473,20 +514,34 @@ export function CustomCarbonPage({
         )}
         {!preview && !loading && !settings.ready && (
           <p className="form-error" role="status">
-            Talep hizmeti henüz açılmadı. <Link href="/iletisim">İletişim</Link>
+            <VisualText textKey={"slot:copy.request.iaamephdcpco"} />
+            <Link
+              href="/iletisim"
+              data-visual-text={"slot:copy.request.ijilaffmmicn"}
+            >
+              {fixedText("copy.request.ijilaffmmicn")}
+            </Link>
           </p>
         )}
         <button
           className="button request-simple-submit"
           disabled={busy || loading || (!preview && !settings.ready)}
         >
-          {busy ? "Gönderiliyor…" : "Talebini gönder"}
+          {busy ? (
+            <VisualText textKey={"slot:copy.request.djahojmcdppf"} />
+          ) : (
+            <VisualText textKey={"slot:copy.request.dokooefebkmi"} />
+          )}
           <ArrowUpRight size={16} />
         </button>
-        <p className="request-simple-note">
-          Her marka ve model için başvurabilirsin. Onay ve gönderim koşulları
-          iletilmeden parçanı kargolama.
-        </p>
+        {fixedText("request.custom.note") && (
+          <p
+            className="request-simple-note"
+            data-visual-text="slot:request.custom.note"
+          >
+            {fixedText("request.custom.note")}
+          </p>
+        )}
       </form>
     </section>
   );

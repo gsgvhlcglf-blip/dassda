@@ -1,4 +1,5 @@
 "use client";
+import { useSiteText } from "./visual-text";
 import { useId } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -16,6 +17,8 @@ export function QuoteRequest({
   home?: boolean;
   lang?: Lang;
 }) {
+  const fixedText = useSiteText();
+
   const title = useId(),
     copy = useVisualCopy(lang),
     t = useVisualTranslate(lang);
@@ -26,14 +29,20 @@ export function QuoteRequest({
     >
       <div className="home-custom-card">
         <div>
-          {!home && <p className="eyebrow">{t("customCarbon")}</p>}
+          {!home && (
+            <p className="eyebrow" data-visual-text={"ui:" + "customCarbon"}>
+              {t("customCarbon")}
+            </p>
+          )}
           <h2 id={title} data-visual-text="slot:home.custom.title">
             {copy("home.custom.title", t("homeCustomTitle"))}
           </h2>
           {empty && (
-            <p className="quote-empty-note">
-              Bu motosiklet ve yıl için henüz listelenen bir parça yok. Aradığın
-              parçayı bize anlat.
+            <p
+              className="quote-empty-note"
+              data-visual-text={"slot:copy.quote.elnkenaekkmo"}
+            >
+              {fixedText("copy.quote.elnkenaekkmo")}
             </p>
           )}
         </div>

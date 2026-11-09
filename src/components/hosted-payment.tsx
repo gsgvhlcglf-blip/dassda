@@ -1,4 +1,5 @@
 "use client";
+import { useSiteText } from "./visual-text";
 import { useEffect, useRef, useState } from "react";
 import type { CartLine } from "@/lib/types";
 import type { PaymentPublicConfig, PaymentState } from "@/lib/payments/types";
@@ -125,29 +126,41 @@ export function HostedPayment({
   session: Session;
   frame: React.RefObject<HTMLIFrameElement | null>;
 }) {
+  const fixedText = useSiteText();
+
   return (
     <section className="page-section">
-      <p className="eyebrow">KUZMIN / PAYTR GÜVENLİ ÖDEME</p>
-      <h1>Ödemenizi tamamlayın.</h1>
+      <p
+        className="eyebrow"
+        data-visual-text={"slot:copy.payment.bndimeemeipa"}
+      >
+        {fixedText("copy.payment.bndimeemeipa")}
+      </p>
+      <h1 data-visual-text={"slot:copy.payment.igmeaocfbiek"}>
+        {fixedText("copy.payment.igmeaocfbiek")}
+      </h1>
       {session.mode === "test" && (
         <p className="demo-box">Test modu · Gerçek tahsilat yapılmaz.</p>
       )}
-      <p>
-        Kart bilgilerinizi PayTR'nin güvenli ekranına girin. Sonuç sağlayıcıdan
-        doğrulandıktan sonra siparişinize yansır.
+      <p data-visual-text={"slot:copy.payment.lofiiimcgemi"}>
+        {fixedText("copy.payment.lofiiimcgemi")}
       </p>
       {session.checkoutUrl && (
         <iframe
           ref={frame}
           className="payment-gateway-frame"
           src={session.checkoutUrl}
-          title="PayTR güvenli ödeme ekranı"
+          title={fixedText("copy.payment.opbkiklecaih")}
           allow="payment"
           referrerPolicy="strict-origin-when-cross-origin"
         />
       )}
-      <a className="under-link" href={"/odeme/sonuc?attempt=" + session.id}>
-        Ödeme durumunu kontrol et →
+      <a
+        className="under-link"
+        href={"/odeme/sonuc?attempt=" + session.id}
+        data-visual-text={"slot:copy.payment.binnmingpdhk"}
+      >
+        {fixedText("copy.payment.binnmingpdhk")}
       </a>
     </section>
   );

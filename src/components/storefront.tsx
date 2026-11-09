@@ -1,4 +1,5 @@
 "use client";
+import { VisualText, useSiteText } from "./visual-text";
 import { CustomCarbonPage } from "./request-pages";
 import { HomeBestsellers } from "./home-bestsellers";
 import { QuoteRequest } from "./quote-request";
@@ -141,6 +142,8 @@ export function Storefront({
   lang: Lang;
   live: boolean;
 }) {
+  const fixedText = useSiteText();
+
   const c = useMemo(() => publicCatalog(catalog), [catalog]);
   const lang = resolveStoreLanguage(requestedLang);
   const copy = useVisualCopy(lang);
@@ -263,7 +266,7 @@ export function Storefront({
           visualId={`product:${p.id}`}
         />
         <span className="product-label">
-          {p.demo ? "DEMO" : t("madeToOrder")}
+          {p.demo ? "DEMO" : <VisualText textKey={"ui:" + "madeToOrder"} />}
         </span>
         <span className="product-open">
           <ArrowUpRight size={20} />
@@ -276,7 +279,8 @@ export function Storefront({
         </span>
       </div>
       <p className="micro muted">
-        {t(p.material as MessageKey)} <span> / </span> {t("madeToOrder")}
+        {<VisualText textKey={"ui:" + (p.material as MessageKey)} />}{" "}
+        <span> / </span> {<VisualText textKey={"ui:" + "madeToOrder"} />}
       </p>
     </Link>
   );
@@ -325,8 +329,16 @@ export function Storefront({
     </div>
   );
   const crumbs = (parts: { label: string; url?: string }[]) => (
-    <nav className="breadcrumbs" aria-label="Breadcrumb">
-      <Link href={href("/motosikletler")}>{t("motorcycles")}</Link>
+    <nav
+      className="breadcrumbs"
+      aria-label={fixedText("copy.store.lnfapabmkhkl")}
+    >
+      <Link
+        href={href("/motosikletler")}
+        data-visual-text={"ui:" + "motorcycles"}
+      >
+        {t("motorcycles")}
+      </Link>
       {parts.map((p, i) => (
         <span key={i}>
           <ChevronRight size={12} />
@@ -342,9 +354,13 @@ export function Storefront({
     if (!b)
       return (
         <section className="page-section brand-page">
-          <p className="eyebrow">{t("selectBike")}</p>
-          <h1>{t("chooseBrand")}</h1>
-          <p className="intro">{t("brandIntro")}</p>
+          <p className="eyebrow" data-visual-text={"ui:" + "selectBike"}>
+            {t("selectBike")}
+          </p>
+          <h1 data-visual-text={"ui:" + "chooseBrand"}>{t("chooseBrand")}</h1>
+          <p className="intro" data-visual-text={"ui:" + "brandIntro"}>
+            {t("brandIntro")}
+          </p>
           {brandCards()}
         </section>
       );
@@ -360,11 +376,13 @@ export function Storefront({
           <div className="title-row">
             <div>
               <p className="eyebrow">{b.name} / 01</p>
-              <h1>{t("chooseModel")}</h1>
+              <h1 data-visual-text={"ui:" + "chooseModel"}>
+                {t("chooseModel")}
+              </h1>
             </div>
             <Link className="text-link" href={href("/motosikletler")}>
               <ArrowLeft size={14} />
-              {t("back")}
+              {<VisualText textKey={"ui:" + "back"} />}
             </Link>
           </div>
           <div
@@ -414,7 +432,12 @@ export function Storefront({
                     src={m.image}
                     alt={`${b.name} ${m.name} — ${t("imageLabel")}`}
                   />
-                  <span className="micro">{t("imageLabel")}</span>
+                  <span
+                    className="micro"
+                    data-visual-text={"ui:" + "imageLabel"}
+                  >
+                    {t("imageLabel")}
+                  </span>
                 </div>
                 <div className="model-heading">
                   <span className="micro muted">
@@ -427,7 +450,13 @@ export function Storefront({
             ))}
           </div>
           {!matchingModels.length && (
-            <p className="empty" role="status">
+            <p
+              className="empty"
+              role="status"
+              data-visual-text={
+                "ui:" + (models.length ? "noMatchingModels" : "noModels")
+              }
+            >
               {t(models.length ? "noMatchingModels" : "noModels")}
             </p>
           )}
@@ -446,8 +475,10 @@ export function Storefront({
               <p className="eyebrow">
                 {b.name} / {m.name} / 02
               </p>
-              <h1>{t("chooseYear")}</h1>
-              <p className="intro">{t("yearIntro")}</p>
+              <h1 data-visual-text={"ui:" + "chooseYear"}>{t("chooseYear")}</h1>
+              <p className="intro" data-visual-text={"ui:" + "yearIntro"}>
+                {t("yearIntro")}
+              </p>
               <div className="years">
                 {c.model_years
                   .filter((y) => y.model_id === m.id)
@@ -474,19 +505,24 @@ export function Storefront({
                   ))}
               </div>
               {!c.model_years.some((y) => y.model_id === m.id) && (
-                <p>{t("noYears")}</p>
+                <p data-visual-text={"ui:" + "noYears"}>{t("noYears")}</p>
               )}
               <Link
                 href={href(`/motosikletler/${b.slug}`)}
                 className="text-link"
               >
                 <ArrowLeft size={14} />
-                {t("back")}
+                {<VisualText textKey={"ui:" + "back"} />}
               </Link>
             </div>
             <div className="year-image">
               <Art src={m.image} alt={m.name} visualId={`model:${m.id}`} />
-              <span className="micro muted">{t("imageLabel")}</span>
+              <span
+                className="micro muted"
+                data-visual-text={"ui:" + "imageLabel"}
+              >
+                {t("imageLabel")}
+              </span>
             </div>
           </div>
         </section>
@@ -501,7 +537,7 @@ export function Storefront({
         <p className="eyebrow">
           {b.name} / {m.name} / {s[3]}
         </p>
-        <h1>{t("compatible")}</h1>
+        <h1 data-visual-text={"ui:" + "compatible"}>{t("compatible")}</h1>
         <div className="selection-strip">
           <span>
             <Check size={14} />
@@ -511,7 +547,7 @@ export function Storefront({
             className="text-link"
             href={href(`/motosikletler/${b.slug}/${m.slug}`)}
           >
-            {t("changeBike")}
+            {<VisualText textKey={"ui:" + "changeBike"} />}
             <ArrowUpRight size={14} />
           </Link>
         </div>
@@ -562,14 +598,17 @@ export function Storefront({
   );
   const cartPage = () => (
     <section className="page-section">
-      <p className="eyebrow">KUZMIN / {t("cart")}</p>
-      <h1>{t("yourBag")}</h1>
+      <p className="eyebrow">
+        <VisualText textKey={"slot:copy.store.obmdpifbbkeh"} />
+        {<VisualText textKey={"ui:" + "cart"} />}
+      </p>
+      <h1 data-visual-text={"ui:" + "yourBag"}>{t("yourBag")}</h1>
       {!cart.length ? (
         <div className="empty-state">
           <ShoppingBag size={36} strokeWidth={1} />
-          <h2>{t("emptyBag")}</h2>
+          <h2 data-visual-text={"ui:" + "emptyBag"}>{t("emptyBag")}</h2>
           <Link className="button" href={href("/urunler")}>
-            {t("continue")}
+            {<VisualText textKey={"ui:" + "continue"} />}
             <ArrowUpRight size={16} />
           </Link>
         </div>
@@ -592,14 +631,27 @@ export function Storefront({
                     <h3>{l.p?.title[lang] || t("notProvided")}</h3>
                   </Link>
                   <p className="muted micro">
-                    {l.v ? t(l.v.finish as "gloss" | "matte") : ""} / {l.v?.sku}
+                    {l.v ? (
+                      <VisualText
+                        textKey={"ui:" + (l.v.finish as "gloss" | "matte")}
+                      />
+                    ) : (
+                      ""
+                    )}{" "}
+                    / {l.v?.sku}
                   </p>
                   {(!l.p || !l.v || !variantAvailable(l.p, l.v)) && (
-                    <p className="form-error">{t("finishUnavailable")}</p>
+                    <p
+                      className="form-error"
+                      data-visual-text={"ui:" + "finishUnavailable"}
+                    >
+                      {t("finishUnavailable")}
+                    </p>
                   )}
                   <button
                     className="under-link"
                     onClick={() => update(l.variantId, 0)}
+                    data-visual-text={"ui:" + "remove"}
                   >
                     {t("remove")}
                   </button>
@@ -629,12 +681,16 @@ export function Storefront({
             ))}
           </div>
           <aside className="order-summary">
-            <p className="eyebrow">{t("cart")}</p>
+            <p className="eyebrow" data-visual-text={"ui:" + "cart"}>
+              {t("cart")}
+            </p>
             <div className="summary-total">
-              <span>{t("subtotal")}</span>
+              <span data-visual-text={"ui:" + "subtotal"}>{t("subtotal")}</span>
               <strong>{money(total, lang)}</strong>
             </div>
-            <p className="muted">{t("shippingNote")}</p>
+            <p className="muted" data-visual-text={"ui:" + "shippingNote"}>
+              {t("shippingNote")}
+            </p>
             <Link
               className="button wide"
               href={href(member ? "/odeme" : "/giris?next=%2Fodeme")}
@@ -646,7 +702,7 @@ export function Storefront({
                 }
               }}
             >
-              {t("checkout")}
+              {<VisualText textKey={"ui:" + "checkout"} />}
               <ArrowUpRight size={16} />
             </Link>
           </aside>
@@ -656,8 +712,12 @@ export function Storefront({
   );
   const unavailable = (url: string) => (
     <section className="page-section empty-state">
-      <h1>{t("notPublished")}</h1>
-      <Link className="button" href={href(url)}>
+      <h1 data-visual-text={"ui:" + "notPublished"}>{t("notPublished")}</h1>
+      <Link
+        className="button"
+        href={href(url)}
+        data-visual-text={"ui:" + "back"}
+      >
         {t("back")}
       </Link>
     </section>
@@ -687,7 +747,12 @@ export function Storefront({
         className={`page-section prose-page${legal ? " legal-page" : ""}${key[s[0]] === "about" ? " about-page" : ""}`}
       >
         <p className="eyebrow">
-          KUZMIN / {legal ? "BİLGİLENDİRME" : key[s[0]]}
+          <VisualText textKey={"slot:copy.store.obmdpifbbkeh"} />
+          {legal ? (
+            <VisualText textKey={"slot:copy.store.lcmmldjbgffj"} />
+          ) : (
+            key[s[0]]
+          )}
         </p>
         {key[s[0]] === "about" && (
           <div className="about-brand">
@@ -705,10 +770,11 @@ export function Storefront({
           {row?.title[lang] || t("notProvided")}
         </h1>
         {legal && row?.body[lang]?.includes("(Buraya") && (
-          <p className="legal-template-note">
-            Bu metin, parantez içindeki alanlar tamamlanana kadar taslak
-            niteliğindedir. Müşteri ve sipariş bilgileri bu genel sayfaya değil,
-            siparişe özel belgeye yazılır.
+          <p
+            className="legal-template-note"
+            data-visual-text={"slot:copy.store.caimledgdiho"}
+          >
+            {fixedText("copy.store.caimledgdiho")}
           </p>
         )}
         <div
@@ -732,7 +798,11 @@ export function Storefront({
             key[s[0]] === "about" ? "/parcani-urettir" : "/motosikletler",
           )}
         >
-          {key[s[0]] === "about" ? t("customCarbon") : t("explore")}
+          {key[s[0]] === "about" ? (
+            <VisualText textKey={"ui:" + "customCarbon"} />
+          ) : (
+            <VisualText textKey={"ui:" + "explore"} />
+          )}
           <ArrowUpRight size={16} />
         </Link>
       </section>
@@ -742,17 +812,19 @@ export function Storefront({
   return (
     <>
       <a className="skip-link" href="#main">
-        {lang === "tr"
-          ? "İçeriğe geç"
-          : lang === "en"
-            ? "Skip to content"
-            : "К содержимому"}
+        {lang === "tr" ? (
+          <VisualText textKey={"slot:copy.store.bgelhpmijgib"} />
+        ) : lang === "en" ? (
+          <VisualText textKey={"slot:copy.store.cpomoenmkbdk"} />
+        ) : (
+          <VisualText textKey={"slot:copy.store.nfpfbapgkpao"} />
+        )}
       </a>
       <header className="site-header">
         <Link
           className="wordmark header-wordmark"
           href={href("/")}
-          aria-label="KUZMIN"
+          aria-label={fixedText("copy.store.dfmelpjemeno")}
         >
           <b data-visual-text="slot:header.brand">
             {copy("header.brand", "KUZMIN")}
@@ -780,6 +852,7 @@ export function Storefront({
               href={href(url)}
               className={"/" + s.join("/") === url ? "active" : ""}
               onClick={() => setMenu(false)}
+              data-visual-text={"ui:" + label}
             >
               {t(label)}
             </Link>
@@ -787,7 +860,10 @@ export function Storefront({
         </nav>
         <div className="nav-actions">
           <div className="member-links">
-            <Link href={href(member ? "/hesabim" : "/giris")}>
+            <Link
+              href={href(member ? "/hesabim" : "/giris")}
+              data-visual-text={"ui:" + "account"}
+            >
               {t("account")}
             </Link>
           </div>
@@ -822,7 +898,7 @@ export function Storefront({
                   {home?.title[lang] || "Detayda fark yarat."}
                 </h1>
                 <Link className="button" href={href("/motosikletler")}>
-                  {t("explore")}
+                  {<VisualText textKey={"ui:" + "explore"} />}
                   <ArrowUpRight size={16} />
                 </Link>
               </div>
@@ -849,12 +925,17 @@ export function Storefront({
             renderProduct()
           ) : (
             <section className="page-section">
-              <p className="eyebrow">KUZMIN / {t("catalog")}</p>
-              <h1>{t("allProducts")}</h1>
+              <p className="eyebrow">
+                <VisualText textKey={"slot:copy.store.obmdpifbbkeh"} />
+                {t("catalog")}
+              </p>
+              <h1 data-visual-text={"ui:" + "allProducts"}>
+                {t("allProducts")}
+              </h1>
               {savedBike && (
                 <Link className="selection-strip" href={href(savedBike)}>
                   <span>
-                    {t("savedBike")}:{" "}
+                    {<VisualText textKey={"ui:" + "savedBike"} />}:{" "}
                     {savedBike.split("/").slice(2).join(" · ").toUpperCase()}
                   </span>
                   <ArrowRight size={16} />
@@ -929,7 +1010,15 @@ export function Storefront({
       <footer>
         <div className="footer-top">
           <Link className="wordmark" href={href("/")}>
-            KUZMIN<span>CARBON MOTORCYCLE PARTS</span>
+            <b
+              style={{ fontWeight: "inherit" }}
+              data-visual-text="slot:header.brand"
+            >
+              {copy("header.brand", "KUZMIN")}
+            </b>
+            <span data-visual-text="slot:header.tagline">
+              {copy("header.tagline", "CARBON MOTORCYCLE PARTS")}
+            </span>
           </Link>
         </div>
         <div className="footer-main">
@@ -952,11 +1041,19 @@ export function Storefront({
             )}
           </p>
           <span className="demo-indicator">
-            {!live ? "LOCAL DEMO" : "ORDER REQUESTS"}
+            {!live ? (
+              <VisualText textKey={"slot:copy.store.nngeelhdbkdd"} />
+            ) : (
+              <VisualText textKey={"slot:copy.store.aanakgemncpe"} />
+            )}
           </span>
         </div>
         <p className="demo-notice">
-          {!live || c.products.some((p) => p.demo) ? t("demo") : t("orderNote")}
+          {!live || c.products.some((p) => p.demo) ? (
+            <VisualText textKey={"ui:" + "demo"} />
+          ) : (
+            <VisualText textKey={"ui:" + "orderNote"} />
+          )}
         </p>
         <AnalyticsTracker path={"/" + s.join("/")} preview={preview} />
       </footer>
@@ -965,7 +1062,7 @@ export function Storefront({
           <Check size={16} />
           {toast}
           <Link href={href("/sepet")}>
-            {t("cart")}
+            {<VisualText textKey={"ui:" + "cart"} />}
             <ArrowRight size={14} />
           </Link>
         </div>
@@ -1060,7 +1157,11 @@ function ProductListing({
             {t("all")} / {t("material")}
           </option>
           {["full_carbon", "hybrid", "forged", "carbon_finish"].map((m) => (
-            <option key={m} value={m}>
+            <option
+              key={m}
+              value={m}
+              data-visual-text={"ui:" + (m as MessageKey)}
+            >
               {t(m as MessageKey)}
             </option>
           ))}
@@ -1070,21 +1171,28 @@ function ProductListing({
           value={sort}
           onChange={(e) => setSort(e.target.value)}
         >
-          <option value="recommended">{t("newest")}</option>
-          <option value="asc">{t("priceAsc")}</option>
-          <option value="desc">{t("priceDesc")}</option>
+          <option value="recommended" data-visual-text={"ui:" + "newest"}>
+            {t("newest")}
+          </option>
+          <option value="asc" data-visual-text={"ui:" + "priceAsc"}>
+            {t("priceAsc")}
+          </option>
+          <option value="desc" data-visual-text={"ui:" + "priceDesc"}>
+            {t("priceDesc")}
+          </option>
         </select>
       </div>
       <div className="result-row">
         <span>
-          {String(list.length).padStart(2, "0")} {t("products")}
+          {String(list.length).padStart(2, "0")}{" "}
+          {<VisualText textKey={"ui:" + "products"} />}
         </span>
       </div>
       {list.length ? (
         <div className="product-grid catalog-grid">{list.map(card)}</div>
       ) : !products.length && requestContext ? null : (
         <div className="empty-state">
-          <h2>{t("empty")}</h2>
+          <h2 data-visual-text={"ui:" + "empty"}>{t("empty")}</h2>
           <button
             className="text-link"
             onClick={() => {
@@ -1093,7 +1201,7 @@ function ProductListing({
               setCategory("");
             }}
           >
-            {t("reset")}
+            {<VisualText textKey={"ui:" + "reset"} />}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -1123,6 +1231,8 @@ function ProductDetail({
   href: (p: string) => string;
   add: (p: Product, v: string, q: number) => void;
 }) {
+  const fixedText = useSiteText();
+
   const t = useVisualTranslate(lang),
     variants = productVariants(p, c.variants),
     images = c.product_images
@@ -1137,7 +1247,9 @@ function ProductDetail({
   return (
     <section className="page-section product-page">
       <nav className="breadcrumbs">
-        <Link href={href("/urunler")}>{t("catalog")}</Link>
+        <Link href={href("/urunler")} data-visual-text={"ui:" + "catalog"}>
+          {t("catalog")}
+        </Link>
         <ChevronRight size={12} />
         <span>{p.title[lang]}</span>
       </nav>
@@ -1178,14 +1290,20 @@ function ProductDetail({
         </div>
         <div className="product-copy">
           <p className="eyebrow">
-            {t(p.material as MessageKey)} / {p.sku}
+            {<VisualText textKey={"ui:" + (p.material as MessageKey)} />} /{" "}
+            {p.sku}
           </p>
           <h1 data-edit-text={`products:${p.id}:title`}>{p.title[lang]}</h1>
           <div className="detail-price">
             <span data-edit-text={`products:${p.id}:price`}>
               <ProductPrice product={p} lang={lang} />
             </span>
-            <span className="production-note">{t("madeToOrder")}</span>
+            <span
+              className="production-note"
+              data-visual-text={"ui:" + "madeToOrder"}
+            >
+              {t("madeToOrder")}
+            </span>
           </div>
           <p
             className="description"
@@ -1193,9 +1311,13 @@ function ProductDetail({
           >
             {p.description[lang]}
           </p>
-          {p.demo && <div className="demo-box">{t("demoProduct")}</div>}
+          {p.demo && (
+            <div className="demo-box" data-visual-text={"ui:" + "demoProduct"}>
+              {t("demoProduct")}
+            </div>
+          )}
           <fieldset className="variant-field">
-            <legend>{t("finish")}</legend>
+            <legend data-visual-text={"ui:" + "finish"}>{t("finish")}</legend>
             {variants.map((vv) => (
               <button
                 key={vv.id}
@@ -1205,7 +1327,11 @@ function ProductDetail({
                   setQuantity(1);
                 }}
               >
-                {t(vv.finish as "gloss" | "matte")}
+                {
+                  <VisualText
+                    textKey={"ui:" + (vv.finish as "gloss" | "matte")}
+                  />
+                }
                 {v?.id === vv.id && <Check size={13} />}
               </button>
             ))}
@@ -1233,11 +1359,13 @@ function ProductDetail({
               disabled={!v || max < 1}
               onClick={() => v && add(p, v.id, quantity)}
             >
-              {t("addCart")}
+              {<VisualText textKey={"ui:" + "addCart"} />}
               <Plus size={16} />
             </button>
           </div>
-          <p className="micro muted">{t("shippingNote")}</p>
+          <p className="micro muted" data-visual-text={"ui:" + "shippingNote"}>
+            {t("shippingNote")}
+          </p>
           <div className="detail-tabs" role="tablist">
             {(["specs", "fitment", "installation"] as const).map((key) => (
               <button
@@ -1247,6 +1375,7 @@ function ProductDetail({
                 aria-selected={tab === key}
                 aria-controls="detail-panel"
                 onClick={() => setTab(key)}
+                data-visual-text={"ui:" + key}
               >
                 {t(key)}
               </button>
@@ -1264,11 +1393,21 @@ function ProductDetail({
                   {p.specifications[lang]}
                 </p>
                 <dl>
-                  <dt>{t("material")}</dt>
-                  <dd>{t(p.material as MessageKey)}</dd>
-                  <dt>{t("weight")}</dt>
-                  <dd>{p.weight ? `${p.weight} g` : t("notProvided")}</dd>
-                  <dt>SKU</dt>
+                  <dt data-visual-text={"ui:" + "material"}>{t("material")}</dt>
+                  <dd data-visual-text={"ui:" + (p.material as MessageKey)}>
+                    {t(p.material as MessageKey)}
+                  </dd>
+                  <dt data-visual-text={"ui:" + "weight"}>{t("weight")}</dt>
+                  <dd>
+                    {p.weight ? (
+                      `${p.weight} g`
+                    ) : (
+                      <VisualText textKey={"ui:" + "notProvided"} />
+                    )}
+                  </dd>
+                  <dt data-visual-text={"slot:copy.store.pdgadekmolnd"}>
+                    {fixedText("copy.store.pdgadekmolnd")}
+                  </dt>
                   <dd>{v?.sku || p.sku}</dd>
                 </dl>
               </>
@@ -1306,7 +1445,7 @@ function ProductDetail({
             <div className="media-links">
               {p.video_url && (
                 <a href={p.video_url} target="_blank" rel="noopener noreferrer">
-                  {t("video")} ↗
+                  {<VisualText textKey={"ui:" + "video"} />} ↗
                 </a>
               )}
               {p.viewer_url && (
@@ -1315,7 +1454,7 @@ function ProductDetail({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {t("viewer")} ↗
+                  {<VisualText textKey={"ui:" + "viewer"} />} ↗
                 </a>
               )}
             </div>
@@ -1358,6 +1497,8 @@ function Checkout({
   href: (p: string) => string;
   valid: boolean;
 }) {
+  const fixedText = useSiteText();
+
   const t = useVisualTranslate(lang),
     [status, setStatus] = useState(""),
     [busy, setBusy] = useState(false);
@@ -1431,13 +1572,25 @@ function Checkout({
     return <HostedPayment session={payment.session} frame={payment.frame} />;
   return (
     <section className="page-section checkout-page">
-      <p className="eyebrow">KUZMIN / {t("checkout")}</p>
-      <h1>{t("checkoutTitle")}</h1>
-      <p className="checkout-intro">{t("personalDetails")}</p>
+      <p className="eyebrow">
+        <VisualText textKey={"slot:copy.store.obmdpifbbkeh"} />
+        {<VisualText textKey={"ui:" + "checkout"} />}
+      </p>
+      <h1 data-visual-text={"ui:" + "checkoutTitle"}>{t("checkoutTitle")}</h1>
+      <p
+        className="checkout-intro"
+        data-visual-text={"ui:" + "personalDetails"}
+      >
+        {t("personalDetails")}
+      </p>
       {!cart.length ? (
         <div className="empty-state">
-          <h2>{t("emptyBag")}</h2>
-          <Link className="button" href={href("/urunler")}>
+          <h2 data-visual-text={"ui:" + "emptyBag"}>{t("emptyBag")}</h2>
+          <Link
+            className="button"
+            href={href("/urunler")}
+            data-visual-text={"ui:" + "continue"}
+          >
             {t("continue")}
           </Link>
         </div>
@@ -1445,17 +1598,30 @@ function Checkout({
         <div className="cart-layout">
           <form className="checkout-form" onSubmit={submit}>
             <p className="demo-box">
-              {payment.config.ready
-                ? payment.config.mode === "test"
-                  ? "Test ödeme modu · Gerçek tahsilat yapılmaz."
-                  : "Kart bilgileriniz sağlayıcının güvenli ödeme ekranına girilir."
-                : t("paymentUnavailable")}
+              {payment.config.ready ? (
+                payment.config.mode === "test" ? (
+                  <VisualText textKey={"slot:copy.store.ajmcclomikhn"} />
+                ) : (
+                  <VisualText textKey={"slot:copy.store.ggfgnibepopc"} />
+                )
+              ) : (
+                <VisualText textKey={"ui:" + "paymentUnavailable"} />
+              )}
             </p>
             {(
               ["customer_name", "email", "phone", "address", "note"] as const
             ).map((key, i) => (
               <label key={key}>
-                {t((["name", "email", "phone", "address", "note"] as const)[i])}
+                {
+                  <VisualText
+                    textKey={
+                      "ui:" +
+                      (["name", "email", "phone", "address", "note"] as const)[
+                        i
+                      ]
+                    }
+                  />
+                }
                 {key === "address" || key === "note" ? (
                   <textarea
                     name={key}
@@ -1497,7 +1663,7 @@ function Checkout({
             {payment.config.ready && payment.config.provider === "iyzico" && (
               <>
                 <label>
-                  Şehir
+                  <VisualText textKey={"slot:copy.store.jngemidkehkl"} />
                   <input
                     name="buyer_city"
                     required
@@ -1507,7 +1673,7 @@ function Checkout({
                   />
                 </label>
                 <label>
-                  Ülke
+                  <VisualText textKey={"slot:copy.store.bbbnopllbaif"} />
                   <input
                     name="buyer_country"
                     required
@@ -1517,7 +1683,7 @@ function Checkout({
                   />
                 </label>
                 <label>
-                  T.C. kimlik / pasaport numarası
+                  <VisualText textKey={"slot:copy.store.mjhplfnahjca"} />
                   <input
                     name="buyer_identity"
                     required
@@ -1527,9 +1693,11 @@ function Checkout({
                     autoComplete="off"
                   />
                 </label>
-                <p className="micro muted">
-                  Kimlik bilgisi iyzico doğrulaması için iletilir; mağaza
-                  veritabanında saklanmaz.
+                <p
+                  className="micro muted"
+                  data-visual-text={"slot:copy.store.cgohkgajcgod"}
+                >
+                  {fixedText("copy.store.cgohkgajcgod")}
                 </p>
               </>
             )}
@@ -1546,10 +1714,10 @@ function Checkout({
                 required
                 disabled={preview}
               />
-              {t("consent")}
+              {<VisualText textKey={"ui:" + "consent"} />}
             </label>
             <Link href={href("/gizlilik")} className="under-link">
-              {t("privacy")} ↗
+              {<VisualText textKey={"ui:" + "privacy"} />} ↗
             </Link>
             {status && (
               <p role="alert" className="form-error">
@@ -1583,24 +1751,31 @@ function Checkout({
                   : undefined
               }
             >
-              {busy
-                ? t("sending")
-                : payment.config.ready && payment.config.provider === "paytr"
-                  ? "PayTR ile ödemeye geç"
-                  : t("payWithIyzico")}
+              {busy ? (
+                <VisualText textKey={"ui:" + "sending"} />
+              ) : payment.config.ready &&
+                payment.config.provider === "paytr" ? (
+                <VisualText textKey={"slot:copy.store.djldoipmdbdb"} />
+              ) : (
+                <VisualText textKey={"ui:" + "payWithIyzico"} />
+              )}
               <ArrowRight size={16} />
             </button>
           </form>
           <aside className="order-summary">
-            <p className="eyebrow">{t("cart")}</p>
+            <p className="eyebrow" data-visual-text={"ui:" + "cart"}>
+              {t("cart")}
+            </p>
             <div className="summary-total">
-              <span>{t("subtotal")}</span>
+              <span data-visual-text={"ui:" + "subtotal"}>{t("subtotal")}</span>
               <strong>{money(total, lang)}</strong>
             </div>
-            <p className="muted">{t("shippingNote")}</p>
+            <p className="muted" data-visual-text={"ui:" + "shippingNote"}>
+              {t("shippingNote")}
+            </p>
             <Link href={href("/sepet")} className="text-link">
               <ArrowLeft size={14} />
-              {t("cart")}
+              {<VisualText textKey={"ui:" + "cart"} />}
             </Link>
           </aside>
         </div>

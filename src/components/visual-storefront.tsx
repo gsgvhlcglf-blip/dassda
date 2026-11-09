@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { VisualContext, type VisualDesign } from "@/lib/visual";
 import { Storefront } from "./storefront";
+import { SiteTextLanguage } from "./visual-text";
 import type { Catalog, Lang } from "@/lib/types";
 export function VisualStorefront({
   catalog,
@@ -42,15 +43,17 @@ export function VisualStorefront({
   }, [preview]);
   return (
     <VisualContext.Provider value={value}>
-      <Storefront
-        catalog={catalog}
-        segments={path.split("/").filter(Boolean)}
-        lang={lang}
-        live={live}
-        preview={preview}
-        customer={customer}
-        previewQuery={query}
-      />
+      <SiteTextLanguage.Provider value={lang}>
+        <Storefront
+          catalog={catalog}
+          segments={path.split("/").filter(Boolean)}
+          lang={lang}
+          live={live}
+          preview={preview}
+          customer={customer}
+          previewQuery={query}
+        />
+      </SiteTextLanguage.Provider>
     </VisualContext.Provider>
   );
 }

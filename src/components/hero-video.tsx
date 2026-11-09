@@ -1,9 +1,12 @@
 "use client";
+import { useSiteText } from "./visual-text";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { VisualContext } from "@/lib/visual";
 import { browserVideoBlob } from "@/lib/hero-video";
 export function HeroVideo() {
+  const fixedText = useSiteText();
+
   const { heroVideo } = useContext(VisualContext);
   const [src, setSrc] = useState(""),
     [failed, setFailed] = useState(false),
@@ -56,7 +59,7 @@ export function HeroVideo() {
         loop
         playsInline
         preload="metadata"
-        aria-label="Ana sayfa banner videosu"
+        aria-label={fixedText("copy.video.ndembnceocge")}
         onError={() => setFailed(true)}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}

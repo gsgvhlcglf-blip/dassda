@@ -1,6 +1,45 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { validateDesign } from "../quick-panel/design.mjs";
+import { siteTextEntries } from "../src/lib/site-texts";
+import { storefrontPreviewPath } from "../src/lib/storefront-preview";
+import { analyticsPath } from "../src/lib/analytics";
+test("protected design previews accept form/account screens without enabling analytics for them", () => {
+  for (const path of [
+    "/parcani-urettir",
+    "/odeme",
+    "/sepet",
+    "/giris",
+    "/hesabim",
+  ]) {
+    assert.equal(
+      storefrontPreviewPath(path + "?email=private@example.test"),
+      path,
+    );
+    assert.equal(analyticsPath(path), null);
+  }
+  for (const path of ["/admin", "/api/admin", "/auth/callback", "/unknown"])
+    assert.equal(storefrontPreviewPath(path), null);
+});
+test("every storefront copy field can be blanked and restored through the persisted design contract", () => {
+  const fields = siteTextEntries("tr");
+  const design = validateDesign({
+    texts: { tr: Object.fromEntries(fields.map((field) => [field.key, ""])) },
+    images: {},
+  });
+  assert.equal(Object.keys(design.texts.tr).length, fields.length);
+  assert.equal(design.texts.tr["ui:full_carbon"], "");
+  assert.equal(design.texts.tr["ui:carbon_finish"], "");
+  assert(siteTextEntries("tr", design).every((field) => field.value === ""));
+  const cleared = structuredClone(design);
+  delete cleared.texts.tr["ui:full_carbon"];
+  assert.equal(
+    siteTextEntries("tr", validateDesign(cleared)).find(
+      (field) => field.key === "ui:full_carbon",
+    )?.value,
+    "Tam karbon fiber",
+  );
+});
 test("request image choices survive visual backup validation", () => {
   const images = Object.fromEntries(
     [

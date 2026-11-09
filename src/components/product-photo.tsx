@@ -1,6 +1,6 @@
 "use client";
 import { useContext, type CSSProperties, type ReactNode } from "react";
-import { VisualContext } from "@/lib/visual";
+import { VisualContext, useVisualCopy } from "@/lib/visual";
 import {
   defaultPhotography,
   defaultPhotoFrame,
@@ -57,9 +57,15 @@ export function ProductPhoto({
 }
 
 export function PhotoCaption({ imageKey }: { imageKey: string }) {
+  const copy = useVisualCopy("tr");
   const design = useContext(VisualContext),
     frame = design.photoFrames?.[imageKey];
   return frame ? (
-    <span className="photo-caption">{photoRoles[frame.role]}</span>
+    <span
+      className="photo-caption"
+      data-visual-text={"slot:photo.caption." + frame.role}
+    >
+      {copy("photo.caption." + frame.role, photoRoles[frame.role])}
+    </span>
   ) : null;
 }

@@ -186,7 +186,7 @@ function renderSitePreview(view) {
     )
     .join(
       "",
-    )}</div></div><p class="site-preview-hint ${siteInspect ? "" : "hidden"}">Sayfa seçin, masaüstü/mobil görünümü değiştirin. Düzenleme modunda metne tıklayıp yazın veya sağdaki alandan değiştirin. Fotoğrafa tıklayıp yenisini yükleyin.</p><div class="site-preview-grid ${siteInspect ? "has-inspector" : ""}"><div class="site-frame-box"><div class="site-frame-toolbar"><label><input type="checkbox" id="site-inspect" ${siteInspect ? "checked" : ""}>Düzenleme modu</label><span class="site-route" id="site-route">${esc(sitePath)} · ${siteWidths[siteDevice]} px</span><span id="site-loading">Yükleniyor…</span><span id="site-update-status" title="Tasarım sürümü ${PREVIEW.version}">Otomatik güncelleme açık</span><button data-action="site-customer">Müşteri önizlemesi ↗</button><button data-action="site-published">Yayımlananı gör ↗</button><button data-action="site-release">Yayın & sürümler</button><button data-action="site-expand">${siteExpanded ? "Paneli göster" : "Genişlet"}</button><button data-action="site-dashboard">Veri paneli</button><button data-action="site-refresh">Güncel tasarımı yükle</button></div><div class="site-viewport" id="site-viewport"><div class="site-scale" id="site-scale"><iframe class="site-frame" id="site-frame" title="Mağaza sayfası tasarım önizlemesi" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div></div><div class="site-small-note">Tasarım önizlemesi · Tarayıcıdaki taslak veriler gösterilir; canlı mağaza güncellenmez. Sipariş gönderimi kapalıdır.</div></div><aside class="site-inspector ${siteInspect ? "" : "hidden"}" id="site-inspector"></aside></div></section>`;
+    )}</div></div><p class="site-preview-hint ${siteInspect ? "" : "hidden"}">Sayfa seçin, masaüstü/mobil görünümü değiştirin. Düzenleme modunda metne tıklayıp yazın veya sağdaki alandan değiştirin. Fotoğrafa tıklayıp yenisini yükleyin.</p><div class="site-preview-grid ${siteInspect ? "has-inspector" : ""}"><div class="site-frame-box"><div class="site-frame-toolbar"><label><input type="checkbox" id="site-inspect" ${siteInspect ? "checked" : ""}>Düzenleme modu</label><span class="site-route" id="site-route">${esc(sitePath)} · ${siteWidths[siteDevice]} px</span><span id="site-loading">Yükleniyor…</span><span id="site-update-status" title="Tasarım sürümü ${PREVIEW.version}">Otomatik güncelleme açık</span><button data-action="site-customer">Müşteri önizlemesi ↗</button><button data-action="site-published">Yayımlananı gör ↗</button><button data-action="site-release">Yayın & sürümler</button><button data-action="site-expand">${siteExpanded ? "Paneli göster" : "Genişlet"}</button><button data-action="site-texts">Tüm metinler</button><button data-action="site-dashboard">Veri paneli</button><button data-action="site-refresh">Güncel tasarımı yükle</button></div><div class="site-viewport" id="site-viewport"><div class="site-scale" id="site-scale"><iframe class="site-frame" id="site-frame" title="Mağaza sayfası tasarım önizlemesi" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div></div><div class="site-small-note">Tasarım önizlemesi · Tarayıcıdaki taslak veriler gösterilir; canlı mağaza güncellenmez. Sipariş gönderimi kapalıdır.</div></div><aside class="site-inspector ${siteInspect ? "" : "hidden"}" id="site-inspector"></aside></div></section>`;
   paintSiteInspector();
   loadSiteFrame();
   siteObserver?.disconnect();
@@ -196,12 +196,9 @@ function renderSitePreview(view) {
 }
 function sampleSiteCart() {
   const p = state.products.find(
-    (p) =>
-      p.published &&
-      p.stock > 0 &&
-      state.variants.some((v) => v.product_id === p.id && v.stock > 0),
+    (p) => p.published && KZ_MODELS.productVariants(p, state.variants).length,
   );
-  const v = state.variants.find((v) => v.product_id === p?.id && v.stock > 0);
+  const v = p && KZ_MODELS.productVariants(p, state.variants)[0];
   return p && v ? [{ productId: p.id, variantId: v.id, quantity: 1 }] : [];
 }
 function loadSiteFrame() {
@@ -628,7 +625,7 @@ async function checkSiteDesign() {
       const status = $("#site-update-status");
       if (status) status.textContent = "Yeni tasarım hazır";
       if (
-        !$("#editor").open &&
+        !document.querySelector("dialog[open]") &&
         !siteDirectDirty &&
         !$("#site-frame")?.contentDocument?.querySelector(
           "[data-inline-editing]",

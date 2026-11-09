@@ -1,6 +1,6 @@
 import { getRole } from "@/lib/auth";
 import { getWorkspace } from "@/lib/site-version-store";
-import { analyticsPath } from "@/lib/analytics";
+import { storefrontPreviewPath } from "@/lib/storefront-preview";
 import { notFound } from "next/navigation";
 import { VisualStorefront } from "@/components/visual-storefront";
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export default async function DraftPreview({
   searchParams: Promise<{ path?: string }>;
 }) {
   if (!(await getRole())) notFound();
-  const path = analyticsPath((await searchParams).path || "/");
+  const path = storefrontPreviewPath((await searchParams).path || "/");
   if (!path) notFound();
   const workspace = await getWorkspace();
   return (

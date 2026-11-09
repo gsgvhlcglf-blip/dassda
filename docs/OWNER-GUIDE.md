@@ -117,6 +117,23 @@ Yönetici tüm işlemleri yapabilir. Editör ürün ve içerikleri düzenleyebil
 
 ## Tasarıma bakarak birlikte çalışma
 
+Önizlemede **Düzenleme modu** açıkken başlıklara, açıklamalara, menü ve düğme
+yazılarına, form etiketlerine tıklayın. Sağdaki **Seçili metni düzenle** alanından
+yazın veya düz yazıları doğrudan sayfa üzerinde değiştirin. Bu düzenlemeler
+otomatik kaydedilir. **Metni kaldır** yazıyı boşaltır; boş metin varsayılana dönmez.
+
+Araç çubuğundaki **Tüm metinler** ile sabit mağaza yazılarını arayabilir, bölüme
+göre süzebilir, kaldırılmış yazıları tekrar ekleyebilir ve **Varsayılanı geri getir**
+ile yalnızca seçili yazıyı sıfırlayabilirsiniz. Burada **Metni kaydet** ile uygulayın.
+Yerel uygulamanın giriş gerektiren yönetim panelinde aynı araç **Site metinleri**
+menüsündedir. Ürün/model isimleri, fiyatlar ve sayfa içerikleri kendi kayıtlarına
+bağlı kalır; fiyat ya da uyumluluk hesabı bir metin düzenlemesiyle değiştirilmez.
+
+İndirmesiz panelde bunlar tarayıcı taslağıdır; yedekleme ve yayın akışına dahildir.
+Sunuculu uygulamada aynı tasarım metinleri mevcut, yetki ve sürüm kontrolü olan
+çalışma alanı API'siyle saklanır; **Yayın & sürümler** üzerinden yayımlanır. Yeni bir
+canlı veritabanı bağlantısı bu değişiklikle kurulmuş olmaz.
+
 Hızlı tarayıcı paneli ilk açılışta sitenin kendisini gösterir. Üstteki **Önizlenecek sayfa** listesinden sayfayı, ardından **Masaüstü / Tablet / Mobil** görünümünü seçin. Önizleme içinde normal bağlantılarla da gezebilirsiniz.
 
 Bir yeri tarif etmek için **Bölüm seçme** kutusunu açıp başlığa, metne veya görsele tıklayın. Bölümün adı ve mevcut metni sağda görünür. **Ne değişsin?** alanına isteğinizi yazıp **Notu kopyala** düğmesiyle sohbete aktarabilirsiniz. Bu adım zorunlu değildir; gördüğünüz sayfayı ve değişikliği doğrudan da söyleyebilirsiniz.

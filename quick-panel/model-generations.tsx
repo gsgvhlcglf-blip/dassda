@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ModelGenerationsEditor } from "../src/components/model-generations-editor";
 import { ProductCompatibilityEditor } from "../src/components/product-compatibility-editor";
 import { RequestDashboard } from "../src/components/request-dashboard";
+import { SiteTextsEditor } from "../src/components/site-texts-editor";
+import type { VisualDesign } from "../src/lib/visual";
 import { requestDemo } from "./request-demo";
 import {
   compatibilityInputs,
@@ -20,7 +22,26 @@ export {
   resolveOngoingYears,
 } from "../src/lib/model-generations";
 export { applyProductCompatibility } from "../src/lib/product-compatibility";
-export { salePrice } from "../src/lib/product-commerce";
+export { salePrice, productVariants } from "../src/lib/product-commerce";
+
+export function mountTextManager(
+  host: HTMLElement,
+  design: VisualDesign,
+  onSave: (key: string, value: string | null) => VisualDesign,
+) {
+  const root = createRoot(host);
+  function Editor() {
+    const [value, setValue] = useState(design);
+    return (
+      <SiteTextsEditor
+        design={value}
+        onSave={(key, text) => setValue(onSave(key, text))}
+      />
+    );
+  }
+  root.render(<Editor />);
+  return { unmount: () => root.unmount() };
+}
 
 export function mountCRM(host: HTMLElement, catalog: Catalog) {
   const root = createRoot(host),
