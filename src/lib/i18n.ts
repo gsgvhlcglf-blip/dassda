@@ -1,6 +1,27 @@
 import { storeSettings } from "./settings";
 import type { Lang } from "./types";
 const messages = {
+  bestsellersEmpty: [
+    "Vitrin alanı hazır. Veri panelindeki En çok satanlar bölümünden yayındaki ürünlerini seç; önizlemede fotoğraflarına tıklayıp değiştir.",
+    "Select published products in the Bestsellers panel, then click their photographs to edit.",
+    "Выберите опубликованные товары в панели, затем нажмите на фотографии для редактирования.",
+  ],
+  shippingPreparing: [
+    "Sipariş hazırlanıyor",
+    "Your order is being prepared",
+    "Заказ готовится",
+  ],
+  shippingShipped: [
+    "Siparişiniz kargoya verildi",
+    "Your order has been shipped",
+    "Ваш заказ отправлен",
+  ],
+  shippingNumber: ["Takip numarası", "Tracking number", "Трек-номер"],
+  shippingTrack: [
+    "Kargoyu takip et ↗",
+    "Track shipment ↗",
+    "Отследить посылку ↗",
+  ],
   privacyPolicy: [
     "Gizlilik ve Çerez Politikası",
     "Privacy and Cookie Policy",
@@ -490,10 +511,14 @@ export type MessageKey = keyof typeof messages;
 export function translate(lang: Lang, key: MessageKey) {
   return messages[key][lang === "tr" ? 0 : lang === "en" ? 1 : 2];
 }
-export const money = (value: number, lang: Lang = "tr") =>
+export const money = (
+  value: number,
+  lang: Lang = "tr",
+  currency: string = storeSettings.currency,
+) =>
   new Intl.NumberFormat({ tr: "tr-TR", en: "en-GB", ru: "ru-RU" }[lang], {
     style: "currency",
-    currency: storeSettings.currency,
+    currency,
     maximumFractionDigits: 0,
   }).format(value);
 

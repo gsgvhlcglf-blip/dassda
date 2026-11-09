@@ -891,6 +891,7 @@
             }).format(v),
           clone = (v) => JSON.parse(JSON.stringify(v));
         const sections = {
+          orders: ["Siparişler", "Sipariş detayları ve müşteriye kargo takip numarası paylaşımı.", "▣"],
           requests: ["Talepler & CRM", "Özel üretim, ürün geliştirme, teklifler ve referans parça takibi.", "▱"],
           overview: ["Genel bakış", "Koleksiyonunuzun kontrolü sizde.", "◈"],
           releases: ["Yayın & sürümler", "Taslağı inceleyin, yayımlayın veya önceki sürüme dönün.", "↻"],
@@ -1212,6 +1213,7 @@
             ? action("+ Yeni kayıt", "new")
             : "";
           const view = $("#view");
+          if (section === "orders") { view.innerHTML = ""; crmRoot = KZ_MODELS.mountOrders(view, state); return; }
           if (section === "requests") { view.innerHTML = ""; crmRoot = KZ_MODELS.mountCRM(view, state); return; }
           if (section === "releases") { void renderReleaseWorkspace(view); return; }
           if (section === "payments") { renderPaymentWorkspace(view); return; }

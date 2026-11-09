@@ -170,6 +170,7 @@ async function main() {
         readFileSync("src/components/requests.css", "utf8") +
         readFileSync("src/components/bestsellers-settings.css", "utf8") +
         readFileSync("src/components/site-texts-editor.css", "utf8") +
+        readFileSync("src/components/order-dashboard.css", "utf8") +
         "</style>",
     )
     .replace(

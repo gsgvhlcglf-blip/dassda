@@ -7,6 +7,7 @@ import { paymentStatusLabel } from "@/lib/payments/types";
 import { PaymentSettings } from "./payment-settings";
 import { TrackingSettings } from "./tracking-settings";
 import { SiteStudio } from "./site-studio";
+import { OrderDashboard } from "./order-dashboard";
 import { ModelGenerationsEditor } from "./model-generations-editor";
 import { ProductCompatibilityEditor } from "./product-compatibility-editor";
 import {
@@ -183,7 +184,7 @@ const sections = [
   ["product_images", "Ürün fotoğrafları", Images],
   ["compatibility", "Uyumluluk", Link2],
   ["categories", "Kategoriler", Layers],
-  ["orders", "Sipariş talepleri", ShoppingBag],
+  ["orders", "Siparişler", ShoppingBag],
   ["content", "Sayfa içerikleri", FileText],
 ] as const;
 function name(r: Row) {
@@ -549,6 +550,8 @@ export function Admin({
           <div className="empty-state" aria-busy="true">
             Yükleniyor…
           </div>
+        ) : section === "orders" && role === "admin" ? (
+          <OrderDashboard />
         ) : section === "bestsellers" ? (
           <BestsellersSettings
             key={String(data._workspace?.[0]?.revision || "initial")}

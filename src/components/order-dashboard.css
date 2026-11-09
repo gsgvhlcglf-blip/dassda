@@ -1,0 +1,41 @@
+.orders-dashboard { color: #eee; font: 13px/1.6 Arial,sans-serif; }
+.orders-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px; }
+.orders-toolbar h2 { flex: 1; margin: 0; font-size: 24px; }
+.orders-dashboard .button { min-height: 44px; padding: 12px 18px; background: #eee; color: #111; border: 1px solid #eee; cursor: pointer; font: 11px/1.5 Arial,sans-serif; }
+.orders-dashboard .secondary { background: transparent; color: #eee; border-color: #444; }
+.orders-dashboard button:disabled { opacity: .5; cursor: not-allowed; }
+.orders-dashboard .under-link { padding: 10px 0; color: #bbb; background: transparent; border: 0; cursor: pointer; }
+.orders-demo { padding: 14px 18px; border: 1px solid #555; color: #bbb; margin-bottom: 24px; }
+.orders-stats { display: flex; flex-wrap: wrap; gap: 20px; margin: 24px 0; color: #aaa; }
+.orders-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.orders-filters input { flex: 1; min-width: 180px; }
+.orders-dashboard input,.orders-dashboard select { font: inherit; background: #191919; color: #eee; border: 1px solid #444; padding: 12px; border-radius: 0; }
+.orders-table-wrap { overflow-x: auto; border: 1px solid #333; }
+.orders-dashboard table { width: 100%; border-collapse: collapse; min-width: 580px; text-align: left; }
+.orders-dashboard th,.orders-dashboard td { padding: 16px; border-bottom: 1px solid #333; vertical-align: top; }
+.orders-dashboard th { color: #aaa; font-size: 11px; font-weight: 400; }
+.orders-dashboard td small { display: block; color: #999; font-size: 10px; margin-top: 6px; }
+.order-open { border: 0; background: none; color: #eee; cursor: pointer; padding: 8px 0; text-align: left; font: inherit; text-decoration: underline; text-underline-offset: 4px; }
+.order-detail-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin: 20px 0; }
+.order-detail-heading h3 { font-size: 26px; font-weight: 400; margin: 0; overflow-wrap: anywhere; }
+.order-detail-heading .status-tag { font-size: 12px; line-height: 1.5; letter-spacing: 0; padding: 8px 12px; }
+.order-detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.order-detail-card { padding: 24px; border: 1px solid #333; margin: 0 0 20px; min-width: 0; }
+.order-detail-card h4 { font-weight: 400; font-size: 18px; margin: 0 0 20px; }
+.order-detail-card dl { margin: 0; }
+.order-detail-card dt { color: #999; font-size: 10px; margin-bottom: 4px; }
+.order-detail-card dd { margin: 0 0 16px; overflow-wrap: anywhere; }
+.order-preserve { white-space: pre-wrap; }
+.order-shipment label { display: grid; gap: 8px; min-width: 0; }
+.order-shipment p { color: #bbb; margin: 12px 0 20px; }
+.order-shipment .orders-toolbar { margin-top: 20px; }
+.account-tracking { display: block; margin-top: 8px; font-size: 11px; color: #bbb; overflow-wrap: anywhere; }
+.account-tracking a { display: block; text-decoration: underline; text-underline-offset: 4px; margin-top: 8px; }
+@media(max-width:760px) {
+ .order-detail-grid { grid-template-columns: 1fr; gap: 0; }
+ .order-detail-card { padding: 18px; }
+ .orders-filters { flex-direction: column; }
+ .orders-dashboard input,.orders-dashboard select { font-size: 16px; max-width: 100%; min-width: 0; }
+ .orders-toolbar .button { flex: 1 1 auto; }
+ .orders-dashboard table { min-width: 540px; }
+}

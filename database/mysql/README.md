@@ -20,3 +20,5 @@ hesaplanmalı, ücretsiz kargo için ek tutar alınmamalı ve stok rezerve edilm
 Sabit aralıklar değiştirilmez. Sunucu aralığı güncel Türkiye yılına göre çözer;
 model-yıl satırları kaydetme/yayınlama sırasında kalıcılaşır. Ürün uyumlulukları
 yeni yıllara otomatik genişletilmez.
+
+`004_order_tracking.sql` siparişe kargo numarası, firma, takip bağlantısı, paylaşım tarihi ve sürüm sayacı ekler. İlerideki adaptör güncellemeyi yetki/ödeme/sürüm kontrolüyle tek işlemde yapmalıdır.

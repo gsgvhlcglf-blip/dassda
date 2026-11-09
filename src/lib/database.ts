@@ -119,6 +119,16 @@ export function localDB() {
   const orderColumns = db.prepare("PRAGMA table_info(orders)").all() as {
     name: string;
   }[];
+  for (const [column, definition] of [
+    ["tracking_number", "TEXT NOT NULL DEFAULT ''"],
+    ["shipping_carrier", "TEXT NOT NULL DEFAULT ''"],
+    ["tracking_url", "TEXT NOT NULL DEFAULT ''"],
+    ["shipped_at", "TEXT"],
+    ["fulfillment_version", "INTEGER NOT NULL DEFAULT 0"],
+  ]) {
+    if (!orderColumns.some((item) => item.name === column))
+      db.exec(`ALTER TABLE orders ADD COLUMN ${column} ${definition}`);
+  }
   if (!orderColumns.some((column) => column.name === "customer_id"))
     db.exec(
       "ALTER TABLE orders ADD COLUMN customer_id TEXT REFERENCES customers(id)",

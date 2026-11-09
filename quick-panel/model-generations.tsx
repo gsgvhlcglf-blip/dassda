@@ -7,6 +7,8 @@ import { RequestDashboard } from "../src/components/request-dashboard";
 import { SiteTextsEditor } from "../src/components/site-texts-editor";
 import type { VisualDesign } from "../src/lib/visual";
 import { requestDemo } from "./request-demo";
+import { OrderDashboard } from "../src/components/order-dashboard";
+import { orderDemo } from "./order-demo";
 import {
   compatibilityInputs,
   type CompatibilityInput,
@@ -47,6 +49,12 @@ export function mountTextManager(
   return { unmount: () => root.unmount() };
 }
 
+export function mountOrders(host: HTMLElement, catalog: Catalog) {
+  const root = createRoot(host),
+    transport = orderDemo(catalog);
+  root.render(<OrderDashboard transport={transport} />);
+  return { unmount: () => root.unmount() };
+}
 export function mountCRM(host: HTMLElement, catalog: Catalog) {
   const root = createRoot(host),
     transport = requestDemo(catalog);

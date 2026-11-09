@@ -1567,6 +1567,13 @@ function Checkout({
               ),
             ),
             consent: form.get("consent") === "on",
+            address: [
+              form.get("address"),
+              form.get("buyer_city"),
+              form.get("buyer_country"),
+            ]
+              .filter((value) => typeof value === "string" && value.trim())
+              .join("\n"),
             locale: lang,
             lines: cart,
           }),

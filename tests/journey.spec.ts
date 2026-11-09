@@ -235,17 +235,18 @@ test("owner can visually create a model, generation, year, product, variant, ima
   await page.getByRole("button", { name: "Sepete ekle", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Sepete eklendi");
   await page.goto("/admin");
-  await section("Sipariş talepleri");
-  await expect(page.locator(".admin-table")).toContainText("Demo Customer");
+  await section("Siparişler");
+  await expect(page.locator(".orders-dashboard")).toContainText(
+    "Demo Customer",
+  );
+  await page.locator(".order-open").first().click();
+  await page.getByLabel("Sipariş kargo takip numarası").fill("TEST-TRACK-123");
   await page
-    .locator(".admin-table tbody tr")
-    .first()
-    .getByRole("button", { name: "Düzenle" })
+    .getByRole("button", { name: "Kargo takip numarasını paylaş", exact: true })
     .click();
-  await page
-    .getByLabel("Sipariş durumu", { exact: true })
-    .selectOption("reviewing");
-  await save();
+  await expect(page.locator(".order-detail-heading")).toContainText(
+    "Siparişiniz kargoya verildi",
+  );
 });
 test("responsive screens, filtering and keyboard controls", async ({
   page,

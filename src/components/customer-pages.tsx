@@ -1,5 +1,11 @@
 "use client";
 import { VisualText, useSiteText } from "./visual-text";
+import {
+  shippingState,
+  safeShipmentURL,
+  type OrderShipment,
+} from "@/lib/order-management";
+import { readOrderPreview } from "@/lib/order-preview";
 import { defaultBlogImage, blogFigureCaptions } from "@/lib/blog-media";
 import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
@@ -79,13 +85,14 @@ export function CustomerPage({
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [orders, setOrders] = useState<
-      {
+      (OrderShipment & {
         reference: string;
         status: string;
         total: number;
         created_at: string;
         payment_status?: string;
-      }[]
+        demo?: boolean;
+      })[]
     >([]);
   const go = (path: string) =>
     onNavigate ? onNavigate(path) : window.location.assign(path);
@@ -96,21 +103,44 @@ export function CustomerPage({
       ),
     );
   useEffect(() => {
-    if (mode !== "account" || !user || preview) return;
+    if (mode !== "account" || !user) return;
+    if (preview) {
+      const update = () => setOrders(readOrderPreview());
+      update();
+      window.addEventListener("storage", update);
+      window.addEventListener("focus", update);
+      window.addEventListener("kz-orders-demo-changed", update);
+      return () => {
+        window.removeEventListener("storage", update);
+        window.removeEventListener("focus", update);
+        window.removeEventListener("kz-orders-demo-changed", update);
+      };
+    }
     let cancelled = false;
-    fetch("/api/customer", { cache: "no-store" })
-      .then(async (r) => {
-        if (!r.ok) throw Error();
-        return r.json();
-      })
-      .then((d) => {
-        if (!cancelled) setOrders(d.orders);
-      })
-      .catch(() => {
-        if (!cancelled) setMessage(t("accountError"));
-      });
+    const refresh = () =>
+      fetch("/api/customer", { cache: "no-store" })
+        .then(async (r) => {
+          if (!r.ok) throw Error();
+          return r.json();
+        })
+        .then((d) => {
+          if (!cancelled) setOrders(d.orders);
+        })
+        .catch(() => {
+          if (!cancelled) setMessage(t("accountError"));
+        });
+    void refresh();
+    const timer = setInterval(() => {
+      if (!document.hidden) void refresh();
+    }, 20000);
+    const focus = () => {
+      void refresh();
+    };
+    window.addEventListener("focus", focus);
     return () => {
       cancelled = true;
+      clearInterval(timer);
+      window.removeEventListener("focus", focus);
     };
   }, [mode, user?.id, preview, lang]);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -210,23 +240,43 @@ export function CustomerPage({
           <div className="member-orders">
             {orders.map((order) => (
               <article key={order.reference}>
-                <span>{order.reference}</span>
+                <span>
+                  {order.reference}
+                  {Boolean(order.demo) && (
+                    <small className="account-payment-status">DEMO</small>
+                  )}
+                </span>
                 <span>
                   {new Date(order.created_at).toLocaleDateString(
                     { tr: "tr-TR", en: "en-GB", ru: "ru-RU" }[lang],
                   )}
                 </span>
                 <span>
-                  {(
-                    {
-                      request_pending: t("orderPending"),
-                      reviewing: t("orderReviewing"),
-                      confirmed: t("orderConfirmed"),
-                      shipped: t("orderShipped"),
-                      cancelled: t("orderCancelled"),
-                      demo_request: t("orderDemo"),
-                    } as Record<string, string>
-                  )[order.status] || order.status}
+                  <VisualText
+                    textKey={
+                      shippingState(order) === "shipped"
+                        ? "ui:shippingShipped"
+                        : "ui:shippingPreparing"
+                    }
+                  />
+                  {order.tracking_number && order.shipped_at && (
+                    <small className="account-tracking">
+                      {order.shipping_carrier && (
+                        <span>{order.shipping_carrier} · </span>
+                      )}
+                      <VisualText textKey="ui:shippingNumber" />:{" "}
+                      {order.tracking_number}
+                      {safeShipmentURL(order.tracking_url) && (
+                        <a
+                          href={safeShipmentURL(order.tracking_url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <VisualText textKey="ui:shippingTrack" />
+                        </a>
+                      )}
+                    </small>
+                  )}
                 </span>
                 <strong>
                   {money(order.total, lang)}

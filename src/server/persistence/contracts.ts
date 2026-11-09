@@ -20,6 +20,11 @@ import type {
 } from "@/lib/payments/types";
 import type { z } from "zod";
 import type { orderSchema } from "@/lib/validation";
+import type {
+  ManagedOrder,
+  ShipmentInput,
+  OrderShipment,
+} from "@/lib/order-management";
 
 export type CustomerIdentity = { id: string; email: string };
 export type StaffRole = "admin" | "editor" | null;
@@ -30,7 +35,7 @@ export type PreparedPhoto = {
   bytes: Buffer;
 };
 export type OrderInput = z.infer<typeof orderSchema>;
-export type CustomerOrder = {
+export type CustomerOrder = OrderShipment & {
   reference: string;
   status: string;
   total: number;
@@ -38,6 +43,7 @@ export type CustomerOrder = {
   created_at: string;
   payment_status: string;
   payment_provider: string | null;
+  demo?: boolean;
 };
 export type InventoryChange = {
   table: "products" | "variants";
@@ -153,6 +159,8 @@ export interface Repositories {
     customerOrders(customerId: string): Promise<CustomerOrder[]>;
   };
   orders: {
+    listOrders(): Promise<ManagedOrder[]>;
+    shareTracking(id: string, input: ShipmentInput): Promise<ManagedOrder>;
     createOrder(
       input: OrderInput,
       customer: CustomerIdentity,

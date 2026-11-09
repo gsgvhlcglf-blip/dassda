@@ -3,6 +3,7 @@
 @import "../components/requests.css";
 @import "../components/bestsellers-settings.css";
 @import "../components/site-texts-editor.css";
+@import "../components/order-dashboard.css";
 @source not "../../docs/panel.html";
 @source not "../../docs/store.html";
 :root {

@@ -1,12 +1,13 @@
 "use client";
 import { ProductPrice } from "./product-price";
+import { VisualText } from "./visual-text";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { ProductPhoto } from "./product-photo";
 import { useVisualCopy, useVisualImage } from "@/lib/visual";
-import { readBestsellers, centeredBestsellerFrame } from "@/lib/bestsellers";
+import { visibleBestsellers, centeredBestsellerFrame } from "@/lib/bestsellers";
 import type { Catalog, Lang, Product } from "@/lib/types";
 function BestsellerImage({
   product,
@@ -38,7 +39,7 @@ export function HomeBestsellers({
   catalog: Catalog;
   lang: Lang;
 }) {
-  const config = readBestsellers(catalog),
+  const config = visibleBestsellers(catalog),
     copy = useVisualCopy(lang),
     rail = useRef<HTMLDivElement>(null);
   const products = config.productIds
@@ -119,7 +120,18 @@ export function HomeBestsellers({
     reduced,
     visible,
   ]);
-  if (!products.length) return null;
+  if (config.hidden) return null;
+  if (!products.length)
+    return editing ? (
+      <section className="home-bestsellers">
+        <h2 data-visual-text="slot:home.bestsellers.title">
+          {copy("home.bestsellers.title", "En çok satanlar.")}
+        </h2>
+        <p className="orders-demo">
+          <VisualText textKey="ui:bestsellersEmpty" />
+        </p>
+      </section>
+    ) : null;
   return (
     <section
       className="home-bestsellers"

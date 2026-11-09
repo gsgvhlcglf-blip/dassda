@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import {
-  readBestsellers,
+  visibleBestsellers,
   centeredBestsellerFrame,
   type BestsellersConfig,
 } from "@/lib/bestsellers";
@@ -13,7 +13,7 @@ export function BestsellersSettings({
   catalog: Catalog;
   onSave: (value: BestsellersConfig) => Promise<void>;
 }) {
-  const [value, setValue] = useState(() => readBestsellers(catalog)),
+  const [value, setValue] = useState(() => visibleBestsellers(catalog)),
     [search, setSearch] = useState(""),
     [selected, setSelected] = useState(value.productIds[0] || ""),
     [guides, setGuides] = useState(true),
@@ -64,7 +64,11 @@ export function BestsellersSettings({
     setBusy(true);
     setStatus("");
     try {
-      await onSave(value);
+      const saved = value.productIds.length
+        ? value
+        : { ...value, hidden: true };
+      await onSave(saved);
+      setValue(saved);
       setStatus("Kaydedildi · Ana sayfa güncellendi.");
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "Kaydedilemedi.");
@@ -75,9 +79,43 @@ export function BestsellersSettings({
   return (
     <div className="bestsellers-settings">
       <h2>En çok satanlar</h2>
+      <label>
+        <input
+          type="checkbox"
+          checked={!value.hidden}
+          onChange={(event) =>
+            setValue((current) => ({
+              ...current,
+              hidden: !event.target.checked,
+            }))
+          }
+        />
+        Vitrini göster
+      </label>
+      <button
+        type="button"
+        className="button secondary"
+        onClick={() =>
+          setValue((current) => ({
+            ...current,
+            hidden: false,
+            productIds: catalog.products
+              .filter((product) => product.published)
+              .slice(0, 3)
+              .map((product) => product.id),
+          }))
+        }
+      >
+        Üçlü vitrini geri getir
+      </button>
       <p>
         Vitrinde en fazla 10 ürün seç. Masaüstünde üçü yan yana görünür; dört
         veya daha fazlası otomatik ilerler. Sıralamayı sen belirlersin.
+      </p>
+      <p>
+        Fotoğrafları önizlemede üzerlerine tıklayarak değiştirebilirsin.
+        Düzenleme modunda vitrin sabit kalır; müşteri önizlemesinde otomatik
+        ilerler.
       </p>
       <label>
         Ürün ara

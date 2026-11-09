@@ -194,7 +194,7 @@ export async function customerOrders(
     )
       .from("orders")
       .select(
-        "reference,status,total,currency,created_at,payment_status,payment_provider",
+        "reference,status,total,currency,created_at,payment_status,payment_provider,demo,tracking_number,shipping_carrier,tracking_url,shipped_at,fulfillment_version",
       )
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false })
@@ -204,7 +204,7 @@ export async function customerOrders(
   }
   return localDB()
     .prepare(
-      "SELECT reference,status,total,currency,created_at,payment_status,payment_provider FROM orders WHERE customer_id=? ORDER BY created_at DESC LIMIT 50",
+      "SELECT reference,status,total,currency,created_at,payment_status,payment_provider,demo,tracking_number,shipping_carrier,tracking_url,shipped_at,fulfillment_version FROM orders WHERE customer_id=? ORDER BY created_at DESC LIMIT 50",
     )
     .all(customerId) as unknown as CustomerOrder[];
 }

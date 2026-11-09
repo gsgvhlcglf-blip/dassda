@@ -176,3 +176,36 @@ açıklaması bulunur. Mevcut uyumluluk kayıtları genişletilmez. Eski tek yı
 bağlantılar aynı yıla göre çalışmaya devam eder. Aralık seçilerek açılan özel
 üretim talebinde müşterinin kesin üretim yılını kendisi yazması istenir; rastgele
 bir yıl doldurulmaz.
+
+## Üçlü vitrin ve sipariş/kargo yönetimi
+
+Ana sayfada markalar ile özel üretim alanı arasındaki vitrin **Veri paneli → En çok
+satanlar** bölümünden yönetilir. Eksik veya silinmiş bir seçim vitrini kaybettirmez;
+yayındaki ürünlerden üçü önerilir. Geçerli mevcut seçimler, sıralama ve kadrajlar
+korunur. **Üçlü vitrini geri getir** ile üç ürün seçebilir, toplam 10 ürüne kadar
+çıkarabilirsiniz. Dört ve üzerindeki ürün müşteri görünümünde otomatik ilerler;
+düzenleme, fare veya klavye odağı sırasında durur. Fotoğrafları önizlemede üzerlerine
+tıklayarak değiştirin. Bilerek gizlemek için **Vitrini göster** işaretini kaldırın.
+
+**Veri paneli → Siparişler** bölümünde bir sipariş numarasına tıklayın. Müşteri,
+iletişim, teslimat adresi, ürün/SKU, adet, birim fiyat, toplam, not ve ödeme bilgileri
+görünür. **Kargo takip numarasını paylaş** numarayı müşterinin **Hesabım** bölümünde
+gösterir. Paylaşım öncesi **Sipariş hazırlanıyor**, paylaşım sonrası **Siparişiniz
+kargoya verildi** yazılır. Bu iki durum ödeme durumundan ayrıdır. Ödemesi doğrulanmamış
+kartlı sipariş ve iptal edilmiş sipariş için paylaşım engellenir. Hatalı takip numarası
+aynı alandan güncellenebilir; başka sekmedeki eski sürüm üzerine yazılmaz.
+
+Kargo firması henüz belli değilse numara yine paylaşılabilir. Firma ve resmi takip
+bağlantısı ayarlandığında müşteriye takip bağlantısı da gösterilir. Kargo firmasından
+otomatik hareket bilgisi çekilmez. E-posta/SMS otomatik gönderilmez; **Takip mesajını
+kopyala** ile mesajı istediğiniz kanalda kendiniz paylaşabilirsiniz.
+
+İndirmesiz HTML panelinde yalnızca **Örnek sipariş ekle** ile oluşturulan DEMO
+kayıtları denenir. Bunlar gerçek sipariş veya kalıcı işletme verisi değildir.
+Sunuculu uygulamada Siparişler ekranı mevcut sipariş/ödeme kayıtlarını sunucudan okur;
+bu bilgiler katalog taslağına veya yayın sürümlerine taşınmaz. Yeni siparişler yenileme,
+pencereye dönüş ve düzenli güncelleme ile görünür. Müşteri yalnızca kendi siparişlerini
+görür. Yerel SQLite demo sütunları otomatik eklenir; Supabase için
+`015_order_tracking.sql` gerekir. Gelecekteki Hostinger/MySQL için
+`database/mysql/004_order_tracking.sql` hazırlanmıştır; canlı MySQL bağlantısı
+bu çalışmada kurulmamıştır.

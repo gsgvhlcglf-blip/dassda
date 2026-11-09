@@ -19,6 +19,7 @@ export const bestsellersSchema = z
         "Aynı ürün bir kez seçilebilir.",
       ),
     intervalSeconds: z.number().int().min(3).max(20),
+    hidden: z.boolean().optional(),
     frames: z
       .record(z.string().regex(/^[a-zA-Z0-9_-]{1,120}$/), bestsellerFrameSchema)
       .default({}),
@@ -42,6 +43,27 @@ export function readBestsellers(
     if (parsed.success) return parsed.data;
   } catch {}
   return { productIds: [], intervalSeconds: 5, frames: {} };
+}
+export function visibleBestsellers(
+  catalog: Pick<Catalog, "content" | "products">,
+): BestsellersConfig {
+  const config = readBestsellers(catalog);
+  if (
+    config.hidden ||
+    config.productIds.some((id) =>
+      catalog.products.some(
+        (product) => product.id === id && product.published,
+      ),
+    )
+  )
+    return config;
+  return {
+    ...config,
+    productIds: catalog.products
+      .filter((product) => product.published)
+      .slice(0, 3)
+      .map((product) => product.id),
+  };
 }
 export function bestsellerRecord(
   config: BestsellersConfig,
