@@ -57,7 +57,12 @@ import {
   type CustomerView,
 } from "./customer-pages";
 import { resolveStoreLanguage } from "@/lib/settings";
-import { compatibleProducts } from "@/lib/commerce";
+import {
+  motorcycleRanges,
+  resolveMotorcycleRange,
+  motorcycleRangeFitment,
+  yearRangeText,
+} from "@/lib/motorcycle-selection";
 function modelSearchText(value: string) {
   return value
     .toLocaleLowerCase("tr")
@@ -225,6 +230,22 @@ export function Storefront({
               : l,
           ),
     );
+  const selectedModel = c.models.find(
+    (model) =>
+      model.slug === s[2] &&
+      model.brand_id === c.brands.find((brand) => brand.slug === s[1])?.id,
+  );
+  const selectedRange =
+    selectedModel && s[3]
+      ? resolveMotorcycleRange(c, selectedModel.id, s[3], lang)
+      : null;
+  const selectedFitment = useMemo(
+    () =>
+      selectedModel && selectedRange
+        ? motorcycleRangeFitment(c, selectedModel.id, selectedRange)
+        : new Map<string, number[]>(),
+    [c, selectedModel?.id, s[3], lang],
+  );
   const productCard = (p: Product) => (
     <Link
       className="product-card"
@@ -240,7 +261,7 @@ export function Storefront({
                       m.slug === s[2] &&
                       m.brand_id === c.brands.find((b) => b.slug === s[1])?.id,
                   )?.id || "",
-                year: s[3],
+                ...(/^\d{4}$/.test(s[3]) ? { year: s[3] } : { range: s[3] }),
               }).toString()
             : ""),
       )}
@@ -282,6 +303,14 @@ export function Storefront({
         {<VisualText textKey={"ui:" + (p.material as MessageKey)} />}{" "}
         <span> / </span> {<VisualText textKey={"ui:" + "madeToOrder"} />}
       </p>
+      {selectedRange &&
+        selectedFitment.has(p.id) &&
+        selectedFitment.get(p.id)!.length < selectedRange.totalYears && (
+          <p className="product-fitment-years">
+            <VisualText textKey="ui:compatibleYears" />:{" "}
+            {yearRangeText(selectedFitment.get(p.id)!)}
+          </p>
+        )}
     </Link>
   );
   const brandCards = (home = false) => (
@@ -351,6 +380,8 @@ export function Storefront({
     const b = c.brands.find((b) => b.slug === s[1]),
       m = c.models.find((m) => m.slug === s[2] && m.brand_id === b?.id);
     if ((s[1] && !b) || (s[2] && !m)) return unavailable("/motosikletler");
+    if (m && s[3] && !selectedRange)
+      return unavailable(`/motosikletler/${b!.slug}/${m.slug}`);
     if (!b)
       return (
         <section className="page-section brand-page">
@@ -480,29 +511,21 @@ export function Storefront({
                 {t("yearIntro")}
               </p>
               <div className="years">
-                {c.model_years
-                  .filter((y) => y.model_id === m.id)
-                  .sort((a, b) => b.year - a.year)
-                  .map((y) => (
-                    <Link
-                      href={href(
-                        `/motosikletler/${b.slug}/${m.slug}/${y.year}`,
-                      )}
-                      key={y.id}
-                      aria-label={String(y.year)}
-                    >
-                      <span>
-                        {y.year}
-                        <small className="year-generation">
-                          {
-                            c.generations.find((g) => g.id === y.generation_id)
-                              ?.name
-                          }
-                        </small>
-                      </span>
-                      <ArrowUpRight size={16} />
-                    </Link>
-                  ))}
+                {motorcycleRanges(c, m.id, lang).map((range) => (
+                  <Link
+                    href={href(
+                      `/motosikletler/${b.slug}/${m.slug}/${range.token}`,
+                    )}
+                    key={range.token}
+                    aria-label={range.label}
+                  >
+                    <span>
+                      {range.label}
+                      <small className="year-generation">{range.name}</small>
+                    </span>
+                    <ArrowUpRight size={16} />
+                  </Link>
+                ))}
               </div>
               {!c.model_years.some((y) => y.model_id === m.id) && (
                 <p data-visual-text={"ui:" + "noYears"}>{t("noYears")}</p>
@@ -532,16 +555,16 @@ export function Storefront({
         {crumbs([
           { label: b.name, url: `/motosikletler/${b.slug}` },
           { label: m.name, url: `/motosikletler/${b.slug}/${m.slug}` },
-          { label: s[3] },
+          { label: selectedRange!.label },
         ])}
         <p className="eyebrow">
-          {b.name} / {m.name} / {s[3]}
+          {b.name} / {m.name} / {selectedRange!.label}
         </p>
         <h1 data-visual-text={"ui:" + "compatible"}>{t("compatible")}</h1>
         <div className="selection-strip">
           <span>
             <Check size={14} />
-            {b.name} {m.name} · {s[3]}
+            {b.name} {m.name} · {selectedRange!.label}
           </span>
           <Link
             className="text-link"
@@ -552,7 +575,9 @@ export function Storefront({
           </Link>
         </div>
         <ProductListing
-          products={compatibleProducts(c, m.id, Number(s[3]))}
+          products={c.products.filter(
+            (product) => product.published && selectedFitment.has(product.id),
+          )}
           c={c}
           lang={lang}
           card={productCard}
@@ -560,7 +585,7 @@ export function Storefront({
           requestContext={{
             brand: b.id,
             model: m.id,
-            year: s[3],
+            ...(/^\d{4}$/.test(s[3]) ? { year: s[3] } : { range: s[3] }),
             source: "/" + s.join("/") + (previewQuery || ""),
           }}
         />
@@ -1467,6 +1492,7 @@ function ProductDetail({
           brand: requestContext.brand,
           model: requestContext.model,
           year: requestContext.year,
+          range: requestContext.range,
           product: p.id,
           category: p.category_id,
           source:

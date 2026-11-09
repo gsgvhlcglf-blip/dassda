@@ -163,3 +163,16 @@ Düzenleme modunda vitrin fotoğrafına tıklayın: **Ölçek (%50–%200)**, ya
 Üç yeni blog yazısı, **Sayfa içerikleri** bölümünde başlığı/içeriğiyle düzenlenebilir. Blog listesi veya yazıdaki görsele tıklayarak görsel değiştirilebilir. Başlık ve meta açıklama, anlamsal ara başlıklar, ilgili yazı bağlantıları ve örnek/şematik görseller hazırlanmıştır. Diğer diller açılmadan önce makale çevirilerini tamamlayın.
 
 Alt bilgi bağlantıları yatay destek ve hukuk satırları halinde düzenlenmiştir. Sağda gerçek ödeme logoları için ayrılmış alan vardır; logolar paylaşılmadan ödeme işareti gösterilmez.
+
+## Müşteri için nesil ve yıl aralığı seçimi
+
+Motosiklet formunda girdiğiniz her nesil, müşteri ekranında tek satırdır: örneğin
+**2014–2017**, **2018–2021**, **2022–Günümüz**. Yıllar tek tek düğme olarak gösterilmez.
+Aynı aralıklar panelin uyumlu ürün önizleme filtresinde de kullanılır.
+
+Bir aralık seçildiğinde yalnızca o aralıktaki kayıtlı yıllara uyumlu ürünler
+gösterilir. Ürün neslin yalnızca bazı yıllarına uyuyorsa kartında **Uyumlu yıllar**
+açıklaması bulunur. Mevcut uyumluluk kayıtları genişletilmez. Eski tek yıllı
+bağlantılar aynı yıla göre çalışmaya devam eder. Aralık seçilerek açılan özel
+üretim talebinde müşterinin kesin üretim yılını kendisi yazması istenir; rastgele
+bir yıl doldurulmaz.

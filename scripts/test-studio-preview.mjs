@@ -153,7 +153,7 @@ try {
     .click();
   await draft.locator(".brand-card").filter({ hasText: "YAMAHA" }).click();
   await draft.locator(".model-card").filter({ hasText: "MT-25" }).click();
-  await draft.getByRole("link", { name: "2024", exact: true }).click();
+  await draft.getByRole("link", { name: "2022–2026", exact: true }).click();
   await draft.locator(".product-card").first().click();
   await draft.getByRole("button", { name: "Sepete ekle", exact: true }).click();
   await analytics.getByRole("button", { name: "Yenile", exact: true }).click();

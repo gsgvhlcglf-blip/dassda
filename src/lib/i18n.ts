@@ -248,6 +248,7 @@ const messages = {
     "Подходящие модели не найдены.",
   ],
   chooseYear: ["Yılınızı seçin.", "Choose your year.", "Выберите год."],
+  compatibleYears: ["Uyumlu yıllar", "Compatible years", "Совместимые годы"],
   yearIntro: [
     "Motosikletinizin üretim yılını seçerek uyumlu parçaları keşfedin.",
     "Select your production year to discover compatible parts.",

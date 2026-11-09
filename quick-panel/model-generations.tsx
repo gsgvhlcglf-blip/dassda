@@ -23,6 +23,10 @@ export {
 } from "../src/lib/model-generations";
 export { applyProductCompatibility } from "../src/lib/product-compatibility";
 export { salePrice, productVariants } from "../src/lib/product-commerce";
+export {
+  motorcycleRanges,
+  resolveMotorcycleRange,
+} from "../src/lib/motorcycle-selection";
 
 export function mountTextManager(
   host: HTMLElement,

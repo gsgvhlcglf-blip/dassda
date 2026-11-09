@@ -9,6 +9,7 @@ import { Admin } from "@/components/admin";
 import { getRole } from "@/lib/auth";
 import { getCustomer } from "@/lib/customer";
 import { notFound, redirect } from "next/navigation";
+import { resolveMotorcycleRange } from "@/lib/motorcycle-selection";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 type Props = {
@@ -174,12 +175,7 @@ export default async function Page({ params, searchParams }: Props) {
         (m) => m.slug === slug[2] && m.brand_id === brand.id,
       );
       if (!m) notFound();
-      if (
-        slug[3] &&
-        !catalog.model_years.some(
-          (y) => y.model_id === m.id && y.year === Number(slug[3]),
-        )
-      )
+      if (slug[3] && !resolveMotorcycleRange(catalog, m.id, slug[3]))
         notFound();
     }
   }

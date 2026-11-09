@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { supportedLanguages } from "@/lib/settings";
 import { getCatalog } from "@/lib/catalog";
+import { motorcycleRanges } from "@/lib/motorcycle-selection";
 export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = process.env.NEXT_PUBLIC_SITE_URL;
@@ -29,9 +30,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const b = c.brands.find((b) => b.id === m.brand_id);
       return [
         `/motosikletler/${b?.slug}/${m.slug}`,
-        ...c.model_years
-          .filter((y) => y.model_id === m.id)
-          .map((y) => `/motosikletler/${b?.slug}/${m.slug}/${y.year}`),
+        ...motorcycleRanges(c, m.id).map(
+          (range) => `/motosikletler/${b?.slug}/${m.slug}/${range.token}`,
+        ),
       ];
     }),
     ...c.products

@@ -135,7 +135,7 @@ try {
   await shop.getByRole("button", { name: "Kabul et", exact: true }).click();
   await shop.locator(".brand-card").filter({ hasText: "YAMAHA" }).click();
   await shop.locator(".model-card").filter({ hasText: "MT-25" }).click();
-  await shop.getByRole("link", { name: "2024", exact: true }).click();
+  await shop.getByRole("link", { name: "2022–2026", exact: true }).click();
   await shop.locator(".product-card").first().click();
   await shop.getByRole("button", { name: "Sepete ekle", exact: true }).click();
   await shop.waitForTimeout(5400);

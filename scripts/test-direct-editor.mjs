@@ -149,7 +149,7 @@ try {
   await customer.locator(".hero .button").click();
   await customer.locator(".brand-card").filter({ hasText: "YAMAHA" }).click();
   await customer.locator(".model-card").filter({ hasText: "MT-25" }).click();
-  await customer.getByRole("link", { name: "2024", exact: true }).click();
+  await customer.getByRole("link", { name: "2022–2026", exact: true }).click();
   await customer.locator(".product-card").first().click();
   await customer
     .getByRole("button", { name: "Sepete ekle", exact: true })

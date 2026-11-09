@@ -179,7 +179,7 @@ try {
   await frame().locator(".brand-card").filter({ hasText: "YAMAHA" }).click();
   await frame().getByRole("heading", { name: "Modelinizi seçin." }).waitFor();
   await frame().locator(".model-card").filter({ hasText: "MT-25" }).click();
-  await frame().getByRole("link", { name: "2024", exact: true }).click();
+  await frame().getByRole("link", { name: "2022–2026", exact: true }).click();
   await frame().locator(".product-card").first().click();
   await frame()
     .getByRole("button", { name: "Sepete ekle", exact: true })

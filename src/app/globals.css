@@ -1043,7 +1043,7 @@ footer {
 }
 .years {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 10px;
   margin: 35px 0 32px;
 }
@@ -1056,6 +1056,7 @@ footer {
   padding: 20px;
   transition: 0.2s;
 }
+.product-fitment-years { margin-top: 10px; font-size: 11px; line-height: 1.6; color: #bbb; }
 .years .year-generation {
   display: block;
   margin-top: 6px;
@@ -2388,7 +2389,7 @@ footer {
   }
   .years {
     margin: 25px 0;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
   }
   .years a {
     padding: 16px;

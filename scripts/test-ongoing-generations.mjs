@@ -84,9 +84,9 @@ try {
   const path = "/motosikletler/yamaha/" + model.slug;
   await shop.goto(origin + (app ? path : "/docs/store.html#" + path));
   await shop.locator(".years").waitFor(); await dismissCookies(shop);
-  assert.deepEqual((await shop.locator(".years a").allTextContents()).map(text => Number.parseInt(text, 10)), [year, year-1]);
+  assert.deepEqual(await shop.locator(".years a").evaluateAll(links => links.map(link => link.getAttribute("aria-label"))), [`${year-1}–Günümüz`]);
   assert.deepEqual(errors, []);
-  console.log(`PASS (${app ? "app" : "preview"}): ongoing checkbox disables end year, persists through reload, fixed-year toggle works, publication exposes only years through today and invents no product fitment`);
+  console.log(`PASS (${app ? "app" : "preview"}): ongoing checkbox disables end year, persists through reload, fixed-year toggle works, publication exposes one ongoing generation range through today and invents no product fitment`);
 } finally {
   await browser.close();
   if (app) await server.stop();

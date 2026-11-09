@@ -51,7 +51,8 @@ try {
     if (PREVIEW.languages.includes(saved.lang)) siteLang = saved.lang;
     if (typeof saved.brand === "string") siteBrand = saved.brand;
     if (typeof saved.model === "string") siteModel = saved.model;
-    if (Number.isInteger(saved.year)) siteYear = saved.year;
+    if (Number.isInteger(saved.year) || typeof saved.year === "string")
+      siteYear = saved.year;
     if (typeof saved.product === "string") siteProduct = saved.product;
     if (saved.editorVersion === 2 && typeof saved.inspect === "boolean")
       siteInspect = saved.inspect;
@@ -101,10 +102,14 @@ function normalizeSiteSelection() {
     siteBrand = state.brands[0]?.id;
   const models = state.models.filter((m) => m.brand_id === siteBrand);
   if (!models.some((m) => m.id === siteModel)) siteModel = models[0]?.id || "";
-  const years = state.model_years
-    .filter((y) => y.model_id === siteModel)
-    .sort((a, b) => b.year - a.year);
-  if (!years.some((y) => y.year === siteYear)) siteYear = years[0]?.year || 0;
+  const ranges = KZ_MODELS.motorcycleRanges(state, siteModel);
+  siteYear =
+    (
+      ranges.find((range) => range.token === String(siteYear)) ||
+      ranges.find((range) => range.years.includes(Number(siteYear)))
+    )?.token ||
+    ranges[0]?.token ||
+    "";
   if (!state.products.some((p) => p.id === siteProduct))
     siteProduct = state.products[0]?.id || "";
 }
@@ -134,6 +139,7 @@ function siteOption(id, label, value) {
   return `<option value="${esc(id)}" ${String(id) === String(value) ? "selected" : ""}>${esc(label)}</option>`;
 }
 function siteFilters() {
+  normalizeSiteSelection();
   const bike = ["models", "years", "fitment"].includes(sitePage),
     product = sitePage === "product",
     cart = ["cart", "checkout"].includes(sitePage);
@@ -146,10 +152,11 @@ function siteFilters() {
       : ""
   }${
     sitePage === "fitment"
-      ? `<label class="site-filter">Yıl<select id="site-year" aria-label="Yıl">${state.model_years
-          .filter((y) => y.model_id === siteModel)
-          .sort((a, b) => b.year - a.year)
-          .map((y) => siteOption(y.year, y.year, siteYear))
+      ? `<label class="site-filter">Yıl aralığı<select id="site-year" aria-label="Yıl aralığı">${KZ_MODELS.motorcycleRanges(
+          state,
+          siteModel,
+        )
+          .map((range) => siteOption(range.token, range.label, siteYear))
           .join("")}</select></label>`
       : ""
   }${
@@ -383,7 +390,7 @@ function updateSiteRoute(path, language) {
         (m) => m.brand_id === siteBrand && m.slug === p[2],
       );
       if (m) siteModel = m.id;
-      if (p[3]) siteYear = Number(p[3]);
+      if (p[3]) siteYear = p[3];
     } else if (p[0] === "urunler") {
       sitePage = p[1] ? "product" : "catalog";
       const product = state.products.find((v) => v.slug === p[1]);
@@ -502,7 +509,7 @@ document.addEventListener("change", (event) => {
     siteModel = event.target.value;
     siteYear = 0;
   }
-  if (id === "site-year") siteYear = Number(event.target.value);
+  if (id === "site-year") siteYear = event.target.value;
   if (id === "site-product") siteProduct = event.target.value;
   if (id === "site-lang") siteLang = event.target.value;
   if (id === "site-cart-mode") {

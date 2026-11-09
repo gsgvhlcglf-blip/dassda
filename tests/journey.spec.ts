@@ -26,7 +26,7 @@ test("customer journey preserves cart and requires configured payment before sub
     page.getByRole("heading", { name: "Modelinizi seçin." }),
   ).toBeVisible();
   await page.locator(".model-card").filter({ hasText: "MT-25" }).click();
-  await page.getByRole("link", { name: "2024", exact: true }).click();
+  await page.getByRole("link", { name: "2022–2026", exact: true }).click();
   await expect(page).toHaveURL(/yamaha\/mt-25\/2024/);
   await expect(page.locator(".product-card")).toHaveCount(6);
   await page.locator(".product-card").first().click();
