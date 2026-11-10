@@ -5,7 +5,7 @@ import zipfile
 
 ROOT=Path(__file__).resolve().parent.parent
 TOP_LEVEL=['BASLAMADAN-ONCE.txt','README.md','AGENTS.md','.env.example','.gitignore','package.json','package-lock.json','tsconfig.json','next-env.d.ts','next.config.ts','postcss.config.mjs','playwright.config.ts']
-DIRECTORIES=['src','scripts','docs','tests','supabase','database','public/images','quick-panel']
+DIRECTORIES=['src','scripts','docs','tests','supabase','database','public/images','quick-panel','deploy']
 FORBIDDEN={'.cmd','.bat','.ps1','.vbs','.exe','.dll','.com','.scr','.msi','.pyc'}
 
 def source_files():

@@ -15,13 +15,16 @@
     "setup:demo": "node scripts/setup-demo.mjs",
     "local": "node scripts/local-server.mjs",
     "kurulum": "node scripts/local-install.mjs",
-    "panel:build": "node --import tsx scripts/build-quick-panel.ts"
+    "panel:build": "node --import tsx scripts/build-quick-panel.ts",
+    "hostinger:build": "node scripts/build-hostinger.mjs",
+    "hostinger:start": "node scripts/start-hostinger.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",
     "lucide-react": "^0.468.0",
     "next": "16.4.4",
+    "nodemailer": "10.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "zod": "^4.1.0"
@@ -31,6 +34,7 @@
     "@playwright/test": "^1.56.0",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^24.0.0",
+    "@types/nodemailer": "8.0.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "esbuild": "^0.28.2",

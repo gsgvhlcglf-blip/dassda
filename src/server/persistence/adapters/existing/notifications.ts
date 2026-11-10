@@ -121,6 +121,11 @@ export async function claimNotice(): Promise<NoticeJob | null> {
         "UPDATE order_notifications SET status='review',error='EMAIL_RETRY_WINDOW_EXPIRED' WHERE status IN('pending','sending') AND first_attempt_at<=?",
       )
       .run(new Date(Date.now() - 23 * 3600000).toISOString());
+    localDB()
+      .prepare(
+        "UPDATE order_notifications SET status='review',error='EMAIL_SMTP_RESULT_UNKNOWN' WHERE status='sending' AND lease_until<? AND json_extract(email_payload,'$.provider')='smtp'",
+      )
+      .run(new Date().toISOString());
     const now = new Date().toISOString(),
       until = new Date(Date.now() + 120000).toISOString();
     row = localDB()
@@ -184,7 +189,7 @@ export async function finishNotice(
   }
   localDB()
     .prepare(
-      "UPDATE order_notifications SET status=case when ? IS NOT NULL then 'sent' when ? IN('NOTICE_NOT_ELIGIBLE','NOTICE_SUPERSEDED','EMAIL_CONFIGURATION_REJECTED') OR attempts>=5 then 'review' else 'pending' end,provider_id=?,sent_at=?,error=?,next_attempt_at=?,lease_until=NULL WHERE id=? AND lease_token=? AND status='sending'",
+      "UPDATE order_notifications SET status=case when ? IS NOT NULL then 'sent' when ? IN('NOTICE_NOT_ELIGIBLE','NOTICE_SUPERSEDED','EMAIL_CONFIGURATION_REJECTED','EMAIL_SMTP_RESULT_UNKNOWN','EMAIL_PROVIDER_CHANGED') OR attempts>=5 then 'review' else 'pending' end,provider_id=?,sent_at=?,error=?,next_attempt_at=?,lease_until=NULL WHERE id=? AND lease_token=? AND status='sending'",
     )
     .run(
       providerId,
@@ -208,7 +213,7 @@ export async function retryNotices(orderId: string) {
   } else {
     const changed = localDB()
       .prepare(
-        "UPDATE order_notifications SET status='pending',next_attempt_at=?,attempts=0 WHERE order_id=? AND status IN('pending','review','failed') AND (first_attempt_at IS NULL OR first_attempt_at>?) AND coalesce(error,'') NOT IN('NOTICE_NOT_ELIGIBLE','NOTICE_SUPERSEDED')",
+        "UPDATE order_notifications SET status='pending',next_attempt_at=?,attempts=0 WHERE order_id=? AND status IN('pending','review','failed') AND (first_attempt_at IS NULL OR first_attempt_at>?) AND coalesce(error,'') NOT IN('NOTICE_NOT_ELIGIBLE','NOTICE_SUPERSEDED','EMAIL_SMTP_RESULT_UNKNOWN','EMAIL_PROVIDER_CHANGED')",
       )
       .run(
         new Date().toISOString(),

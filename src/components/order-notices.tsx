@@ -81,6 +81,18 @@ export function OrderNotices({
               review: "Kontrol gerekli",
             }[n.status]
           }
+          {n.error === "EMAIL_SMTP_RESULT_UNKNOWN" && (
+            <small>
+              Gönderimin sonucu belirsiz. Yeniden göndermeden önce posta
+              sunucusunun kaydını kontrol edin.
+            </small>
+          )}
+          {n.error === "EMAIL_PROVIDER_CHANGED" && (
+            <small>
+              Bu bildirimin gönderim bağlantısı değişmiş. Önce önceki gönderim
+              kaydını kontrol edin.
+            </small>
+          )}
           {n.sent_at && <> · {new Date(n.sent_at).toLocaleString("tr-TR")}</>}
         </p>
       ))}
@@ -90,15 +102,25 @@ export function OrderNotices({
           oluşturulur.
         </p>
       )}
-      {data?.ready && data.notices.some((n) => n.status !== "sent") && (
-        <button
-          className="button secondary"
-          disabled={busy}
-          onClick={() => void retry()}
-        >
-          {busy ? "Kontrol ediliyor…" : "Gönderimi yeniden dene"}
-        </button>
-      )}
+      {data?.ready &&
+        data.notices.some(
+          (n) =>
+            n.status !== "sent" &&
+            ![
+              "EMAIL_SMTP_RESULT_UNKNOWN",
+              "EMAIL_PROVIDER_CHANGED",
+              "NOTICE_SUPERSEDED",
+              "NOTICE_NOT_ELIGIBLE",
+            ].includes(n.error || ""),
+        ) && (
+          <button
+            className="button secondary"
+            disabled={busy}
+            onClick={() => void retry()}
+          >
+            {busy ? "Kontrol ediliyor…" : "Gönderimi yeniden dene"}
+          </button>
+        )}
       {error && <p role="alert">{error}</p>}
     </section>
   );

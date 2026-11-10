@@ -1,3 +1,8 @@
+Confirmed deployment target: **Hostinger**. The hosting package is not selected.
+See [Hostinger deployment profile](deploy/hostinger/README.md) for the standalone
+build, secure SMTP and persistent private-file layout. The MySQL adapter remains
+unconfigured; no hosting/database/email connection is claimed.
+
 # KUZMIN — Carbon motorcycle collection
 
 Next.js App Router, React, TypeScript, Tailwind CSS and Supabase. Visual direction follows the supplied Framer references: near-black editorial layouts, restrained navigation, oversized type, three marque cards and generous spacing. The public storefront currently uses Turkish only, with no language selector. Stored English/Russian translations are retained for a future reactivation through supportedLanguages in src/lib/settings.ts. KUZMIN is a working identity taken from the reference, not a claim about a registered business.
@@ -86,7 +91,7 @@ The local relational database is `.data/store.sqlite`. Image uploads go to ignor
 - About, Contact, FAQ, Shipping & Returns, Privacy and Terms are database-driven editable pages. They contain explicit content placeholders until the owner supplies approved text.
 - Product metadata, configurable canonical origin, multilingual sitemap and robots. Indexing is deliberately disabled by default for the demonstration.
 
-## Use Supabase / deploy to Vercel
+## Optional existing Supabase / Vercel deployment
 
 1. Create a Supabase project. Run [`supabase/migrations/001_store.sql`](supabase/migrations/001_store.sql), then [`supabase/migrations/002_customer_membership.sql`](supabase/migrations/002_customer_membership.sql) in SQL Editor (or with your Supabase migration workflow) on a new database. These migrations create tables, constraints, RLS, role helpers, the atomic order-request RPC and the public `catalog` image bucket.
 2. Optionally run [`supabase/seed.sql`](supabase/seed.sql). All products, prices, inventory, generations and compatibility entries are **demonstration data**, not verified commercial facts. The three supported brands are seeded here too. If importing real data instead, insert these three brand rows first.

@@ -112,6 +112,7 @@ export type EmailMessage = {
   html: string;
 };
 export type FrozenEmail = EmailMessage & {
+  provider?: "smtp" | "resend";
   from: string;
   replyTo?: string;
   invoice?: { id: string; sha256: string; fileName: string };

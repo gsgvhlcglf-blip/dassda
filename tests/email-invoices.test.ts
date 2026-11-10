@@ -143,6 +143,7 @@ test("PostgreSQL invoices register atomically, deduplicate, retain private files
       "017_guest_checkout",
       "019_order_notifications",
       "020_invoice_email_design",
+      "021_smtp_delivery",
     ])
       await db.exec(readFileSync(`supabase/migrations/${file}.sql`, "utf8"));
     await db.exec(readFileSync("supabase/seed.sql", "utf8"));
@@ -252,6 +253,47 @@ test("PostgreSQL invoices register atomically, deduplicate, retain private files
       ).rows[0].public,
       false,
     );
+    // A worker can die after SMTP accepted DATA. Its expired lease must not resend.
+    await db.exec("set role service_role");
+    const smtpLease = "00000000-0000-0000-0000-000000000036";
+    const smtpJob = (
+      await db.query<{ job: { id: string } }>(
+        "select public.claim_order_notice($1) job",
+        [smtpLease],
+      )
+    ).rows[0].job;
+    await db.query("select public.freeze_order_notice($1,$2,$3::jsonb)", [
+      smtpJob.id,
+      smtpLease,
+      JSON.stringify({ ...payload, provider: "smtp" }),
+    ]);
+    await db.exec("reset role");
+    await db.query(
+      "update public.order_notifications set lease_until=now()-interval '1 minute' where id=$1",
+      [smtpJob.id],
+    );
+    await db.exec("set role service_role");
+    assert.equal(
+      (
+        await db.query<{ job: unknown }>(
+          "select public.claim_order_notice(gen_random_uuid()) job",
+        )
+      ).rows[0].job,
+      null,
+    );
+    await assert.rejects(
+      db.query("select public.retry_order_notices('invoice-order')"),
+      /NOTICE_RETRY_UNAVAILABLE/,
+    );
+    await db.exec("reset role");
+    const held = (
+      await db.query<{ status: string; error: string }>(
+        "select status,error from public.order_notifications where id=$1",
+        [smtpJob.id],
+      )
+    ).rows[0];
+    assert.equal(held.status, "review");
+    assert.equal(held.error, "EMAIL_SMTP_RESULT_UNKNOWN");
   } finally {
     await db.close();
   }

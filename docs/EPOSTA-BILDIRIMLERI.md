@@ -84,3 +84,13 @@ müşteri dosyayı e-posta eki olarak alır. PDF bütünlüğü SHA-256 ile doğ
 aynı idempotency anahtarını ve aynı içeriği kullanır. Şablon değişiklikleri
 başlatılmış bir gönderimin içeriğini değiştirmez. SQL 009 aynı sınırları
 gelecekteki MySQL adaptörüne hazırlar; canlı bağlantı henüz kurulmadı.
+
+## Hostinger kesin hedefi ve SMTP
+
+Gönderim artık Resend'e zorunlu bağlı değildir. Hostinger paketindeki/ayrı
+posta hizmetindeki gerçek SMTP bilgileriyle EMAIL_PROVIDER=smtp seçilebilir.
+Bu değerler yalnızca sunucuda saklanır. Ayrıntılar deploy/hostinger/README.md
+dosyasındadır. SMTP'nin belirsiz gönderim sonuçları otomatik tekrar yerine
+kontrol durumuna alınır; sabit Message-ID kesin tek gönderim garantisi diye
+sunulmaz. Supabase için 021_smtp_delivery.sql, gelecekteki MySQL adaptörü için
+010_smtp_delivery.sql bu kuralları hazırlar. Şu anda gerçek SMTP bağlantısı yoktur.

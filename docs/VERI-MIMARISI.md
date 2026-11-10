@@ -159,3 +159,14 @@ silinmez; aynı PDF ile tekrar gönderim mevcut kaydı bulur. Şablon ayarları
 katalog geri yüklemesiyle değişmez. MySQL 009 göçü hazırlanmıştır; canlı adaptör
 ve bağlantı henüz yoktur. İndirmesiz çalışma alanı yalnızca e-posta tasarımı ve
 açıkça örnek bir PDF akışını saklar; müşteri faturası yükleme kabul etmez.
+
+## Kesin hosting hedefi: Hostinger
+
+Paket henüz seçilmedi. deploy/hostinger profili Node.js 24+ standalone derlemesini,
+özel PRIVATE_STORAGE_ROOT yolunu ve SMTP gönderimini hazırlar. Next statik
+dosyaları paketlenir; .env/yerel veritabanı/faturalar uygulama sürümüne katılmaz.
+Hostinger production hedefinde yerel demo, ALLOW_LOCAL_DEMO verilse bile açılmaz.
+MySQL adaptörünün henüz bağlanmamış olması değişmedi; mysql seçimi hata ile durur.
+SMTP taşıma ve dosya yolu yardımcıları gelecek MySQL adaptöründen bağımsızdır.
+Paketin Node.js, MySQL, kalıcı özel alan ve zamanlayıcı özellikleri kurulmadan önce
+doğrulanacak; SMTP posta hizmetinin sunucu/limit bilgileri ayrıca alınacak.

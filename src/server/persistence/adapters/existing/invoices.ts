@@ -2,6 +2,7 @@ import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, writeFile, readFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
+import { privateStorageRoot } from "@/server/private-storage";
 import { localDB, isLive } from "@/lib/database";
 import { getRole } from "@/lib/auth";
 import { validateInvoice } from "@/lib/invoices";
@@ -50,7 +51,7 @@ async function fileBytes(row: StoredInvoice) {
     bytes = Buffer.from(await data.arrayBuffer());
   } else
     bytes = await readFile(
-      join(process.cwd(), ".data", "invoices", row.storage_key),
+      join(privateStorageRoot(), "invoices", row.storage_key),
     );
   if (
     bytes.length !== Number(row.size) ||
@@ -76,7 +77,7 @@ async function remove(key: string) {
   if (isLive) {
     const { error } = await privileged().storage.from(bucket).remove([key]);
     if (error) throw error;
-  } else await unlink(join(process.cwd(), ".data", "invoices", key));
+  } else await unlink(join(privateStorageRoot(), "invoices", key));
 }
 export async function uploadInvoice(
   orderId: string,
@@ -122,7 +123,7 @@ export async function uploadInvoice(
       });
     if (error) throw Error("Özel fatura deposuna yüklenemedi.");
   } else {
-    const directory = join(process.cwd(), ".data", "invoices");
+    const directory = join(privateStorageRoot(), "invoices");
     await mkdir(directory, { recursive: true });
     await writeFile(join(directory, key), input.bytes, {
       flag: "wx",

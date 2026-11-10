@@ -1,3 +1,4 @@
+import { privateStorageRoot } from "@/server/private-storage";
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { createHash, randomUUID } from "node:crypto";
@@ -379,11 +380,11 @@ export async function storeWorkPhotos(
           .upload(file.path, p.bytes, { contentType: p.mime, upsert: false });
         if (error) throw error;
       } else {
-        await mkdir(path.join(process.cwd(), ".data/request-files", id), {
+        await mkdir(path.join(privateStorageRoot(), "request-files", id), {
           recursive: true,
         });
         await writeFile(
-          path.join(process.cwd(), ".data/request-files", file.path),
+          path.join(privateStorageRoot(), "request-files", file.path),
           p.bytes,
         );
       }
@@ -405,7 +406,7 @@ export async function removeWorkPhotos(files: RequestFile[]) {
   } else
     for (const f of files)
       await unlink(
-        path.join(process.cwd(), ".data/request-files", f.path),
+        path.join(privateStorageRoot(), "request-files", f.path),
       ).catch(() => {});
 }
 export async function discardUnlinkedWorkPhotos(files: RequestFile[]) {
@@ -505,7 +506,7 @@ export async function readPrivateRequestPhoto(id: string) {
   return {
     file: f,
     bytes: await readFile(
-      path.join(process.cwd(), ".data/request-files", f.path),
+      path.join(privateStorageRoot(), "request-files", f.path),
     ),
   };
 }

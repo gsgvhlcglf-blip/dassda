@@ -20,6 +20,7 @@ export function localDemoAllowed(env: PersistenceEnvironment) {
   return (
     dataProvider(env) === "sqlite-demo" &&
     !env.VERCEL &&
+    !(env.DEPLOYMENT_TARGET === "hostinger" && env.NODE_ENV === "production") &&
     (env.NODE_ENV !== "production" || env.ALLOW_LOCAL_DEMO === "true")
   );
 }

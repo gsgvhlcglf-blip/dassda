@@ -1,7 +1,23 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
+  ...(process.env.DEPLOYMENT_TARGET === "hostinger"
+    ? { output: "standalone" as const }
+    : {}),
   poweredByHeader: false,
-  serverExternalPackages: ["node:sqlite"],
+  serverExternalPackages: ["node:sqlite", "nodemailer"],
+  images: { formats: ["image/webp"], minimumCacheTTL: 86400 },
+  outputFileTracingExcludes: {
+    "/*": [
+      "./.env*",
+      "./.data/**/*",
+      "./public/uploads/**/*",
+      "./downloads/**/*",
+      "./docs/**/*",
+      "./artifacts/**/*",
+      "./.runtime/**/*",
+      "./.git/**/*",
+    ],
+  },
   async headers() {
     return [
       {
