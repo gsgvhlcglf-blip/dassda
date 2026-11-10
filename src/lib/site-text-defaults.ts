@@ -1,5 +1,11 @@
 // Stable keys for editable storefront copy. Keep existing keys when changing default wording.
 export const siteTextDefaults: Record<string, string> = {
+  "copy.guest.title": "Siparişlerim",
+  "copy.guest.loading": "Siparişler yükleniyor…",
+  "copy.guest.intro":
+    "Bu tarayıcıdan verdiğiniz siparişleri burada takip edebilirsiniz. Sipariş numaranızı saklayın; farklı bir cihazdan yardım almak için bizimle iletişime geçebilirsiniz.",
+  "copy.guest.empty": "Bu tarayıcıda henüz bir sipariş bulunmuyor.",
+  "copy.guest.track": "Kargomu takip et →",
   "copy.store.lnfapabmkhkl": "Breadcrumb",
   "copy.store.obmdpifbbkeh": "KUZMIN /",
   "copy.store.lcmmldjbgffj": "BİLGİLENDİRME",

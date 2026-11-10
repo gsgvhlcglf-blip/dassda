@@ -191,20 +191,19 @@ try {
   await admin.request.post(origin + "/api/auth", {
     data: { email: "demo@local.test", password: app.password },
   });
-  for (const [client, email] of [
-    [member, "order-owner@example.test"],
-    [outsider, "different-owner@example.test"],
-  ]) {
-    const response = await client.request.post(origin + "/api/customer", {
-      data: {
-        action: "signup",
-        email,
-        password: "Test-only-password-123456",
-        consent: true,
-      },
-    });
-    assert(response.ok(), await response.text());
-  }
+  assert.equal(
+    (
+      await member.request.post(origin + "/api/customer", {
+        data: {
+          action: "signup",
+          email: "disabled@example.test",
+          password: "Test-only-password-123456",
+          consent: true,
+        },
+      })
+    ).status(),
+    410,
+  );
   const input = {
     customer_name: "Test Customer",
     email: "ignored@example.test",
@@ -238,7 +237,12 @@ try {
     (row) => row.reference === created.reference,
   );
   assert(order && order.items.length === 1 && order.items[0].quantity === 2);
-  assert.equal(order.email, "order-owner@example.test");
+  assert.equal(order.email, input.email);
+  assert.equal(order.customer_id, null);
+  assert.equal(
+    (await member.cookies()).find((c) => c.name === "kz_guest")?.httpOnly,
+    true,
+  );
   const adminPage = await admin.newPage(),
     customerPage = await member.newPage();
   await adminPage.goto(origin + "/admin");
@@ -254,7 +258,7 @@ try {
   await expect(adminPage.locator(".order-detail-grid").first()).toContainText(
     "Test city",
   );
-  await customerPage.goto(origin + "/hesabim");
+  await customerPage.goto(origin + "/siparislerim");
   await dismissCookies(customerPage);
   await expect(customerPage.locator(".member-orders")).toContainText(
     "Sipariş hazırlanıyor",
@@ -318,8 +322,7 @@ try {
     400,
   );
   assert.deepEqual(
-    (await (await outsider.request.get(origin + "/api/customer")).json())
-      .orders,
+    (await (await outsider.request.get(origin + "/api/orders")).json()).orders,
     [],
   );
   order = (

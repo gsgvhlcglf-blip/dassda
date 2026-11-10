@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient } from "@supabase/supabase-js";
+import { privileged } from "./privileged";
 import { randomUUID } from "node:crypto";
 import { isLive, localDB } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
@@ -9,20 +9,36 @@ import type {
   PaymentSettings,
   PaymentOrder,
 } from "@/lib/payments/types";
-function privileged() {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY)
-    throw Error("PAYMENT_SETUP_REQUIRED");
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { persistSession: false, autoRefreshToken: false } },
-  );
-}
 function paymentDB() {
   const db = localDB();
   db.exec(
-    `CREATE TABLE IF NOT EXISTS payment_settings(id TEXT PRIMARY KEY,provider TEXT NOT NULL DEFAULT 'none',mode TEXT NOT NULL DEFAULT 'test',enabled INTEGER NOT NULL DEFAULT 0);INSERT OR IGNORE INTO payment_settings(id) VALUES('site');CREATE TABLE IF NOT EXISTS payment_attempts(id TEXT PRIMARY KEY,order_id TEXT NOT NULL UNIQUE REFERENCES orders(id),customer_id TEXT NOT NULL REFERENCES customers(id),provider TEXT NOT NULL,mode TEXT NOT NULL,state TEXT NOT NULL,amount_minor INTEGER NOT NULL,currency TEXT NOT NULL,merchant_ref TEXT NOT NULL UNIQUE,token TEXT UNIQUE,checkout_url TEXT,provider_payment_id TEXT,reserved INTEGER NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,error_code TEXT);CREATE TABLE IF NOT EXISTS payment_events(id TEXT PRIMARY KEY,attempt_id TEXT NOT NULL REFERENCES payment_attempts(id),kind TEXT NOT NULL,created_at TEXT NOT NULL);`,
+    `CREATE TABLE IF NOT EXISTS payment_settings(id TEXT PRIMARY KEY,provider TEXT NOT NULL DEFAULT 'none',mode TEXT NOT NULL DEFAULT 'test',enabled INTEGER NOT NULL DEFAULT 0);INSERT OR IGNORE INTO payment_settings(id) VALUES('site');CREATE TABLE IF NOT EXISTS payment_attempts(id TEXT PRIMARY KEY,order_id TEXT NOT NULL UNIQUE REFERENCES orders(id),customer_id TEXT REFERENCES customers(id),provider TEXT NOT NULL,mode TEXT NOT NULL,state TEXT NOT NULL,amount_minor INTEGER NOT NULL,currency TEXT NOT NULL,merchant_ref TEXT NOT NULL UNIQUE,token TEXT UNIQUE,checkout_url TEXT,provider_payment_id TEXT,reserved INTEGER NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,error_code TEXT);CREATE TABLE IF NOT EXISTS payment_events(id TEXT PRIMARY KEY,attempt_id TEXT NOT NULL REFERENCES payment_attempts(id),kind TEXT NOT NULL,created_at TEXT NOT NULL);`,
   );
+  // SQLite cannot drop NOT NULL in place. Preserve every legacy attempt and event.
+  const attemptColumns = db
+    .prepare("PRAGMA table_info(payment_attempts)")
+    .all();
+  if (attemptColumns.some((c) => c.name === "customer_id" && c.notnull)) {
+    db.exec("PRAGMA foreign_keys=OFF; BEGIN IMMEDIATE");
+    try {
+      const definition = db
+        .prepare("SELECT sql FROM sqlite_master WHERE name='payment_attempts'")
+        .get()!.sql as string;
+      db.exec(
+        definition
+          .replace("payment_attempts", "payment_attempts_guest_migration")
+          .replace(/customer_id TEXT NOT NULL/i, "customer_id TEXT"),
+      );
+      db.exec(
+        "INSERT INTO payment_attempts_guest_migration SELECT * FROM payment_attempts; DROP TABLE payment_attempts; ALTER TABLE payment_attempts_guest_migration RENAME TO payment_attempts; COMMIT",
+      );
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    } finally {
+      db.exec("PRAGMA foreign_keys=ON");
+    }
+  }
   const columns = db.prepare("PRAGMA table_info(orders)").all() as {
     name: string;
   }[];
@@ -90,10 +106,19 @@ export async function findPayment(
       .eq(by, value)
       .maybeSingle();
     if (error) throw error;
-    return data ? attempt(data) : null;
+    if (!data) return null;
+    const { data: owner, error: ownerError } = await privileged()
+      .from("orders")
+      .select("guest_key")
+      .eq("id", data.order_id)
+      .single();
+    if (ownerError) throw ownerError;
+    return { ...attempt(data), guest_key: owner.guest_key };
   }
   const row = paymentDB()
-    .prepare(`SELECT * FROM payment_attempts WHERE ${by}=?`)
+    .prepare(
+      `SELECT a.*,o.guest_key FROM payment_attempts a JOIN orders o ON o.id=a.order_id WHERE a.${by}=?`,
+    )
     .get(value);
   return row ? attempt(row) : null;
 }
@@ -161,24 +186,31 @@ export async function expirePayments() {
 }
 export async function preparePayment(
   reference: string,
-  customerId: string,
+  owner: string | { guestKey: string },
   expected: { provider: "paytr" | "iyzico"; mode: "test" | "live" },
 ) {
   if (isLive) {
-    const data = await rpc("prepare_payment", {
-      order_reference: reference,
-      buyer_id: customerId,
-      expected_provider: expected.provider,
-      expected_mode: expected.mode,
-    });
+    const data = await rpc(
+      typeof owner === "string" ? "prepare_payment" : "prepare_guest_payment",
+      {
+        order_reference: reference,
+        ...(typeof owner === "string"
+          ? { buyer_id: owner }
+          : { session_key: owner.guestKey }),
+        expected_provider: expected.provider,
+        expected_mode: expected.mode,
+      },
+    );
     return { ...attempt(data), created: !!data.created };
   }
   const db = paymentDB();
   db.exec("BEGIN IMMEDIATE");
   try {
     const o = db
-      .prepare("SELECT * FROM orders WHERE reference=? AND customer_id=?")
-      .get(reference, customerId);
+      .prepare(
+        `SELECT * FROM orders WHERE reference=? AND ${typeof owner === "string" ? "customer_id" : "guest_key"}=?`,
+      )
+      .get(reference, typeof owner === "string" ? owner : owner.guestKey);
     if (!o) throw Error("AUTH_REQUIRED");
     const existing = db
       .prepare("SELECT * FROM payment_attempts WHERE order_id=?")
@@ -227,7 +259,7 @@ export async function preparePayment(
     ).run(
       id,
       o.id as string,
-      customerId,
+      typeof owner === "string" ? owner : null,
       cfg.provider as string,
       "test",
       "creating",

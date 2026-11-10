@@ -8,9 +8,9 @@
 
 ## Canlı uygulamada kurulum
 
-1. Supabase göçlerini 001–005'ten sonra `supabase/migrations/006_payments.sql` ile tamamlayın. Yerel SQLite uygulaması test tablolarını kendisi oluşturur; yerel adaptörde canlı tahsilat engellenir.
+1. Supabase göçlerini 001–005'ten sonra 006–017 göçlerini de sırasıyla uygulayın. Yerel SQLite uygulaması test tablolarını kendisi oluşturur; yerel adaptörde canlı tahsilat engellenir.
 2. Sunucuda/Vercel ortam değişkenlerinde `.env.example` içindeki alanları doldurun. Gizli alanlara **NEXT_PUBLIC** öneki eklemeyin; tarayıcı paneline veya GitHub'a anahtar yazmayın.
-3. `NEXT_PUBLIC_SITE_URL` gerçek HTTPS site kökeni olmalıdır (örn. kendi alan adınız). Giriş ve üyelik kurulumu, Supabase e-posta doğrulaması ve yasal/ticari sayfalar önceden tamamlanmalıdır.
+3. `NEXT_PUBLIC_SITE_URL` gerçek HTTPS site kökeni olmalıdır (örn. kendi alan adınız). Misafir checkout için 017 göçü, yalnızca sunucuda service role anahtarı ve yasal/ticari sayfalar tamamlanmalıdır.
 4. `/admin → Ödeme altyapısı` bölümünde sağlayıcıyı ve önce Test modunu seçin. Ayarları kaydedip sunucuda eksik görünen alanları tamamlayın. İşlem açma anahtarı yalnızca gerekli yapılandırma mevcutsa kabul edilir. “Yapılandırma mevcut” anahtarların doğruluğunun sağlayıcı tarafından onaylandığı anlamına gelmez.
 5. Gerçek sağlayıcı test hesabıyla başarılı/başarısız işlem ve bildirim dönüşünü deneyin. Sağlayıcı hesabı/anahtarları bu çalışma sırasında sunulmadığından gerçek PayTR/iyzico sandbox erişimi ve mağaza onayı henüz doğrulanmamıştır. Kod testleri taklit sağlayıcı yanıtları ve izole veritabanları kullanır.
 6. Ticari ürünleri, fiyatları, kargo/vergilendirme koşullarını ve sağlayıcının canlı kullanım onayını doğruladıktan sonra gerçek yönetim panelinde Canlı modu seçip etkinleştirin. Demo ürünler canlı ödemeye kapalıdır.
@@ -31,7 +31,7 @@ Sağlayıcınızı değiştirseniz veya yeni ödeme başlatmayı kapatsanız bil
 
 ## Alışveriş ve sonuç
 
-Üyelik gerekir. Sipariş tutarı istemcinin gönderdiği fiyattan alınmaz: yayımlanmış ürün/varyantlardan sunucuda hesaplanır ve sipariş satırlarında saklanır. Aynı sipariş için ödeme başlatmayı tekrarlamak mevcut ödeme oturumunu döndürür; ikinci sağlayıcı başlatma isteği oluşturmaz. Bu sürüm ürün toplamını tahsil eder; ayrıca kargo bedeli, indirim, taksit vade farkı veya vergi hesaplama motoru eklenmemiştir. Yayımlanan ürün fiyatları ve müşteriyle paylaşılan teslimat koşulları tahsil edilecek bedelle uyumlu olmalıdır.
+Üyelik gerekmez. Sunucudaki güvenli misafir oturumu sipariş ve ödeme sahipliğini korur. Sipariş tutarı istemcinin gönderdiği fiyattan alınmaz: yayımlanmış ürün/varyantlardan sunucuda hesaplanır ve sipariş satırlarında saklanır. Aynı sipariş için ödeme başlatmayı tekrarlamak mevcut ödeme oturumunu döndürür; ikinci sağlayıcı başlatma isteği oluşturmaz. Bu sürüm ürün toplamını tahsil eder; ayrıca kargo bedeli, indirim, taksit vade farkı veya vergi hesaplama motoru eklenmemiştir. Yayımlanan ürün fiyatları ve müşteriyle paylaşılan teslimat koşulları tahsil edilecek bedelle uyumlu olmalıdır.
 
 PayTR güvenli iframe'i; iyzico ise sağlayıcının barındırdığı ödeme sayfası kullanılır. PAN, CVV, son kullanma tarihi veya kart şifresi mağaza formuna/API'sine alınmaz. iyzico için alıcının ad/soyad, şehir, ülke ve kimlik/pasaport bilgisi gerekir. Kimlik numarası ödeme başlatma sırasında sağlayıcıya iletilir, mağaza veritabanında veya analitik olaylarında saklanmaz. Sağlayıcının ihtiyaç duyduğu alıcı IP'si güvenilen barındırma/proxy başlıklarından alınır; ödeme tablosunda tutulmaz. Gerçek KVKK/gizlilik metni işletmenin uygulamasına göre güncellenmelidir.
 

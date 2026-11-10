@@ -176,3 +176,10 @@ The footer provides FAQ/tracking plus five editable Turkish legal templates, wit
 Homepage curation lives in the existing relational content record `home-bestsellers`. The owner chooses up to ten unique products, ordering, 3–20 second cadence and independent 50–200% frames through **En çok satanlar** in both panels. The storefront shows three desktop cards, advances when four or more published products are present, and pauses on hover/focus/editing/reduced-motion/hidden tabs. Unpublished products remain selected in the panel and are hidden from the storefront. `012_home_editorial.sql` (after 011) adds the initial curation, broader About copy and three illustrated educational posts; privacy wording is patched without resetting company fields. Local SQLite applies the corresponding migration once. Browser content updates preserve subsequent owner edits.
 
 Product commerce: [owner guide](docs/OWNER-GUIDE.md#yeni-ürün-ekleme). Gloss clear coat is the default; matte is controlled per product. Legacy stock/variant-price columns remain for historical records and older snapshots; current checkout uses the discounted product price. MySQL migration 002 prepares the same fields for the future adapter.
+
+Guest checkout: customer signup/login and account navigation are disabled. Cart
+opens checkout directly. Server-only HttpOnly guest sessions protect orders,
+shipping details and payment status without creating customer accounts. Apply
+Supabase migration 017 after earlier migrations; its private RPCs require the
+server-only service-role key. MySQL migration 006 prepares the ownership fields
+for the future adapter. See [owner guide](docs/OWNER-GUIDE.md#üyeliksiz-alışveriş).

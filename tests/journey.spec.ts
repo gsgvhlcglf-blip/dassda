@@ -38,22 +38,6 @@ test("customer journey preserves cart and requires configured payment before sub
   await page.getByRole("button", { name: "Adet +", exact: true }).click();
   await expect(page.locator(".cart-controls .quantity span")).toHaveText("2");
   await page.getByRole("link", { name: "Ödeme yapın", exact: true }).click();
-  await expect(page).toHaveURL(/giris/);
-  await page
-    .locator(".member-form")
-    .getByRole("link", { name: "Üye ol", exact: true })
-    .click();
-  await page
-    .locator('.member-form input[name="email"]')
-    .fill(`member-${stamp}@example.test`);
-  await page
-    .locator('.member-form input[name="password"]')
-    .fill("Customer-test-123456");
-  await page.locator('.member-form input[name="consent"]').check();
-  await page
-    .locator(".member-form")
-    .getByRole("button", { name: "Üye ol", exact: true })
-    .click();
   await expect(page).toHaveURL(/odeme/);
   await dismissCookies(page);
   await page.getByLabel("Ad soyad", { exact: true }).fill("Demo Customer");
@@ -107,7 +91,7 @@ test("anonymous users cannot administer, upload or forge orders", async ({
         },
       })
     ).status(),
-  ).toBe(401);
+  ).toBe(400);
   expect(
     (
       await request.post("/api/auth", {

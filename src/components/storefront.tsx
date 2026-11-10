@@ -12,6 +12,7 @@ import {
   maxLineQuantity,
 } from "@/lib/product-commerce";
 import { HeroVideo } from "./hero-video";
+import { GuestOrders } from "./guest-orders";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
 import {
@@ -49,13 +50,7 @@ import {
   useVisualLogoOffset,
 } from "@/lib/visual";
 import { useCart } from "@/lib/cart-store";
-import {
-  CustomerPage,
-  MemberGate,
-  TrackingPage,
-  BlogPage,
-  type CustomerView,
-} from "./customer-pages";
+import { TrackingPage, BlogPage, type CustomerView } from "./customer-pages";
 import { resolveStoreLanguage } from "@/lib/settings";
 import {
   motorcycleRanges,
@@ -136,7 +131,6 @@ export function Storefront({
   preview = false,
   previewQuery,
   onNavigate,
-  customer = null,
 }: {
   customer?: CustomerView | null;
   preview?: boolean;
@@ -162,18 +156,6 @@ export function Storefront({
     };
   const [cart, setCart] = useCart();
   const [modelSearch, setModelSearch] = useState<Record<string, string>>({});
-  const [previewMember, setPreviewMember] = useState<CustomerView | null>(null);
-  const member = preview ? previewMember : customer;
-  useEffect(() => {
-    if (preview && sessionStorage.getItem("kz-preview-member") === "true")
-      setPreviewMember({ id: "preview-member", email: "" });
-  }, [preview]);
-  function togglePreviewMember() {
-    const enabled = !previewMember;
-    sessionStorage.setItem("kz-preview-member", String(enabled));
-    setPreviewMember(enabled ? { id: "preview-member", email: "" } : null);
-  }
-
   const [menu, setMenu] = useState(false),
     [toast, setToast] = useState(""),
     [savedBike, setSavedBike] = useState("");
@@ -718,7 +700,7 @@ export function Storefront({
             </p>
             <Link
               className="button wide"
-              href={href(member ? "/odeme" : "/giris?next=%2Fodeme")}
+              href={href("/odeme")}
               aria-disabled={!cartValid}
               onClick={(event) => {
                 if (!cartValid) {
@@ -884,14 +866,6 @@ export function Storefront({
           ))}
         </nav>
         <div className="nav-actions">
-          <div className="member-links">
-            <Link
-              href={href(member ? "/hesabim" : "/giris")}
-              data-visual-text={"ui:" + "account"}
-            >
-              {t("account")}
-            </Link>
-          </div>
           <Link
             className="bag-link"
             href={href("/sepet")}
@@ -982,28 +956,11 @@ export function Storefront({
             lang={lang}
             preview={preview}
             query={previewQuery}
-            userEmail={member?.email}
           />
         ) : s[0] === "sepet" ? (
           cartPage()
-        ) : ["giris", "uye-ol", "hesabim"].includes(s[0]) ? (
-          <CustomerPage
-            lang={lang}
-            href={href}
-            mode={
-              s[0] === "uye-ol"
-                ? "signup"
-                : s[0] === "giris"
-                  ? "login"
-                  : "account"
-            }
-            preview={preview}
-            live={live}
-            user={member}
-            onDemo={togglePreviewMember}
-            onNavigate={onNavigate}
-            query={previewQuery}
-          />
+        ) : s[0] === "siparislerim" || s[0] === "hesabim" ? (
+          <GuestOrders preview={preview} lang={lang} />
         ) : s[0] === "blog" ? (
           <BlogPage
             c={c}
@@ -1014,20 +971,15 @@ export function Storefront({
           />
         ) : s[0] === "kargo-takip" ? (
           <TrackingPage c={c} lang={lang} />
-        ) : s[0] === "odeme" ? (
-          member ? (
-            <Checkout
-              lang={lang}
-              cart={cart}
-              total={total}
-              href={href}
-              valid={cartValid}
-              preview={preview}
-              customerId={member.id}
-            />
-          ) : (
-            <MemberGate lang={lang} href={href} />
-          )
+        ) : ["odeme", "giris", "uye-ol"].includes(s[0]) ? (
+          <Checkout
+            lang={lang}
+            cart={cart}
+            total={total}
+            href={href}
+            valid={cartValid}
+            preview={preview}
+          />
         ) : (
           renderContent()
         )}
@@ -1507,7 +1459,6 @@ function ProductDetail({
   );
 }
 function Checkout({
-  customerId,
   lang,
   cart,
   total,
@@ -1516,7 +1467,6 @@ function Checkout({
   preview = false,
 }: {
   preview?: boolean;
-  customerId: string;
   lang: Lang;
   cart: CartLine[];
   total: number;
@@ -1528,7 +1478,7 @@ function Checkout({
   const t = useVisualTranslate(lang),
     [status, setStatus] = useState(""),
     [busy, setBusy] = useState(false);
-  const payment = useHostedPayment(preview, customerId, cart);
+  const payment = useHostedPayment(preview, "guest", cart);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (preview) {

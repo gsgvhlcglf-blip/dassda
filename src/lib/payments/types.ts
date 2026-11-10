@@ -17,7 +17,8 @@ export type PaymentSettings = {
 export type PaymentAttempt = {
   id: string;
   order_id: string;
-  customer_id: string;
+  customer_id: string | null;
+  guest_key?: string | null;
   provider: Exclude<PaymentProvider, "none">;
   mode: PaymentMode;
   state: PaymentState;

@@ -80,7 +80,7 @@ kutusunu işaretlerseniz mat da sunulur. İşareti kaldırmak eski varyant/sipar
 kayıtlarını silmez; müşterinin yeni seçim yapmasını engeller. Stok alanları eski
 kayıt uyumluluğu için veritabanında korunur ve satışa sınır koymaz.
 
-Sepette **Ödeme yapın** ile üyelik/bilgi ekranına geçilir. **Son bir detay. →
+Sepette **Ödeme yapın** ile doğrudan iletişim ve teslimat bilgileri ekranına geçilir. **Son bir detay. →
 Kişisel bilgilerinizi girin. → iyzico ile ödemeye geç** akışı kullanılır. Gerçek
 iyzico ayarları etkinleşmediyse bilgi gönderilmez, sepet silinmez ve ödeme sonucu
 üretilmez. İndirmesiz ön izleme kişisel bilgi ve ödeme göndermez. PayTR ayrıca
@@ -189,7 +189,7 @@ tıklayarak değiştirin. Bilerek gizlemek için **Vitrini göster** işaretini 
 
 **Veri paneli → Siparişler** bölümünde bir sipariş numarasına tıklayın. Müşteri,
 iletişim, teslimat adresi, ürün/SKU, adet, birim fiyat, toplam, not ve ödeme bilgileri
-görünür. **Kargo takip numarasını paylaş** numarayı müşterinin **Hesabım** bölümünde
+görünür. **Kargo takip numarasını paylaş** numarayı müşterinin aynı tarayıcıdaki **Siparişlerim** sayfasında
 gösterir. Paylaşım öncesi **Sipariş hazırlanıyor**, paylaşım sonrası **Siparişiniz
 kargoya verildi** yazılır. Bu iki durum ödeme durumundan ayrıdır. Ödemesi doğrulanmamış
 kartlı sipariş ve iptal edilmiş sipariş için paylaşım engellenir. Hatalı takip numarası
@@ -226,3 +226,17 @@ teknik işlem referansı ayrı kalır. Supabase kurulumu için
 `016_daily_order_references.sql`, gelecekteki MySQL için
 `database/mysql/005_daily_order_references.sql` dosyası hazırlanmıştır; bu çalışma
 canlı bağlantı veya uzaktan göç çalıştırma işlemi yapmaz.
+
+## Üyeliksiz alışveriş
+
+Müşteri hesabı açma ve giriş kapalıdır; menüde Hesabım yer almaz. Sepetteki
+Ödeme yapın doğrudan kişisel bilgiler ve teslimat formunu açar. Ödeme sonucu
+ekranındaki Siparişlerim bağlantısı aynı tarayıcıya ait siparişleri ve paylaşılan
+kargo numarasını gösterir. Güvenli oturum çerezi 30 gün geçerlidir; çerezleri
+silmek veya başka cihaza geçmek bu erişimi taşımaz. Sipariş numarasıyla iletişim
+kurulabilir; numara veya e-posta tek başına özel bilgilere erişim sağlamaz.
+Eski sipariş ve hesap kayıtları silinmez. Yönetici girişi korunur.
+
+Supabase kurulurken 001–017 göçleri sırasıyla uygulanır. Misafir siparişleri için
+017 ve yalnızca sunucuda SUPABASE_SERVICE_ROLE_KEY gereklidir. MySQL hazırlığı
+006_guest_checkout.sql dosyasındadır; canlı MySQL adaptörü henüz bağlı değildir.

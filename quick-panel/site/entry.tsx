@@ -23,7 +23,7 @@ document.documentElement.dataset.kuzminEditing = String(inspect);
 const regions: [string, string, string][] = [
   [".site-header .header-wordmark", "header.logo", "Üst menü · Logo"],
   [".primary-nav", "header.navigation", "Üst menü · Sayfa bağlantıları"],
-  [".nav-actions", "header.actions", "Üst menü · Hesabım ve sepet"],
+  [".nav-actions", "header.actions", "Üst menü · Sepet"],
   [".site-header", "header", "Üst menü"],
   [".hero h1", "home.hero.title", "Ana sayfa · Ana başlık"],
   [

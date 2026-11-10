@@ -4,7 +4,8 @@ import { isLive, localDB, insertLocal, updateLocal } from "@/lib/database";
 import { getCatalog, getRows } from "@/lib/catalog";
 import { quote } from "@/lib/commerce";
 import { supabase } from "@/lib/supabase";
-import type { CustomerIdentity, OrderInput } from "../../contracts";
+import type { OrderOwner, OrderInput, CustomerOrder } from "../../contracts";
+import { privileged } from "./privileged";
 import { getRole } from "@/lib/auth";
 import {
   shipmentSchema,
@@ -113,15 +114,21 @@ export async function shareTracking(
   return result;
 }
 
-export async function createOrder(
-  input: OrderInput,
-  customer: CustomerIdentity,
-) {
-  input = { ...input, email: customer.email };
+export async function createOrder(input: OrderInput, customer: OrderOwner) {
+  const guest = "guestKey" in customer;
+  if (guest && !/^[a-f0-9]{64}$/.test(customer.guestKey))
+    throw Error("AUTH_REQUIRED");
+  input = {
+    ...input,
+    email: guest ? input.email.trim().toLowerCase() : customer.email,
+  };
   if (isLive) {
-    const { data, error } = await (
-      await supabase()
-    ).rpc("create_order_request", { input });
+    const { data, error } = guest
+      ? await privileged().rpc("create_guest_order_request", {
+          input,
+          session_key: customer.guestKey,
+        })
+      : await (await supabase()).rpc("create_order_request", { input });
     if (error) throw Error(error.message);
     return data as { reference: string; demo: boolean; total: number };
   }
@@ -144,9 +151,10 @@ export async function createOrder(
     insertLocal("orders", {
       id,
       reference,
-      customer_id: customer.id,
+      customer_id: guest ? null : customer.id,
+      guest_key: guest ? customer.guestKey : null,
       customer_name: input.customer_name,
-      email: customer.email,
+      email: input.email,
       phone: input.phone,
       address: input.address,
       note: input.note,
@@ -173,6 +181,30 @@ export async function createOrder(
     db.exec("ROLLBACK");
     throw error;
   }
+}
+
+/** No names, addresses, emails, session hashes or payment tokens leave this query. */
+export async function guestOrders(guestKey: string): Promise<CustomerOrder[]> {
+  if (!/^[a-f0-9]{64}$/.test(guestKey)) throw Error("AUTH_REQUIRED");
+  const { getPaymentSettings } = await import("@/lib/payments/store");
+  await getPaymentSettings();
+  const columns =
+    "reference,status,total,currency,created_at,payment_status,payment_provider,demo,tracking_number,shipping_carrier,tracking_url,shipped_at,fulfillment_version";
+  if (isLive) {
+    const { data, error } = await privileged()
+      .from("orders")
+      .select(columns)
+      .eq("guest_key", guestKey)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    return data as CustomerOrder[];
+  }
+  return localDB()
+    .prepare(
+      `SELECT ${columns} FROM orders WHERE guest_key=? ORDER BY created_at DESC LIMIT 50`,
+    )
+    .all(guestKey) as unknown as CustomerOrder[];
 }
 
 export async function updateOrderStatus(id: string, status: string) {

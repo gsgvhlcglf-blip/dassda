@@ -2,21 +2,36 @@ import { NextResponse } from "next/server";
 import { orderSchema } from "@/lib/validation";
 import { sameOrigin, rateLimit } from "@/lib/auth";
 import { repository } from "@/server/persistence";
-import { getCustomer } from "@/lib/customer";
+import { getGuest } from "@/server/guest-session";
+export async function GET() {
+  const guest = await getGuest();
+  try {
+    const orders = guest
+      ? await (await repository("orders")).guestOrders(guest.guestKey)
+      : [];
+    return NextResponse.json(
+      { orders },
+      { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } },
+    );
+  } catch {
+    return NextResponse.json({ error: "ORDERS_UNAVAILABLE" }, { status: 503 });
+  }
+}
 export async function POST(req: Request) {
   if (!sameOrigin(req))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (!rateLimit("orders:" + req.headers.get("x-forwarded-for"), 5))
     return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 });
-  const customer = await getCustomer();
-  if (!customer)
-    return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
   try {
     const input = orderSchema.parse(await req.json());
+    const customer = (await getGuest(true))!;
     const result = await (
       await repository("orders")
     ).createOrder(input, customer);
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(result, {
+      status: 201,
+      headers: { "Cache-Control": "private, no-store" },
+    });
   } catch (e) {
     const known = [
       "OUT_OF_STOCK",

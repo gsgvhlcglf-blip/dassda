@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isIP } from "node:net";
 import { sameOrigin, rateLimit } from "@/lib/auth";
-import { getCustomer } from "@/lib/customer";
+import { getGuest } from "@/server/guest-session";
 import { isLive } from "@/lib/database";
 import {
   getPaymentSettings,
@@ -22,10 +22,10 @@ import { initializeGateway, GatewayError } from "@/lib/payments/providers";
 export async function POST(req: Request) {
   if (!sameOrigin(req))
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
-  const customer = await getCustomer();
+  const customer = await getGuest();
   if (!customer)
     return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
-  if (!rateLimit("payment-start:" + customer.id, 10))
+  if (!rateLimit("payment-start:" + customer.guestKey, 10))
     return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 });
   let createdId: string | undefined;
   try {
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
         { status: 503 },
       );
     await expirePayments();
-    const a = await preparePayment(input.reference, customer.id, {
+    const a = await preparePayment(input.reference, customer, {
       provider: input.expectedProvider,
       mode: input.expectedMode,
     });

@@ -56,14 +56,6 @@ try {
       .ready,
     true,
   );
-  await member.request.post(origin + "/api/customer", {
-    data: {
-      action: "signup",
-      email: "payment-test@example.test",
-      password: "Private-test-only-123456",
-      consent: true,
-    },
-  });
   const input = {
     customer_name: "Payment Test",
     email: "ignored@example.test",
@@ -85,6 +77,92 @@ try {
     id = randomUUID(),
     ref = "KZ" + id.replaceAll("-", ""),
     now = new Date().toISOString();
+  // Upgrade a real legacy NOT NULL schema without losing its order, attempt or audit event.
+  const legacyCustomer = randomUUID(),
+    legacyAttempt = randomUUID();
+  db.prepare("INSERT INTO customers VALUES(?,?,?)").run(
+    legacyCustomer,
+    "legacy-fixture@example.test",
+    "TEST-ONLY-DISABLED-HASH",
+  );
+  db.prepare(
+    "INSERT INTO orders(id,reference,customer_id,customer_name,email,phone,address,note,status,total,currency,demo,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+  ).run(
+    "legacy-order",
+    "KZ-LEGACY-FIXTURE",
+    legacyCustomer,
+    "Legacy Fixture",
+    "legacy-fixture@example.test",
+    "05000000000",
+    "Legacy test address 10",
+    "",
+    "demo_request",
+    10,
+    "TRY",
+    1,
+    now,
+  );
+  const legacyDDL = db
+    .prepare("SELECT sql FROM sqlite_master WHERE name='payment_attempts'")
+    .get().sql;
+  db.exec("PRAGMA foreign_keys=OFF; DROP TABLE payment_attempts");
+  db.exec(
+    legacyDDL.replace(
+      "customer_id TEXT REFERENCES",
+      "customer_id TEXT NOT NULL REFERENCES",
+    ),
+  );
+  db.prepare(
+    "INSERT INTO payment_attempts VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+  ).run(
+    legacyAttempt,
+    "legacy-order",
+    legacyCustomer,
+    "paytr",
+    "test",
+    "failed",
+    1000,
+    "TRY",
+    "KZlegacyfixture",
+    null,
+    null,
+    null,
+    0,
+    now,
+    now,
+    null,
+  );
+  db.prepare("INSERT INTO payment_events VALUES(?,?,?,?)").run(
+    "legacy-event",
+    legacyAttempt,
+    "created",
+    now,
+  );
+  db.exec("PRAGMA foreign_keys=ON");
+  assert.equal(
+    (await member.request.get(origin + "/api/payments/config")).status(),
+    200,
+  );
+  assert.equal(
+    db
+      .prepare("SELECT customer_id FROM payment_attempts WHERE id=?")
+      .get(legacyAttempt).customer_id,
+    legacyCustomer,
+  );
+  assert.equal(
+    db
+      .prepare("SELECT attempt_id FROM payment_events WHERE id='legacy-event'")
+      .get().attempt_id,
+    legacyAttempt,
+  );
+  assert.equal(db.prepare("PRAGMA foreign_key_check").all().length, 0);
+  assert.equal(
+    db
+      .prepare("PRAGMA table_info(payment_attempts)")
+      .all()
+      .find((c) => c.name === "customer_id").notnull,
+    0,
+  );
   db.prepare(
     "INSERT INTO payment_attempts VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
   ).run(
@@ -157,13 +235,8 @@ try {
   ).json();
   assert.equal(receipt.state, "test_paid");
   assert.equal("token" in receipt, false);
-  await other.request.post(origin + "/api/customer", {
-    data: {
-      action: "signup",
-      email: "other-payment@example.test",
-      password: "Private-test-only-123456",
-      consent: true,
-    },
+  await other.request.post(origin + "/api/orders", {
+    data: { ...input, email: "same-guest@example.test" },
   });
   assert.equal(
     (

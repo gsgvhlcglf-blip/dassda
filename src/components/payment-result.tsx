@@ -91,8 +91,8 @@ export function PaymentResult({
           <p>{money(data.amountMinor / 100)}</p>
           {data.state === "paid" ? (
             <p>
-              Ödemeniz sağlayıcı üzerinden doğrulandı. Siparişinizi hesabınızdan
-              takip edebilirsiniz.
+              Ödemeniz sağlayıcı üzerinden doğrulandı. Siparişinizi bu
+              tarayıcıdaki siparişler sayfasından takip edebilirsiniz.
             </p>
           ) : data.state === "test_paid" ? (
             <p>
@@ -130,8 +130,8 @@ export function PaymentResult({
                 Yeniden dene
               </Link>
             )}
-            <Link className="button outline" href="/hesabim">
-              Hesabım
+            <Link className="button outline" href="/siparislerim">
+              Siparişlerim
             </Link>
             <Link className="under-link" href="/iletisim">
               İletişim

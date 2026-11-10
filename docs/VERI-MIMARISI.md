@@ -14,8 +14,7 @@ toplanmaya başlanmadı. Mevcut tasarım, URL’ler ve panel akışları korunur
 Mevcut Supabase adaptörü ayrıca korunur; kullanılması zorunlu değildir.
 Tarayıcı taslakları otomatik olarak bir sunucuya taşınmaz. `localStorage` sepet,
 tasarım tercihleri ve açıkça etiketlenmiş ön izleme için kullanılabilir; hesap,
-CRM, sipariş ve gerçek analitik için kalıcı kaynak kabul edilmez. Ön izlemedeki
-örnek üye girişi bir kimlik doğrulama sistemi değildir; müşteri şifresi almaz.
+CRM, sipariş ve gerçek analitik için kalıcı kaynak kabul edilmez. Müşteri kayıt/girişi kapalıdır. Alışveriş güvenli misafir oturumuyla ilerler; ön izleme gerçek müşteri bilgisi almaz.
 
 ## Uygulanan sınırlar
 
@@ -42,7 +41,7 @@ MySQL parolası veya servis anahtarı almaz.
 | `catalog` | Markalar, modeller, nesiller/yıllar, ürünler, varyantlar, görseller, uyumluluk, içerik |
 | `workspace` | Katalog ve tasarım taslağı, sürüm çakışması, yayın/geri alma; stokların geri sarılmaması |
 | `identity` | Müşteri ve personel oturumu, ayrı yetkiler, kayıt/giriş/çıkış, müşterinin kendi siparişleri |
-| `orders` | Sunucuda hesaplanan fiyatlar ve sahiplik; sipariş isteği ve durum değişiklikleri |
+| `orders` | Sunucuda hesaplanan fiyatlar ve sahiplik; misafir oturumuna ait siparişler ve durum değişiklikleri |
 | `requests` | Yeni ürün ve özel üretim talepleri, CRM aşamaları, belgeler, fotoğraflar, işlem geçmişi ve talep grafikleri |
 | `analytics` | İzinli olaylar, saklama süresi, özetler, dönüşüm hunisi ve ısı haritası |
 | `payments` | PayTR/iyzico ayarları, denemeler, süre aşımı ve doğrulanmış sağlayıcı sonucu |
@@ -134,3 +133,13 @@ operasyonel stokları, müşteri verilerini veya ödeme geçmişini geri saramaz
 
 Bu işlerin kapsamı sunucu adaptörleri, göç ve işletim ayarlarıdır; mevcut müşteri
 ekranları ve veri giriş formları için yeniden yazım planlanmaz.
+
+## Misafir alışverişi
+
+Yeni satın alımlarda müşteri hesabı oluşturulmaz. orders.createOrder girdisi
+server-only getGuest tarafından üretilen oturum özetiyle ilişkilendirilir.
+orders.guestOrders sadece o özetin sınırlı sipariş/kargo durumlarını döndürür.
+Ödeme hazırlığı ve sonuçları aynı sahiplik kontrolünü kullanır. Ham çerez
+veritabanına veya önizleme deposuna yazılmaz. Eski müşteri kayıtları ve RLS
+korunur; kayıt/giriş HTTP uçları kapalıdır. MySQL 006 göçü nullable customer_id
+ve guest_key indeksini hazırlar; adaptörün aynı kontrolleri uygulaması gerekir.

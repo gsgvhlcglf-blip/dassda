@@ -27,6 +27,7 @@ import type {
 } from "@/lib/order-management";
 
 export type CustomerIdentity = { id: string; email: string };
+export type OrderOwner = CustomerIdentity | { guestKey: string };
 export type StaffRole = "admin" | "editor" | null;
 export type PreparedPhoto = {
   name: string;
@@ -126,7 +127,7 @@ export interface Repositories {
     expirePayments(): Promise<number>;
     preparePayment(
       reference: string,
-      customerId: string,
+      owner: string | { guestKey: string },
       expected: { provider: "paytr" | "iyzico"; mode: "test" | "live" },
     ): Promise<PaymentAttempt & { created: boolean }>;
     readyPayment(id: string, token: string, url: string): Promise<void>;
@@ -159,11 +160,12 @@ export interface Repositories {
     customerOrders(customerId: string): Promise<CustomerOrder[]>;
   };
   orders: {
+    guestOrders(guestKey: string): Promise<CustomerOrder[]>;
     listOrders(): Promise<ManagedOrder[]>;
     shareTracking(id: string, input: ShipmentInput): Promise<ManagedOrder>;
     createOrder(
       input: OrderInput,
-      customer: CustomerIdentity,
+      customer: OrderOwner,
     ): Promise<{ reference: string; demo: boolean; total: number }>;
     updateOrderStatus(id: string, status: string): Promise<void>;
   };

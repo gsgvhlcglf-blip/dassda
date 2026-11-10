@@ -134,6 +134,11 @@ export function localDB() {
     db.exec(
       "ALTER TABLE orders ADD COLUMN customer_id TEXT REFERENCES customers(id)",
     );
+  if (!orderColumns.some((column) => column.name === "guest_key"))
+    db.exec("ALTER TABLE orders ADD COLUMN guest_key TEXT");
+  db.exec(
+    "CREATE INDEX IF NOT EXISTS orders_guest ON orders(guest_key,created_at)",
+  );
   db.exec(
     "CREATE INDEX IF NOT EXISTS orders_customer ON orders(customer_id,created_at)",
   );

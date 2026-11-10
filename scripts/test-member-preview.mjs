@@ -40,31 +40,15 @@ try {
     await frame().locator('.footer-nav a[href="/urunler"]').count(),
     0,
   );
-  assert.equal(await frame().locator(".member-links a").count(), 1);
+  assert.equal(await frame().locator(".member-links a").count(), 0);
   assert.equal(
-    (await frame().locator(".member-links a").textContent()).trim(),
-    "Hesabım",
+    await page
+      .locator(
+        '#site-page option[value="login"],#site-page option[value="signup"],#site-page option[value="account"]',
+      )
+      .count(),
+    0,
   );
-  const typography = await frame()
-    .locator(".site-header")
-    .evaluate((header) => {
-      const keys = [
-        "fontFamily",
-        "fontSize",
-        "fontWeight",
-        "letterSpacing",
-        "textTransform",
-      ];
-      return [
-        header.querySelector(".primary-nav a"),
-        header.querySelector(".member-links a"),
-      ].map((element) =>
-        Object.fromEntries(
-          keys.map((key) => [key, getComputedStyle(element)[key]]),
-        ),
-      );
-    });
-  assert.deepEqual(typography[0], typography[1]);
   const footer = await frame()
     .locator(".footer-nav")
     .locator("a")
@@ -86,11 +70,6 @@ try {
   );
   await page.locator("#site-inspect").uncheck();
   await frame()
-    .locator(".member-links")
-    .getByRole("link", { name: "Hesabım", exact: true })
-    .click();
-  await frame().locator(".member-form").waitFor();
-  await frame()
     .locator(".primary-nav")
     .getByRole("link", { name: "Blog", exact: true })
     .click();
@@ -102,21 +81,6 @@ try {
     .waitFor();
   await page.locator("#site-page").selectOption("checkout");
   await dismissCookies(frame());
-  await frame()
-    .getByRole("heading", { name: "Devam etmek için üye girişi yapın." })
-    .waitFor();
-  await frame()
-    .locator(".member-gate")
-    .getByRole("link", { name: "Üye girişi", exact: true })
-    .click();
-  await frame().locator(".member-form").waitFor();
-  assert.equal(
-    await frame().locator(".member-form input[name=email]").isDisabled(),
-    true,
-  );
-  await frame()
-    .getByRole("button", { name: "Örnek üye ile devam et", exact: true })
-    .click();
   await frame().locator(".checkout-form").waitFor();
   assert.equal(
     await frame().getByLabel("Ad soyad", { exact: true }).isDisabled(),
@@ -193,7 +157,7 @@ try {
   assert.deepEqual(errors, []);
   assert.deepEqual(calls, []);
   console.log(
-    "PASS: menu order, membership checkout gate, demo login without credentials, blog CMS publishing, configurable tracking URL, Turkish-only and mobile navigation.",
+    "PASS: menu order, guest checkout without account controls, blog CMS publishing, configurable tracking URL, Turkish-only and mobile navigation.",
   );
 } finally {
   await browser.close();

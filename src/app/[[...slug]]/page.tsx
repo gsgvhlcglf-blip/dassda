@@ -7,7 +7,6 @@ import { isLive } from "@/lib/database";
 import { Storefront } from "@/components/storefront";
 import { Admin } from "@/components/admin";
 import { getRole } from "@/lib/auth";
-import { getCustomer } from "@/lib/customer";
 import { notFound, redirect } from "next/navigation";
 import { resolveMotorcycleRange } from "@/lib/motorcycle-selection";
 export const dynamic = "force-dynamic";
@@ -89,9 +88,15 @@ export async function generateMetadata({ params, searchParams }: Props) {
         : slug[0] === "admin"
           ? "Yönetim"
           : "KUZMIN — Karbon. Karakter.",
-    robots: ["admin", "sepet", "odeme", "giris", "uye-ol", "hesabim"].includes(
-      slug[0],
-    )
+    robots: [
+      "admin",
+      "sepet",
+      "odeme",
+      "giris",
+      "uye-ol",
+      "hesabim",
+      "siparislerim",
+    ].includes(slug[0])
       ? { index: false, follow: false }
       : undefined,
   };
@@ -143,17 +148,11 @@ export default async function Page({ params, searchParams }: Props) {
     "giris",
     "uye-ol",
     "hesabim",
+    "siparislerim",
   ];
   if (slug.length && !valid.includes(slug[0])) notFound();
-  const customer = await getCustomer();
-  if (["odeme", "hesabim"].includes(slug[0]) && !customer)
-    redirect(
-      "/giris?next=" +
-        encodeURIComponent(
-          "/" + slug[0] + (lang === "tr" ? "" : "?lang=" + lang),
-        ) +
-        (lang === "tr" ? "" : "&lang=" + lang),
-    );
+  if (["giris", "uye-ol"].includes(slug[0])) redirect("/odeme");
+  if (slug[0] === "hesabim") redirect("/siparislerim");
   const catalog = await getCatalog();
   if (
     slug[0] === "blog" &&
@@ -195,7 +194,6 @@ export default async function Page({ params, searchParams }: Props) {
       path={"/" + slug.join("/")}
       lang={lang}
       live={isLive}
-      customer={customer}
       query={"?" + new URLSearchParams(await searchParams).toString()}
     />
   );

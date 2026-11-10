@@ -265,8 +265,9 @@ export function OrderDashboard({
           <section className="order-detail-card order-shipment">
             <h4>Kargo takip numarasını paylaş</h4>
             <p>
-              Takip numarası müşterinin Hesabım bölümünde görünür. Paylaşana
-              kadar sipariş “Sipariş hazırlanıyor” olarak görünür.
+              Takip numarası müşterinin bu tarayıcıdaki Siparişlerim sayfasında
+              görünür. Paylaşana kadar sipariş “Sipariş hazırlanıyor” olarak
+              görünür.
             </p>
             <div className="order-detail-grid">
               <label>

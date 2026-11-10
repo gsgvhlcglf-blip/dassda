@@ -1,6 +1,6 @@
 # Üyelik, Blog ve Kargo Takip
 
-Üst menü sırası: Ana Sayfa → Motosikletler → Parçanı ürettir → Hakkımızda → Blog → İletişim. Sağ üstte tek Hesabım bağlantısı bulunur: giriş yapılmamışsa giriş/kayıt ekranına, giriş yapılmışsa hesaba açılır. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur. Site ve müşteri önizlemesi şimdilik yalnızca Türkçedir; dil seçicisi kaldırılmıştır. Önceden kaydedilen çeviriler veri kaybı olmadan saklanır.
+Üst menü sırası: Ana Sayfa → Motosikletler → Parçanı ürettir → Hakkımızda → Blog → İletişim. Müşteri üyeliği kapalıdır; sağ üstte yalnızca sepet bulunur. Koleksiyon bağlantısı üst ve alt menüden kaldırılmıştır; katalog ürün ve alışveriş bağlantıları üzerinden kullanılabilir. Kargo Takip alt bilgide Kullanım Koşulları'nın hemen yanındadır. Mobil menü aynı sırayı korur. Site ve müşteri önizlemesi şimdilik yalnızca Türkçedir; dil seçicisi kaldırılmıştır. Önceden kaydedilen çeviriler veri kaybı olmadan saklanır.
 
 ## Blog yazısı eklemek
 
@@ -37,17 +37,23 @@ Tarayıcı panelinde Veri paneli → Taslak & yedek → Kargo takip ayarları; g
 
 Bu aşama kargo firmasına yönlendirmedir. Gönderi hareketlerini kendi sitemizde göstermek için seçilen firmanın resmi API hesabı/anahtarları, izinleri ve dokümantasyonu gerekir. Anahtarlar yalnızca sunucu ortamında tutulmalı; API istekleri sunucuda yapılmalı; siparişe ait bilgiler yalnızca ilgili üyeye veya yetkili yöneticilere gösterilmelidir. Sonraki entegrasyon siparişe firma/takip numarası atama, sunucuda durum sorgulama, destekleniyorsa webhook ve e-posta/SMS bildirimlerini kapsayabilir. Bunlar şu anda bağlı değildir; firma belli olunca gerçek API'ye göre geliştirilir.
 
-## Satın almadan önce üyelik
+## Üyeliksiz satın alma
 
-Katalog gezmek ve sepet hazırlamak serbesttir. Sipariş adımı için giriş gerekir. Anonim ziyaretçi girişe yönlendirilir, giriş/kayıt sonrası sepeti korunarak sipariş adımına döner. `/api/orders` oturum olmadan 401 döndürür. Supabase RPC de kimliği/e-postası doğrulanmış üyeyi zorunlu tutar. Siparişin sahibi ve e-postası sunucudan alınır; tarayıcının gönderdiği müşteri kimliği dikkate alınmaz. Hesabım yalnızca oturum sahibinin siparişlerini gösterir. Üyelik yönetici yetkisi vermez.
+Sepetten ödeme formuna doğrudan geçilir. Hesap açılmaz, şifre istenmez.
+`/giris` ve `/uye-ol` ödeme sayfasına yönlenir; müşteri kayıt/giriş API'si 410
+döndürür. Yönetici girişi ayrı ve korumalıdır. Eski müşteri/sipariş kayıtları
+silinmez. İndirmesiz önizleme gerçek müşteri bilgisi veya sipariş toplamaz.
 
-Kurulumsuz HTML önizlemede gerçek hesap, şifre veya sipariş saklanmaz. Giriş/kayıt alanları kapalıdır; “Örnek üye ile devam et” yalnızca bu sekmede demo üyelik durumunu açar. Gerçek sipariş gönderimi kapalı kalır.
+Sunucu ilk geçerli siparişte 256 bit rastgele HttpOnly/SameSite=Lax oturum
+çerezi oluşturur; veritabanında yalnızca SHA-256 özeti tutulur. Sipariş, ödeme
+ve kargo durumu bu oturuma göre ayrılır; e-posta veya sipariş numarası bir
+erişim anahtarı değildir. `/siparislerim` aynı tarayıcıdaki son 50 siparişi
+gösterir. Çerez 30 gün geçerlidir; silinirse destek için sipariş numarası gerekir.
 
 ## Gerçek uygulamanın kurulumu
 
-- Supabase SQL Editor'de önce `001_store.sql`, ardından `002_customer_membership.sql` çalıştırın. Mevcut projede yalnızca 002'yi ekleyin; eski siparişler korunur. 002 zorunludur: doğrudan anonim sipariş RPC erişimini de kapatır.
-- Supabase Authentication içinde Email sağlayıcısını ve e-posta doğrulamasını açın. Site URL'yi gerçek HTTPS alan adınıza ayarlayın, izin verilen yönlendirmelere `https://alan-adiniz/auth/callback` ekleyin. Sunucunun `NEXT_PUBLIC_SITE_URL` değeri aynı alan adı olmalıdır.
-- Gerçek e-posta gönderimi için Supabase SMTP ayarlarını ve üretim limitlerini tamamlayın. Harici servis bilgileri verilmediği için bu ortamda gerçek e-posta teslimatı doğrulanamaz.
-- `NEXT_PUBLIC_SUPABASE_URL` ve `NEXT_PUBLIC_SUPABASE_ANON_KEY` yapılandırılır. Service role anahtarı kullanılmaz. Yetkiler RLS ile korunur.
-- Yerel Next.js demosunda ayrı `customers` tablosu ve imzalı HttpOnly müşteri oturumu kullanılır; şifreler tuzlu scrypt özeti olarak tutulur. Yerel hesaplarda e-posta doğrulaması yoktur ve bu arayüzde belirtilir. Yerel demo kamuya açık üretimde etkinleştirilmez.
-- Mevcut ödeme adımı sipariş talebidir. Gerçek kart ödemesi için ayrıca ödeme sağlayıcısı kurulmalıdır. Şifre sıfırlama/self servis hesap silme akışı bu değişiklik kapsamında eklenmemiştir; üretim yayını öncesi müşteri hesap yönetimiyle birlikte tamamlanmalıdır.
+Supabase göçlerini 001–017 sırasıyla uygulayın. 017 misafir checkout işlevlerini
+yalnızca service_role erişimine açar; anonim tablo/RPC okuması açılmaz.
+SUPABASE_SERVICE_ROLE_KEY sadece sunucuda tutulur. Yerel SQLite ilişkisel demo
+otomatik göç eder. Gerçek tahsilat için ayrıca PayTR/iyzico ayarları gerekir.
+MySQL şeması hazırlanmıştır; canlı adaptör veya bağlantı bu aşamada kurulmaz.

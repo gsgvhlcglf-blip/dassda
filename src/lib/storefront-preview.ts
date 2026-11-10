@@ -8,6 +8,7 @@ const previewOnly = new Set([
   "/giris",
   "/uye-ol",
   "/hesabim",
+  "/siparislerim",
   "/iptal-iade-kosullari",
   "/mesafeli-satis-sozlesmesi",
   "/on-bilgilendirme-formu",
