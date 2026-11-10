@@ -2,6 +2,12 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { isLive, localDB } from "@/lib/database";
 import { privileged } from "./privileged";
+import {
+  defaultEmailDesign,
+  emailDesignSchema,
+  type EmailDesign,
+  type FrozenEmail,
+} from "@/lib/email-design";
 import { getRole } from "@/lib/auth";
 import type { NoticeJob, OrderNotice } from "@/lib/order-emails";
 
@@ -12,6 +18,73 @@ async function ready() {
 }
 async function admin() {
   if ((await getRole()) !== "admin") throw Error("FORBIDDEN");
+}
+export async function getEmailDesign() {
+  await ready();
+  if (isLive) {
+    const { data, error } = await privileged()
+      .from("order_email_design")
+      .select("revision,settings")
+      .eq("id", "site")
+      .single();
+    if (error) throw error;
+    return {
+      revision: Number(data.revision),
+      settings: emailDesignSchema.parse(data.settings),
+    };
+  }
+  const row = localDB()
+    .prepare("SELECT revision,settings FROM order_email_design WHERE id='site'")
+    .get()!;
+  return {
+    revision: Number(row.revision),
+    settings: emailDesignSchema.parse(JSON.parse(row.settings as string)),
+  };
+}
+export async function saveEmailDesign(expected: number, value: EmailDesign) {
+  await admin();
+  await ready();
+  const settings = emailDesignSchema.parse(value);
+  if (isLive) {
+    const { data, error } = await privileged().rpc("save_order_email_design", {
+      expected,
+      config: settings,
+    });
+    if (error) throw Error(error.message);
+    return {
+      revision: Number(data.revision),
+      settings: emailDesignSchema.parse(data.settings),
+    };
+  }
+  const row = localDB()
+    .prepare(
+      "UPDATE order_email_design SET settings=?,revision=revision+1 WHERE id='site' AND revision=? RETURNING revision",
+    )
+    .get(JSON.stringify(settings), expected);
+  if (!row) throw Error("EMAIL_DESIGN_CONFLICT");
+  return { revision: Number(row.revision), settings };
+}
+export async function freezeNotice(
+  id: string,
+  lease: string,
+  payload: FrozenEmail,
+): Promise<FrozenEmail> {
+  if (isLive) {
+    const { data, error } = await privileged().rpc("freeze_order_notice", {
+      notice_id: id,
+      lease,
+      payload,
+    });
+    if (error) throw error;
+    return data;
+  }
+  const row = localDB()
+    .prepare(
+      "UPDATE order_notifications SET email_payload=coalesce(email_payload,?) WHERE id=? AND lease_token=? AND status='sending' RETURNING email_payload",
+    )
+    .get(JSON.stringify(payload), id, lease);
+  if (!row) throw Error("NOTICE_LEASE_EXPIRED");
+  return JSON.parse(row.email_payload as string);
 }
 export async function listNotices(orderId: string): Promise<OrderNotice[]> {
   await admin();
@@ -84,7 +157,14 @@ export async function claimNotice(): Promise<NoticeJob | null> {
         .all(row.order_id as string),
     };
   }
-  return { ...row, order } as NoticeJob;
+  return {
+    ...row,
+    email_payload:
+      typeof row.email_payload === "string"
+        ? JSON.parse(row.email_payload)
+        : row.email_payload,
+    order,
+  } as NoticeJob;
 }
 export async function finishNotice(
   id: string,

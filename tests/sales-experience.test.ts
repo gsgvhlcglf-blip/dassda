@@ -109,7 +109,7 @@ test("purchase funnel includes direct product entries, ordered stages and no che
   );
 });
 
-test("transactional email is paid-only, plain text, retry-idempotent and uses only actual tracking links", async () => {
+test("transactional email is paid-only, escaped HTML/text, retry-idempotent and uses only actual tracking links", async () => {
   const job = {
     id: "confirmation-order",
     order_id: "order",
@@ -153,7 +153,8 @@ test("transactional email is paid-only, plain text, retry-idempotent and uses on
   const mail = orderEmail(job);
   assert(mail.text.includes("#1011261"));
   assert(mail.text.includes("Test product <script>"));
-  assert(!("html" in mail));
+  assert(mail.html.includes("Test product &lt;script&gt;"));
+  assert(!mail.html.includes("Test product <script>"));
   assert.throws(
     () => orderEmail({ ...job, order: { ...job.order, demo: true } }),
     /NOT_ELIGIBLE/,

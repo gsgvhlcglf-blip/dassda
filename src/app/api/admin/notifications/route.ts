@@ -20,7 +20,7 @@ export async function GET(req: Request) {
       await repository("notifications")
     ).listNotices(orderId);
     return NextResponse.json(
-      { ...notificationReadiness(), notices },
+      { ...(await notificationReadiness()), notices },
       { headers: { "Cache-Control": "private, no-store" } },
     );
   } catch {
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   if (!sameOrigin(req) || (await getRole()) !== "admin")
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
-  if (!notificationReadiness().ready)
+  if (!(await notificationReadiness()).ready)
     return NextResponse.json(
       { error: "E-posta servisi henüz bağlı değil." },
       { status: 409 },

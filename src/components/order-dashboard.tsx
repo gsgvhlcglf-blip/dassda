@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { OrderNotices } from "./order-notices";
+import { EmailDesigner } from "./email-designer";
+import { OrderInvoices } from "./order-invoices";
 import { money } from "@/lib/i18n";
 import { paymentStatusLabel } from "@/lib/payments/types";
 import {
@@ -16,6 +18,8 @@ export type OrdersTransport = {
   list: () => Promise<{ orders: ManagedOrder[]; demo: boolean }>;
   share: (id: string, input: ShipmentInput) => Promise<ManagedOrder>;
   sample?: () => Promise<void>;
+  emailDesign?: import("@/lib/email-design").EmailDesignSource;
+  invoices?: import("@/lib/email-design").InvoiceSource;
 };
 export const ordersHTTP: OrdersTransport = {
   async list() {
@@ -47,6 +51,8 @@ export function OrderDashboard({
   const [selected, setSelected] = useState(""),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("");
+  const [designing, setDesigning] = useState(false);
+  const [noticeRevision, setNoticeRevision] = useState(0);
   const [number, setNumber] = useState(""),
     [carrier, setCarrier] = useState(""),
     [busy, setBusy] = useState(false),
@@ -106,7 +112,7 @@ export function OrderDashboard({
         rows.map((row) => (row.id === updated.id ? updated : row)),
       );
       setFeedback(
-        "Kargo takip numarası paylaşıldı. Müşteri hesabındaki durum güncellendi.",
+        "Kargo takip numarası paylaşıldı. Sipariş durumu güncellendi.",
       );
     } catch (error) {
       setFeedback(
@@ -133,9 +139,27 @@ export function OrderDashboard({
     !!order &&
     (order.status === "cancelled" ||
       (!!order.payment_provider && order.payment_status !== "paid"));
+  if (designing)
+    return (
+      <div className="orders-dashboard">
+        <EmailDesigner
+          source={transport.emailDesign}
+          invoiceSource={transport.invoices}
+          order={order}
+          onClose={() => setDesigning(false)}
+        />
+      </div>
+    );
   return (
     <section className="orders-dashboard">
       <div className="orders-toolbar">
+        <button
+          type="button"
+          className="button secondary"
+          onClick={() => setDesigning(true)}
+        >
+          E-posta tasarımları
+        </button>
         <button
           type="button"
           className="button secondary"
@@ -263,8 +287,15 @@ export function OrderDashboard({
               </table>
             </div>
           </section>
+          <OrderInvoices
+            order={order}
+            source={transport.invoices}
+            onUploaded={() => setNoticeRevision((n) => n + 1)}
+          />
           <OrderNotices
-            key={order.id + ":" + order.fulfillment_version}
+            key={
+              order.id + ":" + order.fulfillment_version + ":" + noticeRevision
+            }
             orderId={order.id}
             sample={Boolean(transport.sample)}
           />

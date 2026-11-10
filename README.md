@@ -48,7 +48,7 @@ in `.env.example`. Neither Supabase nor Vercel is required for that future host.
 
 ## Membership, journal and shipment tracking
 
-The header includes Blog before Contact and a single My Account link. Collection is omitted from header/footer menus; Track Shipment appears in the footer alongside Terms. Browsing/cart are public; checkout, the order API and Supabase order RPC require a verified customer. Customers see only their own order history under My Account. Customer authentication is separate from staff authorization. Configure Supabase Email confirmation, Site URL, callback allowlist (`/auth/callback`) and production SMTP before using real accounts. The local demo uses hashed customer passwords and signed HttpOnly sessions without email verification; the install-free preview uses an explicit sample member without collecting credentials.
+The header includes Blog before Contact and no customer account/signup links. Checkout uses private guest sessions; signup/login are disabled. Track Shipment remains in the footer. Admin authentication is separate. Existing account/order records remain intact. See migration 017 and the owner guide.
 
 Blog articles use existing content rows with `blog-<slug>` keys. Both panels offer Blog yazısı ekle. Each post has an editable image banner with an overlaid title; cards wrap into asymmetric rows, give long headings more space and stack on mobile. Lists paginate after ten posts with shareable `?page=2` URLs and preserve the originating page when returning from an article. Covers use stable `blog:<content-id>` visual bindings, are shared by list/detail views, and survive design backup/publishing. Click the image in editing mode to upload a replacement; clicking the heading edits its text. No sample articles are inserted into the default catalog. `scripts/test-blog-banners.mjs` and its `--app` mode verify pagination, cover persistence/publishing and responsive headings. Shipment tracking is a configurable redirect to an official carrier URL, with optional `{tracking}` substitution; it shows an unconfigured state until a carrier is chosen. Configure it under the visual workspace's Taslak & yedek or the authenticated admin's Yapılandırma. No carrier API, shipment status feed or secret is invented. Read the [Turkish owner/setup guide](docs/UYELIK-BLOG-KARGO.md).
 
@@ -193,3 +193,13 @@ Transactional order/shipment notifications use a private durable outbox (019),
 provider idempotency and capped retries. Real email requires a verified sender
 and server-only configuration; see [email setup](docs/EPOSTA-BILDIRIMLERI.md).
 No real emails are sent from the HTML workspace or SQLite demo.
+
+Email design and invoices: Orders → E-posta tasarımları edits three responsive
+HTML/plain-text templates with immediate preview and explicit save. Confirmation
+always includes the reference, quantities, unit/line prices and VAT-inclusive gross
+total. A paid order accepts a private PDF invoice (4 MB), versions/deduplicates it
+and atomically queues an invoice_ready email with an attachment. Recipient and
+attachment ownership are server-enforced; actual sending still requires a verified
+sales sender and server-only email credentials. Browser previews accept synthetic
+invoices only. Supabase migration 020 / future MySQL migration 009 prepare the
+private settings, files and frozen retry payload. See the email setup guide.

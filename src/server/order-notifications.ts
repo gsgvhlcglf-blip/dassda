@@ -1,39 +1,92 @@
 import "server-only";
 import { repository } from "./persistence";
-import { deliverOrderEmail } from "@/lib/order-emails";
+import { deliverOrderEmail, orderEmail } from "@/lib/order-emails";
 import { dataProvider } from "./persistence/config";
 
-export function notificationReadiness() {
+export async function notificationReadiness() {
   const local = dataProvider(process.env) === "sqlite-demo";
+  const settings = local
+    ? null
+    : (await (await repository("notifications")).getEmailDesign()).settings;
+  const sender = settings?.senderEmail || process.env.ORDER_EMAIL_FROM || "";
+  const reply = settings?.replyTo || process.env.ORDER_EMAIL_REPLY_TO || "";
   const ready =
     !local &&
     process.env.EMAIL_PROVIDER === "resend" &&
     Boolean(process.env.RESEND_API_KEY) &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(process.env.ORDER_EMAIL_FROM || "") &&
-    (!process.env.ORDER_EMAIL_REPLY_TO ||
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(process.env.ORDER_EMAIL_REPLY_TO));
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sender) &&
+    (!reply || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reply));
   return {
     ready,
+    sender,
     note: local
       ? "Yerel demo ve tasarım önizlemesinden gerçek e-posta gönderilmez."
       : ready
-        ? "Sipariş ve kargo e-postaları etkin. Gönderildi durumu e-posta servisinin kabulünü belirtir."
-        : "E-posta servisi bağlı değil. Bildirimler kuyrukta korunur; gönderildi olarak gösterilmez.",
+        ? "Sipariş, kargo ve fatura e-postaları etkin. Gönderildi durumu e-posta servisinin kabulünü belirtir."
+        : "Gönderici veya e-posta servisi bağlı değil. Bildirimler kuyrukta korunur; gönderildi olarak gösterilmez.",
   };
 }
 export async function dispatchOrderNotices() {
-  if (!notificationReadiness().ready) return { sent: 0 };
+  if (!(await notificationReadiness()).ready) return { sent: 0 };
   const store = await repository("notifications");
+  const design = (await store.getEmailDesign()).settings;
   let sent = 0;
   for (let i = 0; i < 5; i++) {
     const job = await store.claimNotice();
     if (!job) break;
     try {
-      const providerId = await deliverOrderEmail(job, {
-        key: process.env.RESEND_API_KEY!,
-        from: process.env.ORDER_EMAIL_FROM!,
-        replyTo: process.env.ORDER_EMAIL_REPLY_TO,
-      });
+      const attachment =
+        job.kind === "invoice_ready"
+          ? await (
+              await repository("invoices")
+            ).invoiceForEmail(job.order_id, job.version)
+          : null;
+      const rendered = orderEmail(job, design, attachment?.invoice);
+      const frozen = await store.freezeNotice(
+        job.id,
+        job.lease_token,
+        job.email_payload || {
+          ...rendered,
+          from: design.senderEmail || process.env.ORDER_EMAIL_FROM!,
+          replyTo:
+            design.replyTo || process.env.ORDER_EMAIL_REPLY_TO || undefined,
+          ...(attachment
+            ? {
+                invoice: {
+                  id: attachment.invoice.id,
+                  sha256: attachment.invoice.sha256,
+                  fileName: attachment.invoice.file_name,
+                },
+              }
+            : {}),
+        },
+      );
+      if (
+        attachment &&
+        (frozen.invoice?.id !== attachment.invoice.id ||
+          frozen.invoice.sha256 !== attachment.invoice.sha256)
+      )
+        throw Error("INVOICE_INTEGRITY_FAILED");
+      const providerId = await deliverOrderEmail(
+        job,
+        {
+          key: process.env.RESEND_API_KEY!,
+          from: frozen.from,
+          replyTo: frozen.replyTo,
+        },
+        fetch,
+        {
+          mail: frozen,
+          ...(attachment
+            ? {
+                attachment: {
+                  filename: frozen.invoice!.fileName,
+                  content: attachment.bytes.toString("base64"),
+                },
+              }
+            : {}),
+        },
+      );
       await store.finishNotice(job.id, job.lease_token, providerId, null);
       sent++;
     } catch (error) {

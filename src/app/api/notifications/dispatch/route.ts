@@ -9,7 +9,7 @@ export async function GET(req: Request) {
     return Response.json({ error: "NOT_CONFIGURED" }, { status: 503 });
   if (!equal(req.headers.get("authorization") || "", "Bearer " + secret))
     return Response.json({ error: "FORBIDDEN" }, { status: 403 });
-  if (!notificationReadiness().ready)
+  if (!(await notificationReadiness()).ready)
     return Response.json({ error: "EMAIL_NOT_CONFIGURED" }, { status: 503 });
   try {
     return Response.json(await dispatchOrderNotices(), {

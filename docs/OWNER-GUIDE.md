@@ -266,3 +266,25 @@ E-posta servisi bağlanana kadar gönderildi denmez. Yerel demo ve indirmesiz pa
 gerçek e-posta göndermez. Ödemesi sağlayıcı tarafından doğrulanmış gerçek siparişin
 özeti ve kargo numarası yayımlandığında takip bilgisi otomatik kuyruğa girer.
 Kurulum: [E-posta bildirimleri](EPOSTA-BILDIRIMLERI.md).
+
+## E-posta tasarımları ve faturalar
+
+**Veri paneli → Siparişler → E-posta tasarımları** bölümünde üç şablon vardır:
+sipariş onayı, kargo bildirimi ve fatura e-postası. Başlıkları/metinleri, marka
+yazısını, vurgu rengini ve satış/yanıt adresini değiştirebilirsiniz. Önizleme
+anında güncellenir; **Tasarımları kaydet** ile saklanır. Mobil e-posta düğmesi
+telefon görünümünü gösterir. Sipariş seçiliyken onun bilgileri kullanılır.
+
+Ödeme onayı, sağlayıcı ödemenin başarılı olduğunu doğrulayınca gönderilir.
+Sipariş numarası, ürünler, adet, birim/satır fiyatları ve KDV dahil brüt toplam
+otomatik eklenir. Kargo numarası paylaşıldığında ayrı kargo e-postası gönderilir.
+
+**Sipariş numarası → Fatura → PDF fatura yükle** ile hazırladığınız faturayı
+ekleyin (en fazla 4 MB). PDF ilgili müşteriye ayrı bir fatura e-postasında ek
+olarak otomatik iletilir. Aynı PDF iki kez gönderilmez; düzeltilmiş dosyaların
+sürümleri korunur. Bildirim durumu aynı sayfadan izlenir.
+
+İndirmesiz panelde gerçek fatura yüklenmez; **Örnek fatura ile dene** kullanılır.
+Gerçek gönderim için satış adresi, doğrulanmış gönderici alan adı ve sunucuda
+e-posta servisi yetkisi gereklidir. Faturayı siz hazırlarsınız; bu ekran yasal
+fatura/e-fatura düzenleyen bir muhasebe sistemi değildir.

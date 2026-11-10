@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { emailKindLabels } from "@/lib/email-design";
 import type { OrderNotice } from "@/lib/order-emails";
 export function OrderNotices({
   orderId,
@@ -64,12 +65,13 @@ export function OrderNotices({
       <h4>E-posta bildirimleri</h4>
       <p>
         {sample
-          ? "Tasarım önizlemesinden gerçek e-posta gönderilmez. Sipariş onayı ve kargo e-postaları canlı servis bağlandığında çalışır."
+          ? "Tasarım önizlemesinden gerçek e-posta gönderilmez. Sipariş, kargo ve fatura e-postaları canlı servis bağlandığında çalışır."
           : data?.note || "Bildirim durumu yükleniyor…"}
       </p>
       {data?.notices.map((n) => (
         <p key={n.id}>
-          {n.kind === "order_confirmed" ? "Sipariş onayı" : "Kargo bilgisi"} ·{" "}
+          {emailKindLabels[n.kind]}
+          {n.kind === "invoice_ready" ? ` · Sürüm ${n.version}` : ""} ·{" "}
           {
             {
               pending: "Kuyrukta",

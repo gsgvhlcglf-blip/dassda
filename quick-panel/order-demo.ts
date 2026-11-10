@@ -1,3 +1,6 @@
+import { exampleInvoicePDF } from "../src/lib/invoices";
+import type { InvoiceMeta } from "../src/lib/email-design";
+import { defaultEmailDesign, emailDesignSchema } from "../src/lib/email-design";
 import type { Catalog } from "../src/lib/types";
 import { salePrice } from "../src/lib/product-commerce";
 import { orderPreviewKey, readOrderPreview } from "../src/lib/order-preview";
@@ -19,7 +22,75 @@ export function orderDemo(catalog: Catalog): OrdersTransport {
     localStorage.setItem(orderPreviewKey, JSON.stringify(records));
     window.dispatchEvent(new Event("kz-orders-demo-changed"));
   };
+  const emailKey = "kuzmin.workspace.gsgvhlcglf-blip.dassda.v1.email-design.v1";
+  const emailLoad = async () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(emailKey) || "null");
+      if (saved)
+        return {
+          revision: Number(saved.revision) || 0,
+          settings: emailDesignSchema.parse(saved.settings),
+          sample: true,
+        };
+    } catch {
+      /* Keep previous valid owner drafts intact. */
+    }
+    return {
+      revision: 0,
+      settings: structuredClone(defaultEmailDesign),
+      sample: true,
+    };
+  };
   return {
+    invoices: {
+      async list(orderId) {
+        const order = readOrderPreview().find((o) => o.id === orderId);
+        return (
+          Array.isArray(order?.demo_invoices) ? order.demo_invoices : []
+        ) as InvoiceMeta[];
+      },
+      async sample(orderId) {
+        const orders = readOrderPreview(),
+          order = orders.find((o) => o.id === orderId);
+        if (!order) throw Error("Örnek sipariş bulunamadı.");
+        const previous = (
+          Array.isArray(order.demo_invoices) ? order.demo_invoices : []
+        ) as InvoiceMeta[];
+        const invoice: InvoiceMeta = {
+          id: crypto.randomUUID(),
+          order_id: orderId,
+          version: (previous[0]?.version || 0) + 1,
+          file_name: "ORNEK-FATURA-GECERSIZ.pdf",
+          size: exampleInvoicePDF().length,
+          sha256: "0".repeat(64),
+          created_at: new Date().toISOString(),
+          demo: true,
+        };
+        order.demo_invoices = [invoice, ...previous];
+        save(orders);
+        return invoice;
+      },
+      async download() {
+        return new Blob([exampleInvoicePDF() as Uint8Array<ArrayBuffer>], {
+          type: "application/pdf",
+        });
+      },
+    },
+    emailDesign: {
+      load: emailLoad,
+      async save(expected, settings) {
+        const current = await emailLoad();
+        if (current.revision !== expected)
+          throw Error("E-posta taslağı başka sekmede değişti. Yenileyin.");
+        const result = {
+          revision: expected + 1,
+          settings: emailDesignSchema.parse(settings),
+          sample: true,
+        };
+        localStorage.setItem(emailKey, JSON.stringify(result));
+        return result;
+      },
+    },
     async list() {
       return { orders: readOrderPreview(), demo: true };
     },

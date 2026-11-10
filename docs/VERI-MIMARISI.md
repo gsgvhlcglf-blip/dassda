@@ -143,3 +143,19 @@ orders.guestOrders sadece o özetin sınırlı sipariş/kargo durumlarını dön
 veritabanına veya önizleme deposuna yazılmaz. Eski müşteri kayıtları ve RLS
 korunur; kayıt/giriş HTTP uçları kapalıdır. MySQL 006 göçü nullable customer_id
 ve guest_key indeksini hazırlar; adaptörün aynı kontrolleri uygulaması gerekir.
+
+## E-posta tasarımları ve fatura sınırı
+
+notifications portu özel şablon ayarlarını, revision kontrolünü ve ilk gönderimde
+sabitlenen alıcı/gönderici/HTML/metin ek tanımını tutar. invoices portu siparişe
+ait özel PDF metadata/yükleme/indirme işlemlerini yönetir. Ekranlar SQL veya
+Storage anahtarı almaz. Gerçek PDF verisi katalogdan ve tarayıcı taslaklarından
+ayrıdır; Supabase özel bucket veya yerel sunucudaki .data/invoices kullanılır.
+
+PDF kaydı ve invoice_ready bildirimi aynı veritabanı transaction'ında yazılır.
+Sipariş sahipliği, ödeme onayı, beklenen sürüm, SHA-256 tekrar kontrolü ve özel
+dosya bütünlüğü sunucuda doğrulanır. Belirsiz commit yanıtında bağlı dosya
+silinmez; aynı PDF ile tekrar gönderim mevcut kaydı bulur. Şablon ayarları
+katalog geri yüklemesiyle değişmez. MySQL 009 göçü hazırlanmıştır; canlı adaptör
+ve bağlantı henüz yoktur. İndirmesiz çalışma alanı yalnızca e-posta tasarımı ve
+açıkça örnek bir PDF akışını saklar; müşteri faturası yükleme kabul etmez.

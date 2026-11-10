@@ -1,10 +1,15 @@
+import {
+  renderOrderEmail,
+  defaultEmailDesign,
+  type EmailDesign,
+  type FrozenEmail,
+  type EmailMessage,
+} from "./email-design";
 import type { ManagedOrder } from "./order-management";
-import { safeShipmentURL } from "./order-management";
-import { money } from "./i18n";
 export type OrderNotice = {
   id: string;
   order_id: string;
-  kind: "order_confirmed" | "shipment_shared";
+  kind: "order_confirmed" | "shipment_shared" | "invoice_ready";
   version: number;
   status: "pending" | "sending" | "sent" | "failed" | "review";
   attempts: number;
@@ -16,58 +21,29 @@ export type OrderNotice = {
 export type NoticeJob = OrderNotice & {
   lease_token: string;
   order: ManagedOrder;
+  email_payload?: FrozenEmail | null;
 };
-export function orderEmail(job: NoticeJob) {
+export function orderEmail(
+  job: NoticeJob,
+  design: EmailDesign = defaultEmailDesign,
+  invoice?: { file_name: string; version: number },
+): EmailMessage {
   const o = job.order;
-  if (o.demo || o.payment_status !== "paid") throw Error("NOTICE_NOT_ELIGIBLE");
-  const title =
-    job.kind === "order_confirmed"
-      ? "Siparişiniz alındı"
-      : "Siparişiniz kargoya verildi";
-  const lines = [
-    `Merhaba ${o.customer_name},`,
-    "",
-    `${title}. Sipariş numaranız: ${o.reference}`,
-    "",
-  ];
-  if (job.kind === "shipment_shared") {
-    if (
-      !o.tracking_number ||
+  if (o.demo || o.payment_status !== "paid" || o.status === "cancelled")
+    throw Error("NOTICE_NOT_ELIGIBLE");
+  if (
+    job.kind === "shipment_shared" &&
+    (!o.tracking_number ||
       !o.shipped_at ||
-      Number(o.fulfillment_version) !== job.version
-    )
-      throw Error("NOTICE_SUPERSEDED");
-    lines.push(
-      `Kargo firması: ${o.shipping_carrier || "Sipariş destek ekibinden öğrenebilirsiniz."}`,
-      `Takip numarası: ${o.tracking_number}`,
-    );
-    const url = safeShipmentURL(o.tracking_url);
-    if (url) lines.push(`Kargo takibi: ${url}`);
-  } else {
-    for (const item of o.items)
-      lines.push(
-        `${item.title} · ${item.sku} · ${item.quantity} adet · ${money(item.unit_price * item.quantity, "tr", o.currency)}`,
-      );
-    lines.push(
-      "",
-      `Toplam: ${money(o.total, "tr", o.currency)}`,
-      "Ücretsiz kargo · KDV dahil.",
-      "Özel üretim ürünler 7–15 iş gününde kargoya verilir.",
-      "",
-      "Teslimat adresi:",
-      o.address,
-    );
-  }
-  lines.push(
-    "",
-    "Sipariş numaranızı saklayın. Destek talebinizde bu numarayı belirtin.",
-    "KUZMIN",
-  );
-  return {
-    to: o.email,
-    subject: `${title} · ${o.reference}`,
-    text: lines.join("\n"),
-  };
+      Number(o.fulfillment_version) !== job.version)
+  )
+    throw Error("NOTICE_SUPERSEDED");
+  if (
+    job.kind === "invoice_ready" &&
+    (!invoice || invoice.version !== job.version)
+  )
+    throw Error("INVOICE_NOT_FOUND");
+  return renderOrderEmail(job.kind, o, design, invoice);
 }
 
 /** Provider acceptance is recorded as sent; it is not proof of inbox delivery. */
@@ -75,8 +51,13 @@ export async function deliverOrderEmail(
   job: NoticeJob,
   config: { key: string; from: string; replyTo?: string },
   transport: typeof fetch = fetch,
+  options?: {
+    mail?: FrozenEmail;
+    attachment?: { filename: string; content: string };
+  },
 ) {
-  const mail = orderEmail(job);
+  const mail = options?.mail || orderEmail(job);
+  const replyTo = options?.mail ? options.mail.replyTo : config.replyTo;
   const response = await transport("https://api.resend.com/emails", {
     method: "POST",
     signal: AbortSignal.timeout(10000),
@@ -86,11 +67,13 @@ export async function deliverOrderEmail(
       "Idempotency-Key": `kuzmin-${job.id}`,
     },
     body: JSON.stringify({
-      from: config.from,
+      from: options?.mail?.from || config.from,
       to: [mail.to],
       subject: mail.subject,
       text: mail.text,
-      ...(config.replyTo ? { reply_to: config.replyTo } : {}),
+      html: mail.html,
+      ...(options?.attachment ? { attachments: [options.attachment] } : {}),
+      ...(replyTo ? { reply_to: replyTo } : {}),
     }),
   });
   if (!response.ok)

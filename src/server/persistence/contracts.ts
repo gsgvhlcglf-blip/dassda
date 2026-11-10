@@ -55,6 +55,16 @@ export type InventoryChange = {
 /** Data access ports. No SQL dialect, SDK, browser storage or HTTP response types. */
 export interface Repositories {
   notifications: {
+    getEmailDesign(): Promise<import("@/lib/email-design").EmailDesignRecord>;
+    saveEmailDesign(
+      expected: number,
+      settings: import("@/lib/email-design").EmailDesign,
+    ): Promise<import("@/lib/email-design").EmailDesignRecord>;
+    freezeNotice(
+      id: string,
+      lease: string,
+      payload: import("@/lib/email-design").FrozenEmail,
+    ): Promise<import("@/lib/email-design").FrozenEmail>;
     listNotices(
       orderId: string,
     ): Promise<import("@/lib/order-emails").OrderNotice[]>;
@@ -66,6 +76,29 @@ export interface Repositories {
       error: string | null,
     ): Promise<void>;
     retryNotices(orderId: string): Promise<void>;
+  };
+  invoices: {
+    listInvoices(
+      orderId: string,
+    ): Promise<import("@/lib/email-design").InvoiceMeta[]>;
+    uploadInvoice(
+      orderId: string,
+      input: import("@/lib/email-design").InvoiceUpload,
+    ): Promise<import("@/lib/email-design").InvoiceMeta>;
+    readInvoice(
+      orderId: string,
+      invoiceId: string,
+    ): Promise<{
+      invoice: import("@/lib/email-design").InvoiceMeta;
+      bytes: Buffer;
+    }>;
+    invoiceForEmail(
+      orderId: string,
+      version: number,
+    ): Promise<{
+      invoice: import("@/lib/email-design").InvoiceMeta;
+      bytes: Buffer;
+    }>;
   };
   catalog: { getRows(table: Table): Promise<Row[]> };
   workspace: {
