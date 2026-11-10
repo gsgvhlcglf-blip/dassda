@@ -14,6 +14,7 @@ import {
   type ShipmentInput,
 } from "@/lib/order-management";
 import { trackingConfiguration, trackingLink } from "@/lib/tracking";
+import { orderReferenceDay, formatOrderReference } from "@/lib/order-reference";
 
 async function requireAdmin() {
   if ((await getRole()) !== "admin") throw Error("Yönetici yetkisi gerekli.");
@@ -124,12 +125,22 @@ export async function createOrder(
     if (error) throw Error(error.message);
     return data as { reference: string; demo: boolean; total: number };
   }
+  const catalog = await getCatalog();
   const db = localDB();
   db.exec("BEGIN IMMEDIATE");
   try {
-    const q = quote(await getCatalog(), input.lines),
+    const q = quote(catalog, input.lines),
       id = randomUUID(),
-      reference = `KZ-${randomUUID().slice(0, 8).toUpperCase()}`;
+      createdAt = new Date();
+    const counter = db
+      .prepare(
+        "INSERT INTO order_daily_counters(day,last_number) VALUES(?,1) ON CONFLICT(day) DO UPDATE SET last_number=last_number+1 RETURNING last_number",
+      )
+      .get(orderReferenceDay(createdAt).day) as { last_number: number };
+    const reference = formatOrderReference(
+      Number(counter.last_number),
+      createdAt,
+    );
     insertLocal("orders", {
       id,
       reference,
@@ -143,7 +154,7 @@ export async function createOrder(
       total: q.total,
       currency: "TRY",
       demo: true,
-      created_at: new Date().toISOString(),
+      created_at: createdAt.toISOString(),
     });
     for (const line of q.items)
       insertLocal("order_items", {

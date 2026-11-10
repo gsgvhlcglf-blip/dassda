@@ -125,7 +125,9 @@ try {
   await page
     .getByRole("button", { name: "Örnek sipariş ekle", exact: true })
     .click();
-  await page.getByRole("button", { name: "DEMO-KZ-0001", exact: true }).click();
+  const demoReference = await page.locator(".order-open").first().innerText();
+  assert.match(demoReference, /^#[0-9]{6}1$/);
+  await page.getByRole("button", { name: demoReference, exact: true }).click();
   await expect(page.locator(".order-detail-heading")).toContainText(
     "Sipariş hazırlanıyor",
   );
@@ -158,7 +160,7 @@ try {
     .locator(".nav")
     .getByRole("button", { name: "Siparişler", exact: true })
     .click();
-  await page.getByRole("button", { name: "DEMO-KZ-0001", exact: true }).click();
+  await page.getByRole("button", { name: demoReference, exact: true }).click();
   await expect(page.getByLabel("Sipariş kargo takip numarası")).toHaveValue(
     "DEMO-TRACK-123",
   );
@@ -218,6 +220,18 @@ try {
   });
   assert.equal(createdResponse.status(), 201);
   const created = await createdResponse.json();
+  assert.match(created.reference, /^#[0-9]{6}1$/);
+  const paymentStart = await member.request.post(
+    origin + "/api/payments/start",
+    {
+      data: {
+        expectedProvider: "iyzico",
+        expectedMode: "test",
+        reference: created.reference,
+      },
+    },
+  );
+  assert.equal(paymentStart.status(), 503);
   let response = await admin.request.get(origin + "/api/admin/orders");
   assert(response.headers()["cache-control"].includes("no-store"));
   let order = (await response.json()).orders.find(
@@ -355,6 +369,19 @@ try {
   } finally {
     db.close();
   }
+  const simultaneous = await Promise.all(
+    Array.from({ length: 3 }, () =>
+      member.request.post(origin + "/api/orders", { data: input }),
+    ),
+  );
+  for (const response of simultaneous)
+    assert.equal(response.status(), 201, await response.text());
+  const references = await Promise.all(
+    simultaneous.map(async (response) => (await response.json()).reference),
+  );
+  assert.equal(new Set(references).size, 3);
+  for (const reference of references)
+    assert.match(reference, /^#[0-9]{6}[1-9][0-9]*$/);
   await adminPage.reload();
   await adminPage
     .getByRole("button", { name: "Siparişler", exact: true })

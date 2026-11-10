@@ -35,7 +35,9 @@ export async function POST(req: Request) {
       .object({
         expectedProvider: z.enum(["paytr", "iyzico"]),
         expectedMode: z.enum(["test", "live"]),
-        reference: z.string().regex(/^KZ-?[a-zA-Z0-9-]{4,64}$/),
+        reference: z
+          .string()
+          .regex(/^(?:KZ-?[a-zA-Z0-9-]{4,64}|#[0-9]{6}[1-9][0-9]{0,15})$/),
         city: z.string().trim().min(2).max(100).optional(),
         country: z.string().trim().min(2).max(100).optional(),
         identity: z

@@ -22,3 +22,5 @@ model-yıl satırları kaydetme/yayınlama sırasında kalıcılaşır. Ürün u
 yeni yıllara otomatik genişletilmez.
 
 `004_order_tracking.sql` siparişe kargo numarası, firma, takip bağlantısı, paylaşım tarihi ve sürüm sayacı ekler. İlerideki adaptör güncellemeyi yetki/ödeme/sürüm kontrolüyle tek işlemde yapmalıdır.
+
+`005_daily_order_references.sql` günlük sipariş sayacı tablosunu hazırlar. Adaptör, Türkiye tarihini kullanıp sayacı siparişle aynı işlemde artırmalıdır; eski siparişler geçiş sayacına dahil edilir ve numaraları korunur.

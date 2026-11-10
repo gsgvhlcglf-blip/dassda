@@ -209,3 +209,20 @@ görür. Yerel SQLite demo sütunları otomatik eklenir; Supabase için
 `015_order_tracking.sql` gerekir. Gelecekteki Hostinger/MySQL için
 `database/mysql/004_order_tracking.sql` hazırlanmıştır; canlı MySQL bağlantısı
 bu çalışmada kurulmamıştır.
+
+## Günlük sipariş numarası
+
+Yeni siparişler **#GGAAYYSIRA** biçiminde numaralanır. Örneğin 10 Kasım 2026 günü
+ilk sipariş **#1011261**, ikincisi **#1011262**, onuncusu **#10112610** olur.
+Türkiye saatine göre gün değiştiğinde sıra yeniden 1'den başlar. Numara sipariş
+oluştuğunda atanır; ödeme sonucu veya iptal numarayı değiştirmez ve sıra geri alınmaz.
+Mevcut sipariş numaraları korunur. Geçiş gününde önceden oluşmuş siparişler de günlük
+sıraya dahil edilir. Bu sıra ödeme alındığını göstermez; ödeme durumu ayrı doğrulanır.
+
+Gerçek sayaç, sipariş ve kalemlerle aynı veritabanı işleminde ilerler. Eşzamanlı
+siparişler farklı numara alır. Tarayıcı panelindeki numaralar yalnızca işaretlenmiş
+örnek siparişleri gösterir; kalıcı işletme sayacı değildir. Ödeme sağlayıcısının
+teknik işlem referansı ayrı kalır. Supabase kurulumu için
+`016_daily_order_references.sql`, gelecekteki MySQL için
+`database/mysql/005_daily_order_references.sql` dosyası hazırlanmıştır; bu çalışma
+canlı bağlantı veya uzaktan göç çalıştırma işlemi yapmaz.

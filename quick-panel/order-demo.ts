@@ -2,6 +2,11 @@ import type { Catalog } from "../src/lib/types";
 import { salePrice } from "../src/lib/product-commerce";
 import { orderPreviewKey, readOrderPreview } from "../src/lib/order-preview";
 import {
+  dailyOrderCounters,
+  formatOrderReference,
+  orderReferenceDay,
+} from "../src/lib/order-reference";
+import {
   shipmentSchema,
   assertShippable,
   type ManagedOrder,
@@ -36,9 +41,13 @@ export function orderDemo(catalog: Catalog): OrdersTransport {
         quantity: 1,
         unit_price: salePrice(product),
       }));
+      const createdAt = new Date();
+      const sequence =
+        (dailyOrderCounters(orders).get(orderReferenceDay(createdAt).day) ||
+          0) + 1;
       orders.unshift({
         id,
-        reference: "DEMO-KZ-" + String(orders.length + 1).padStart(4, "0"),
+        reference: formatOrderReference(sequence, createdAt),
         customer_name: "Örnek müşteri",
         customer_id: "preview-member",
         email: "ornek@example.test",
@@ -52,7 +61,7 @@ export function orderDemo(catalog: Catalog): OrdersTransport {
         ),
         currency: "TRY",
         demo: true,
-        created_at: new Date().toISOString(),
+        created_at: createdAt.toISOString(),
         payment_status: "request_only",
         payment_provider: null,
         fulfillment_version: 0,

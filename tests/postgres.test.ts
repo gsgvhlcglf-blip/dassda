@@ -98,6 +98,9 @@ test("PostgreSQL migration, demo seed, RLS roles and authoritative order RPC", a
   await db.exec(
     readFileSync("supabase/migrations/002_customer_membership.sql", "utf8"),
   );
+  await db.exec(
+    readFileSync("supabase/migrations/016_daily_order_references.sql", "utf8"),
+  );
   await db.exec("set role anon;set request.jwt.claim.sub='';");
   await assert.rejects(
     db.query("select public.create_order_request($1::jsonb)", [
@@ -150,6 +153,6 @@ test("PostgreSQL migration, demo seed, RLS roles and authoritative order RPC", a
     (await db.query("select * from public.order_items")).rows.length,
     0,
   );
-  assert.match(own.rows[0].result.reference, /^KZ-/);
+  assert.match(own.rows[0].result.reference, /^#[0-9]{6}[1-9][0-9]*$/);
   await db.close();
 });

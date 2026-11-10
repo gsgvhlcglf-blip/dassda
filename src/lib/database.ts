@@ -11,6 +11,7 @@ import {
 } from "./legal-content";
 import { tableNames, type Table, type Row, type Catalog } from "./types";
 import { dataProvider, localDemoAllowed } from "../server/persistence/config";
+import { dailyOrderCounters } from "./order-reference";
 export const isLive = dataProvider(process.env) === "supabase";
 export const isDemo = dataProvider(process.env) === "sqlite-demo";
 export const localEnabled = localDemoAllowed(process.env);
@@ -136,6 +137,39 @@ export function localDB() {
   db.exec(
     "CREATE INDEX IF NOT EXISTS orders_customer ON orders(customer_id,created_at)",
   );
+  if (
+    !db
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='order_daily_counters'",
+      )
+      .get()
+  ) {
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      if (
+        !db
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='order_daily_counters'",
+          )
+          .get()
+      ) {
+        db.exec(
+          "CREATE TABLE order_daily_counters(day TEXT PRIMARY KEY,last_number INTEGER NOT NULL CHECK(last_number BETWEEN 1 AND 9007199254740991))",
+        );
+        const rows = db
+          .prepare("SELECT reference,created_at FROM orders")
+          .all() as { reference: string; created_at: string }[];
+        for (const [day, number] of dailyOrderCounters(rows))
+          db.prepare(
+            "INSERT INTO order_daily_counters(day,last_number) VALUES(?,?)",
+          ).run(day, number);
+      }
+      db.exec("COMMIT");
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+  }
   if (
     !(db.prepare("SELECT count(*) as n FROM brands").get() as { n: number }).n
   ) {
