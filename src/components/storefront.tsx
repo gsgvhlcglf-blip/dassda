@@ -11,11 +11,15 @@ import {
   variantAvailable,
   maxLineQuantity,
 } from "@/lib/product-commerce";
+import { selectedFitment } from "@/lib/selected-fitment";
+import { photoRoles, defaultPhotoFrame } from "@/lib/photography";
 import { HeroVideo } from "./hero-video";
 import { GuestOrders } from "./guest-orders";
 import { useHostedPayment, HostedPayment } from "./hosted-payment";
 import { ProductPhoto, PhotoCaption } from "./product-photo";
 import {
+  useContext,
+  useRef,
   useEffect,
   useMemo,
   useState,
@@ -43,6 +47,7 @@ import type { Catalog, Product, CartLine, Lang } from "@/lib/types";
 import { publicCatalog } from "@/lib/catalog-visibility";
 import { money, type MessageKey } from "@/lib/i18n";
 import {
+  VisualContext,
   useVisualTranslate,
   useVisualImage,
   useVisualCopy,
@@ -585,6 +590,7 @@ export function Storefront({
         lang={lang}
         href={href}
         add={add}
+        savedBike={savedBike}
         requestContext={Object.fromEntries(
           new URLSearchParams(previewQuery || "").entries(),
         )}
@@ -1193,6 +1199,165 @@ function ProductListing({
     </>
   );
 }
+function ProductGallery({
+  images,
+  product,
+  lang,
+}: {
+  images: Catalog["product_images"];
+  product: Product;
+  lang: Lang;
+}) {
+  const [index, setIndex] = useState(0),
+    [zoom, setZoom] = useState(1);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const design = useContext(VisualContext),
+    text = useSiteText();
+  useEffect(() => {
+    setIndex((i) => Math.min(i, Math.max(0, images.length - 1)));
+  }, [images.length]);
+  const current = images[index],
+    imageKey = current ? `image:${current.id}` : `product:${product.id}`;
+  const role = (id: string) =>
+    design.photoFrames?.[`image:${id}`]?.role || defaultPhotoFrame.role;
+  const close = () => dialog.current?.close();
+  return (
+    <div className="product-gallery">
+      <ProductPhoto className="detail-main-image" imageKey={imageKey}>
+        <Art
+          src={current?.url || "/images/part-0.svg"}
+          alt={current?.alt[lang] || product.title[lang]}
+          visualId={imageKey}
+        />
+        <span className="product-label">
+          {product.demo ? "DEMO" : product.sku}
+        </span>
+        <button
+          className="gallery-expand"
+          aria-label={text("copy.product.expand")}
+          onClick={() => {
+            setZoom(1);
+            dialog.current?.showModal();
+          }}
+        >
+          <Search size={17} />
+          <VisualText textKey="slot:copy.product.expand" />
+        </button>
+      </ProductPhoto>
+      {images.length > 0 && (
+        <div className="thumbnails" aria-label={text("copy.product.photos")}>
+          {images.map((img, i) => (
+            <button
+              key={img.id}
+              aria-label={`${img.alt[lang] || product.title[lang]} ${i + 1} · ${photoRoles[role(img.id)]}`}
+              aria-pressed={index === i}
+              className={index === i ? "selected" : ""}
+              onClick={() => setIndex(i)}
+            >
+              <ProductPhoto
+                className="thumbnail-photo"
+                imageKey={`image:${img.id}`}
+              >
+                <Art
+                  src={img.url}
+                  alt={img.alt[lang]}
+                  visualId={`image:${img.id}`}
+                />
+              </ProductPhoto>
+              <PhotoCaption imageKey={`image:${img.id}`} />
+            </button>
+          ))}
+        </div>
+      )}
+      <dialog
+        ref={dialog}
+        className="product-lightbox"
+        aria-label={text("copy.product.photos")}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) close();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") {
+            setIndex((i) => (i + 1) % Math.max(1, images.length));
+            setZoom(1);
+          }
+          if (e.key === "ArrowLeft") {
+            setIndex(
+              (i) =>
+                (i - 1 + Math.max(1, images.length)) %
+                Math.max(1, images.length),
+            );
+            setZoom(1);
+          }
+        }}
+      >
+        <div className="lightbox-toolbar">
+          <span>
+            {product.title[lang]} · {index + 1}/{Math.max(1, images.length)}
+          </span>
+          <button aria-label={text("copy.product.close")} onClick={close}>
+            <X size={22} />
+          </button>
+        </div>
+        <div
+          className="lightbox-image"
+          onDoubleClick={() => setZoom((z) => (z === 1 ? 2 : 1))}
+        >
+          <div
+            style={{
+              width: `${zoom * 100}%`,
+              height: `${zoom * 100}%`,
+              position: "relative",
+            }}
+          >
+            <Art
+              src={current?.url || "/images/part-0.svg"}
+              alt={current?.alt[lang] || product.title[lang]}
+              visualId={imageKey}
+            />
+          </div>
+        </div>
+        <div className="lightbox-controls">
+          <button
+            disabled={images.length < 2}
+            aria-label={text("copy.product.previous")}
+            onClick={() => {
+              setIndex((i) => (i - 1 + images.length) % images.length);
+              setZoom(1);
+            }}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <button
+            disabled={zoom <= 1}
+            aria-label={text("copy.product.zoomout")}
+            onClick={() => setZoom((z) => Math.max(1, z - 0.5))}
+          >
+            <Minus size={20} />
+          </button>
+          <span>{zoom * 100}%</span>
+          <button
+            disabled={zoom >= 3}
+            aria-label={text("copy.product.zoomin")}
+            onClick={() => setZoom((z) => Math.min(3, z + 0.5))}
+          >
+            <Plus size={20} />
+          </button>
+          <button
+            disabled={images.length < 2}
+            aria-label={text("copy.product.next")}
+            onClick={() => {
+              setIndex((i) => (i + 1) % images.length);
+              setZoom(1);
+            }}
+          >
+            <ArrowRight size={20} />
+          </button>
+        </div>
+      </dialog>
+    </div>
+  );
+}
 function ProductDetail({
   p,
   c,
@@ -1200,7 +1365,9 @@ function ProductDetail({
   href,
   add,
   requestContext = {},
+  savedBike = "",
 }: {
+  savedBike?: string;
   requestContext?: Record<string, string>;
   p: Product;
   c: Catalog;
@@ -1217,10 +1384,22 @@ function ProductDetail({
       .sort((a, b) => a.position - b.position);
   const [variant, setVariant] = useState(variants[0]?.id || ""),
     [quantity, setQuantity] = useState(1),
-    [image, setImage] = useState(0),
-    [tab, setTab] = useState("specs");
+    [tab, setTab] = useState("specs"),
+    [purchaseVisible, setPurchaseVisible] = useState(true);
+  const purchase = useRef<HTMLDivElement>(null);
+  const fitment = selectedFitment(c, p.id, requestContext, savedBike);
+  const compatible = fitment?.status !== "none";
   const v = variants.find((v) => v.id === variant) || variants[0],
     max = maxLineQuantity;
+  useEffect(() => {
+    const target = purchase.current;
+    if (!target || !window.IntersectionObserver) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setPurchaseVisible(entry.isIntersecting),
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
   return (
     <section className="page-section product-page">
       <nav className="breadcrumbs">
@@ -1231,40 +1410,7 @@ function ProductDetail({
         <span>{p.title[lang]}</span>
       </nav>
       <div className="product-detail">
-        <div>
-          <ProductPhoto
-            className="detail-main-image"
-            imageKey={
-              images[image] ? `image:${images[image].id}` : `product:${p.id}`
-            }
-          >
-            <Art
-              src={images[image]?.url || "/images/part-0.svg"}
-              alt={images[image]?.alt[lang] || p.title[lang]}
-              visualId={
-                images[image] ? `image:${images[image].id}` : `product:${p.id}`
-              }
-            />
-            <span className="product-label">{p.demo ? "DEMO" : p.sku}</span>
-          </ProductPhoto>
-          <div className="thumbnails">
-            {images.map((img, i) => (
-              <button
-                aria-label={img.alt[lang] + ` ${i + 1}`}
-                className={image === i ? "selected" : ""}
-                key={img.id}
-                onClick={() => setImage(i)}
-              >
-                <Art
-                  src={img.url}
-                  alt={img.alt[lang]}
-                  visualId={`image:${img.id}`}
-                />
-                <PhotoCaption imageKey={`image:${img.id}`} />
-              </button>
-            ))}
-          </div>
-        </div>
+        <ProductGallery images={images} product={p} lang={lang} />
         <div className="product-copy">
           <p className="eyebrow">
             {<VisualText textKey={"ui:" + (p.material as MessageKey)} />} /{" "}
@@ -1282,6 +1428,47 @@ function ProductDetail({
               {t("madeToOrder")}
             </span>
           </div>
+          <p className="purchase-promise" data-visual-text="ui:shippingNote">
+            {t("shippingNote")}
+          </p>
+          {fitment ? (
+            <div className="product-fitment" data-fitment={fitment.status}>
+              <span className="micro">
+                <VisualText textKey="slot:copy.product.selectedbike" />
+              </span>
+              <strong>{fitment.label}</strong>
+              {fitment.generation && <small>{fitment.generation}</small>}
+              <p>
+                {fitment.status === "full" ? (
+                  <>
+                    <Check size={14} />
+                    <VisualText textKey="slot:copy.product.fits" />
+                  </>
+                ) : fitment.status === "partial" ? (
+                  <>
+                    <VisualText textKey="ui:compatibleYears" />: {fitment.years}
+                  </>
+                ) : (
+                  <VisualText textKey="slot:copy.product.nofit" />
+                )}
+              </p>
+              <Link className="under-link" href={href("/motosikletler")}>
+                <VisualText textKey="slot:copy.product.changebike" />
+              </Link>
+            </div>
+          ) : (
+            <button
+              className="under-link fitment-check"
+              onClick={() => {
+                setTab("fitment");
+                document
+                  .getElementById("detail-panel")
+                  ?.scrollIntoView({ block: "center", behavior: "smooth" });
+              }}
+            >
+              <VisualText textKey="slot:copy.product.checkfit" />
+            </button>
+          )}
           <p
             className="description"
             data-edit-text={`products:${p.id}:description`}
@@ -1293,7 +1480,7 @@ function ProductDetail({
               {t("demoProduct")}
             </div>
           )}
-          <fieldset className="variant-field">
+          <fieldset className="variant-field" id="purchase-options">
             <legend data-visual-text={"ui:" + "finish"}>{t("finish")}</legend>
             {variants.map((vv) => (
               <button
@@ -1313,7 +1500,7 @@ function ProductDetail({
               </button>
             ))}
           </fieldset>
-          <div className="add-row">
+          <div className="add-row" ref={purchase}>
             <div className="quantity">
               <button
                 aria-label={t("quantity") + " −"}
@@ -1333,16 +1520,13 @@ function ProductDetail({
             </div>
             <button
               className="button"
-              disabled={!v || max < 1}
+              disabled={!v || max < 1 || !compatible}
               onClick={() => v && add(p, v.id, quantity)}
             >
               {<VisualText textKey={"ui:" + "addCart"} />}
               <Plus size={16} />
             </button>
           </div>
-          <p className="micro muted" data-visual-text={"ui:" + "shippingNote"}>
-            {t("shippingNote")}
-          </p>
           <div className="detail-tabs" role="tablist">
             {(["specs", "fitment", "installation"] as const).map((key) => (
               <button
@@ -1438,6 +1622,27 @@ function ProductDetail({
           )}
         </div>
       </div>
+      <aside
+        className="mobile-purchase"
+        aria-label={fixedText("copy.product.quickbuy")}
+        hidden={purchaseVisible}
+      >
+        <div>
+          <ProductPrice product={p} lang={lang} />
+          <a href="#purchase-options">
+            {t((v?.finish || "gloss") as MessageKey)} · {quantity}{" "}
+            <VisualText textKey="slot:copy.product.pieces" />
+          </a>
+        </div>
+        <button
+          className="button"
+          disabled={!v || !compatible}
+          onClick={() => v && add(p, v.id, quantity)}
+        >
+          <VisualText textKey="ui:addCart" />
+          <Plus size={16} />
+        </button>
+      </aside>
       <QuoteRequest
         lang={lang}
         context={{

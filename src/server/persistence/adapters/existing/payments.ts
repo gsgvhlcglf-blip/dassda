@@ -1,5 +1,6 @@
 import "server-only";
 import { privileged } from "./privileged";
+import { notificationSchema } from "./notification-schema";
 import { randomUUID } from "node:crypto";
 import { isLive, localDB } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
@@ -49,6 +50,7 @@ function paymentDB() {
   ] as const)
     if (!columns.some((c) => c.name === column))
       db.exec(`ALTER TABLE orders ADD COLUMN ${column} ${sql}`);
+  db.exec(notificationSchema);
   return db;
 }
 const attempt = (value: unknown) => {

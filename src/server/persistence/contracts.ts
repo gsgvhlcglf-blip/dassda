@@ -54,6 +54,19 @@ export type InventoryChange = {
 
 /** Data access ports. No SQL dialect, SDK, browser storage or HTTP response types. */
 export interface Repositories {
+  notifications: {
+    listNotices(
+      orderId: string,
+    ): Promise<import("@/lib/order-emails").OrderNotice[]>;
+    claimNotice(): Promise<import("@/lib/order-emails").NoticeJob | null>;
+    finishNotice(
+      id: string,
+      lease: string,
+      providerId: string | null,
+      error: string | null,
+    ): Promise<void>;
+    retryNotices(orderId: string): Promise<void>;
+  };
   catalog: { getRows(table: Table): Promise<Row[]> };
   workspace: {
     publishedDesign(): Promise<SiteSnapshot["design"]>;

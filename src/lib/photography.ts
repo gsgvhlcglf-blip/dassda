@@ -8,7 +8,7 @@ export type PhotoFrame = {
   scale: number;
   x: number;
   y: number;
-  role: "overview" | "texture" | "finish";
+  role: "overview" | "texture" | "finish" | "installed" | "mounting";
 };
 export const defaultPhotography: Photography = {
   aspect: "square",
@@ -26,4 +26,6 @@ export const photoRoles = {
   overview: "Genel görünüm",
   texture: "Doku detayı",
   finish: "Yüzey detayı",
+  installed: "Motosiklet üzerinde",
+  mounting: "Bağlantı noktaları",
 };

@@ -34,6 +34,8 @@ export function siteTextEntries(lang: Lang, design?: VisualDesign) {
     "slot:photo.caption.overview": "Genel görünüm",
     "slot:photo.caption.texture": "Doku detayı",
     "slot:photo.caption.finish": "Yüzey detayı",
+    "slot:photo.caption.installed": "Motosiklet üzerinde",
+    "slot:photo.caption.mounting": "Bağlantı noktaları",
   };
   const groups: Record<string, string> = {
     store: "Mağaza",

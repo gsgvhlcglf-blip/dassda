@@ -240,3 +240,29 @@ Eski sipariş ve hesap kayıtları silinmez. Yönetici girişi korunur.
 Supabase kurulurken 001–017 göçleri sırasıyla uygulanır. Misafir siparişleri için
 017 ve yalnızca sunucuda SUPABASE_SERVICE_ROLE_KEY gereklidir. MySQL hazırlığı
 006_guest_checkout.sql dosyasındadır; canlı MySQL adaptörü henüz bağlı değildir.
+
+## Ürün deneyimi ve satın alma akışı
+
+- Telefonda ana satın alma düğmesi ekrandan çıktığında fiyat, seçilen vernik/adet ve
+  Sepete ekle çubuğu aşağıda görünür. Aynı varyantı ve adedi kullanır.
+- Ürün sayfasında seçilen motosiklet ve nesil/yıl gösterilir. Uyum kısmi ise gerçek
+  uyumlu yıllar yazılır; hiç uyum yoksa satın alma düğmesi kapanır.
+- Ücretsiz kargo, KDV ve 7–15 iş gününde kargoya teslim bilgisi fiyatın yanındadır.
+- Yakından incele fotoğrafı açar; +/−, sağ/sol oklar ve Esc çalışır. Galeri
+  fotoğrafları ortak kare/kadraj ayarlarını kullanır; orijinaller korunur.
+- Önizlemede düzenleme açıkken fotoğrafa tıklayın. Fotoğraf çekim türü alanından
+  Genel görünüm, Doku detayı, Yüzey detayı, Motosiklet üzerinde veya Bağlantı
+  noktaları seçilebilir. İçeriğe gerçekten uyan türü seçin; örnek çizimler montaj
+  fotoğrafı gibi sunulmamalıdır. Yeni fotoğraf uydurulmaz.
+- Analitikte Üründen ödemeye alanı doğrudan ürün ziyaretlerini de kapsar. Ürün,
+  başarılı sepete ekleme ve ödeme adımlarının devam oranları cihazlara göre ayrılır.
+  Ödeme formu içerikleri, adresler, e-postalar ve ödeme tıklama haritası kaydedilmez.
+  Sipariş/tahsilat toplamları ayrı hesaplanır; demo/test işlemleri hariçtir.
+
+## Sipariş ve kargo e-postaları
+
+Sipariş ayrıntısındaki E-posta bildirimleri alanı kuyruk ve gönderim durumunu gösterir.
+E-posta servisi bağlanana kadar gönderildi denmez. Yerel demo ve indirmesiz panel
+gerçek e-posta göndermez. Ödemesi sağlayıcı tarafından doğrulanmış gerçek siparişin
+özeti ve kargo numarası yayımlandığında takip bilgisi otomatik kuyruğa girer.
+Kurulum: [E-posta bildirimleri](EPOSTA-BILDIRIMLERI.md).

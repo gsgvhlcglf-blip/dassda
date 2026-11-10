@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { OrderNotices } from "./order-notices";
 import { money } from "@/lib/i18n";
 import { paymentStatusLabel } from "@/lib/payments/types";
 import {
@@ -262,6 +263,11 @@ export function OrderDashboard({
               </table>
             </div>
           </section>
+          <OrderNotices
+            key={order.id + ":" + order.fulfillment_version}
+            orderId={order.id}
+            sample={Boolean(transport.sample)}
+          />
           <section className="order-detail-card order-shipment">
             <h4>Kargo takip numarasını paylaş</h4>
             <p>

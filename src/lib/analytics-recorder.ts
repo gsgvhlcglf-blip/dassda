@@ -27,7 +27,7 @@ export function createAnalyticsRecorder(
   revision: string,
   emit: (event: AnalyticsEvent) => void,
 ) {
-  const clean = analyticsPath(path);
+  const clean = analyticsPath(path) || (path === "/odeme" ? "/odeme" : null);
   if (!clean || privacyPreference()) return () => {};
   const session_id = analyticsSession();
   let maximum = 0,
@@ -67,6 +67,11 @@ export function createAnalyticsRecorder(
       revision,
       ...data,
     });
+  // Checkout records one anonymous step only. No form listeners, heatmap, query or referrer.
+  if (clean === "/odeme") {
+    send("checkout_start", { referrer_host: "" });
+    return () => {};
+  }
   const depth = () =>
     Math.min(
       1,

@@ -40,8 +40,8 @@ export function ProductPhoto({
             settings.background === "light"
               ? "#e8e8e3"
               : settings.background === "original"
-                ? "#171915"
-                : "#141615",
+                ? "transparent"
+                : "#141414",
           "--photo-fit": settings.fit,
           "--photo-scale": ((settings.scale / 100) * frame.scale) / 100,
           "--photo-x": frame.x + "%",

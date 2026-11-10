@@ -5,6 +5,7 @@ import type { AdapterLoaders, Repositories } from "./contracts";
 // Existing implementations retain their transactions, RLS and ownership checks.
 // Register a complete MySQL loader set here when the hosting work is authorized.
 const existing: AdapterLoaders = {
+  notifications: () => import("./adapters/existing/notifications"),
   catalog: () => import("./adapters/existing/catalog"),
   workspace: () => import("./adapters/existing/workspace"),
   requests: () => import("./adapters/existing/requests"),

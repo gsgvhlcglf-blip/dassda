@@ -2,6 +2,8 @@ import "server-only";
 import { isLive, localDB } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import {
+  analyticsSince,
+  analyticsPath,
   summarizeAnalytics,
   analyticsHeatmap,
   type AnalyticsEvent,
@@ -107,7 +109,24 @@ async function localEvents(days: number) {
     ) as unknown as StoredAnalyticsEvent[];
 }
 export async function getAnalyticsReport(days: number) {
-  if (!isLive) return summarizeAnalytics(await localEvents(days), days);
+  if (!isLive) {
+    const report = summarizeAnalytics(await localEvents(days), days);
+    const { getPaymentSettings } = await import("./payments");
+    await getPaymentSettings();
+    const orders = localDB()
+      .prepare(
+        "SELECT count(*) created,coalesce(sum(case when payment_status='paid' then 1 else 0 end),0) paid,coalesce(sum(case when payment_status='paid' then total else 0 end),0) revenue FROM orders WHERE demo=0 AND payment_status<>'test_paid' AND created_at>=? AND created_at<=?",
+      )
+      .get(
+        new Date(analyticsSince(days)).toISOString(),
+        new Date().toISOString(),
+      ) as {
+      created: number;
+      paid: number;
+      revenue: number;
+    };
+    return { ...report, purchase: { ...report.purchase!, orders } };
+  }
   const { data, error } = await (
     await supabase()
   ).rpc("admin_analytics_summary", { requested_days: days });
@@ -116,7 +135,18 @@ export async function getAnalyticsReport(days: number) {
     await supabase()
   ).rpc("admin_analytics_funnel", { requested_days: days });
   if (funnel.error) throw Error("ANALYTICS_FUNNEL_SETUP_REQUIRED");
-  return { ...data, funnel: funnel.data };
+  const purchase = await (
+    await supabase()
+  ).rpc("admin_purchase_funnel", { requested_days: days });
+  if (purchase.error) throw Error("PURCHASE_ANALYTICS_SETUP_REQUIRED");
+  return {
+    ...data,
+    pages: data.pages.filter((page: { path: string }) =>
+      analyticsPath(page.path),
+    ),
+    funnel: funnel.data,
+    purchase: purchase.data,
+  };
 }
 export async function getAnalyticsHeatmap(
   days: number,

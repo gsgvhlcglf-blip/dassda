@@ -1,5 +1,6 @@
 "use client";
 import { AnalyticsFunnel } from "./analytics-funnel";
+import { PurchaseAnalytics } from "./purchase-analytics";
 import {
   RequestAnalyticsPanel,
   type RequestAnalyticsSource,
@@ -347,6 +348,7 @@ export function AnalyticsDashboard({
         )}
       </section>
       <AnalyticsFunnel report={data?.report.funnel} />
+      <PurchaseAnalytics report={data?.report.purchase} preview={preview} />
       <div className="analytics-two">
         <section className="analytics-card">
           <h3>Sayfalar</h3>

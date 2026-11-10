@@ -16,10 +16,15 @@ test("guest orders and payments preserve pricing, daily references, isolation an
     for (const file of [
       "001_store",
       "002_customer_membership",
+      "003_analytics",
+      "004_analytics_funnel",
       "006_payments",
       "013_product_commerce",
+      "015_order_tracking",
       "016_daily_order_references",
       "017_guest_checkout",
+      "018_purchase_analytics",
+      "019_order_notifications",
     ])
       await db.exec(readFileSync(`supabase/migrations/${file}.sql`, "utf8"));
     await db.exec(readFileSync("supabase/seed.sql", "utf8"));
@@ -119,6 +124,187 @@ test("guest orders and payments preserve pricing, daily references, isolation an
       ).rows.length,
       2,
     );
+
+    // No test/demo confirmation email; a real paid transition enqueues atomically once.
+    await db.exec("set role service_role");
+    await db.query(
+      "select public.settle_payment($1,true,1233000,'TRY','TEST-ONLY-PAYMENT',false)",
+      [payment.id],
+    );
+    await db.exec("reset role");
+    assert.equal(
+      (await db.query("select * from public.order_notifications")).rows.length,
+      0,
+    );
+    await db.exec("begin");
+    await db.query(
+      "update public.orders set demo=false,payment_status='paid' where reference=$1",
+      [order.reference],
+    );
+    await db.exec("rollback");
+    assert.equal(
+      (await db.query("select * from public.order_notifications")).rows.length,
+      0,
+    );
+    await db.query(
+      "update public.orders set demo=false,payment_status='paid' where reference=$1",
+      [order.reference],
+    );
+    await db.query(
+      "update public.orders set payment_status='paid' where reference=$1",
+      [order.reference],
+    );
+    assert.equal(
+      (await db.query("select * from public.order_notifications")).rows.length,
+      1,
+    );
+    await db.query(
+      "update public.orders set fulfillment_version=1,shipped_at=now(),tracking_number='TEST-TRACK-123',status='shipped' where reference=$1",
+      [order.reference],
+    );
+    assert.equal(
+      (await db.query("select * from public.order_notifications")).rows.length,
+      2,
+    );
+    await db.exec("set role anon");
+    await assert.rejects(
+      db.query("select * from public.order_notifications"),
+      /permission denied/,
+    );
+    await assert.rejects(
+      db.query("select public.claim_order_notice(gen_random_uuid())"),
+      /permission denied/,
+    );
+    await db.exec("set role service_role");
+    const lease = "00000000-0000-0000-0000-000000000011";
+    const claimed = (
+      await db.query<{ job: { id: string } }>(
+        "select public.claim_order_notice($1) job",
+        [lease],
+      )
+    ).rows[0].job;
+    const another = (
+      await db.query<{ job: { id: string } }>(
+        "select public.claim_order_notice(gen_random_uuid()) job",
+      )
+    ).rows[0].job;
+    assert.notEqual(claimed.id, another.id);
+    await db.query(
+      "select public.finish_order_notice($1,gen_random_uuid(),'fake-stale-worker',null)",
+      [claimed.id],
+    );
+    await db.query(
+      "select public.finish_order_notice($1,$2,'test-provider-id',null)",
+      [claimed.id, lease],
+    );
+    await db.exec("reset role");
+    assert.equal(
+      (
+        await db.query<{ status: string }>(
+          "select status from public.order_notifications where id=$1",
+          [claimed.id],
+        )
+      ).rows[0].status,
+      "sent",
+    );
+    await db.exec(
+      "update public.analytics_settings set enabled=true;set role anon",
+    );
+    const analyticsStep = {
+      id: "00000000-0000-0000-0000-000000000021",
+      session_id: "00000000-0000-0000-0000-000000000020",
+      kind: "pageview",
+      path: "/urunler/test-product",
+      viewport_width: 390,
+      viewport_height: 844,
+      document_width: 390,
+      document_height: 2000,
+      x: null,
+      y: null,
+      depth: null,
+      referrer_host: "",
+      revision: "test",
+    };
+    await db.query("select public.append_analytics_events($1::jsonb)", [
+      JSON.stringify({
+        consent: true,
+        events: [
+          analyticsStep,
+          {
+            ...analyticsStep,
+            id: "00000000-0000-0000-0000-000000000022",
+            kind: "cart_add",
+          },
+          {
+            ...analyticsStep,
+            id: "00000000-0000-0000-0000-000000000023",
+            kind: "checkout_start",
+            path: "/odeme",
+          },
+        ],
+      }),
+    ]);
+    await assert.rejects(
+      db.query("select public.append_analytics_events($1::jsonb)", [
+        JSON.stringify({
+          consent: true,
+          events: [
+            {
+              ...analyticsStep,
+              id: "00000000-0000-0000-0000-000000000024",
+              kind: "checkout_start",
+              path: "/odeme",
+              email: "private@example.test",
+            },
+          ],
+        }),
+      ]),
+      /INVALID_EVENTS/,
+    );
+    await assert.rejects(
+      db.query("select public.append_analytics_events($1::jsonb)", [
+        JSON.stringify({
+          consent: true,
+          events: [
+            {
+              ...analyticsStep,
+              id: "00000000-0000-0000-0000-000000000025",
+              kind: "pageview",
+              path: "/odeme",
+            },
+          ],
+        }),
+      ]),
+      /INVALID_EVENTS/,
+    );
+    await db.exec("reset role");
+    const adminId = "00000000-0000-0000-0000-000000000012";
+    await db.query(
+      "insert into auth.users(id,email,email_confirmed_at) values($1,'admin-fixture@example.test',now())",
+      [adminId],
+    );
+    await db.query("insert into public.admin_users values($1,'admin')", [
+      adminId,
+    ]);
+    await db.exec(
+      "set role authenticated;set request.jwt.claim.sub='" + adminId + "'",
+    );
+    const purchaseReport = (
+      await db.query<{
+        result: { orders: { created: number; paid: number; revenue: number } };
+      }>("select public.admin_purchase_funnel(7) result")
+    ).rows[0].result;
+    assert.deepEqual(
+      (
+        await db.query<{ result: { counts: number[] } }>(
+          "select public.admin_purchase_funnel(7) result",
+        )
+      ).rows[0].result.counts,
+      [1, 1, 1],
+    );
+    assert.equal(purchaseReport.orders.created, 1);
+    assert.equal(purchaseReport.orders.paid, 1);
+    assert.equal(purchaseReport.orders.revenue, 12330);
   } finally {
     await db.close();
   }

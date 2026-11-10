@@ -1,3 +1,5 @@
+import { after } from "next/server";
+import { dispatchOrderNotices } from "@/server/order-notifications";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { paymentCredentials, paymentOrigin } from "@/lib/payments/config";
@@ -34,6 +36,13 @@ export async function POST(req: Request) {
           paymentCredentials("iyzico", a.mode).iyzico!,
         ),
       );
+    after(async () => {
+      try {
+        await dispatchOrderNotices();
+      } catch {
+        /* Durable queue survives delivery failures. */
+      }
+    });
     return NextResponse.redirect(
       paymentOrigin() + "/odeme/sonuc?attempt=" + id,
       303,

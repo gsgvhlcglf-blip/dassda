@@ -83,7 +83,7 @@ export function AnalyticsTracker({
   useEffect(() => {
     allowed.current =
       enabled && choice?.analytics === true && !preview && !privacyPreference();
-    if (!allowed.current || !analyticsPath(path)) return;
+    if (!allowed.current || (!analyticsPath(path) && path !== "/odeme")) return;
     const stop = createAnalyticsRecorder(
       path,
       process.env.NEXT_PUBLIC_ANALYTICS_REVISION || "site",

@@ -1,3 +1,5 @@
+import { after } from "next/server";
+import { dispatchOrderNotices } from "@/server/order-notifications";
 import { paymentCredentials } from "@/lib/payments/config";
 import { sameSignature, paytrCallbackSignature } from "@/lib/payments/protocol";
 import { verifyPaytrCallback } from "@/lib/payments/providers";
@@ -33,6 +35,13 @@ export async function POST(req: Request) {
       return new Response("NOT_FOUND", { status: 404 });
     const result = verifyPaytrCallback(fields, a, credentials);
     await settlePayment(a.id, result);
+    after(async () => {
+      try {
+        await dispatchOrderNotices();
+      } catch {
+        /* Durable queue retries separately from payment acknowledgement. */
+      }
+    });
     return new Response("OK", {
       headers: { "Content-Type": "text/plain", "Cache-Control": "no-store" },
     });

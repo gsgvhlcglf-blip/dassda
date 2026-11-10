@@ -183,3 +183,13 @@ shipping details and payment status without creating customer accounts. Apply
 Supabase migration 017 after earlier migrations; its private RPCs require the
 server-only service-role key. MySQL migration 006 prepares the ownership fields
 for the future adapter. See [owner guide](docs/OWNER-GUIDE.md#üyeliksiz-alışveriş).
+
+Product experience: mobile sticky purchase controls, exact motorcycle/generation
+compatibility, price-adjacent shipping information and a keyboard/touch gallery.
+Existing photo framing now also labels actual installed/mounting shots. Purchase
+analytics adds consent-only checkout steps and separate server-verified order
+totals (migration 018); checkout heatmaps/form values stay disabled.
+Transactional order/shipment notifications use a private durable outbox (019),
+provider idempotency and capped retries. Real email requires a verified sender
+and server-only configuration; see [email setup](docs/EPOSTA-BILDIRIMLERI.md).
+No real emails are sent from the HTML workspace or SQLite demo.

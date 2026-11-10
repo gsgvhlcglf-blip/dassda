@@ -1,3 +1,4 @@
+import { summarizePurchase, type PurchaseReport } from "./purchase-funnel";
 import { summarizeFunnel, type FunnelReport } from "./analytics-funnel";
 import { z } from "zod";
 const publicPath =
@@ -14,8 +15,8 @@ export const analyticsEventSchema = z
   .object({
     id: z.uuid(),
     session_id: z.uuid(),
-    kind: z.enum(["pageview", "click", "scroll", "cart_add"]),
-    path: z.string().max(400).regex(publicPath),
+    kind: z.enum(["pageview", "click", "scroll", "cart_add", "checkout_start"]),
+    path: z.union([z.string().max(400).regex(publicPath), z.literal("/odeme")]),
     viewport_width: z.number().int().min(240).max(7680),
     viewport_height: z.number().int().min(200).max(4320),
     document_width: z.number().int().min(240).max(16384),
@@ -35,6 +36,12 @@ export const analyticsEventSchema = z
   })
   .strict()
   .refine(
+    (e) =>
+      (e.kind === "checkout_start") === (e.path === "/odeme") &&
+      (e.kind !== "checkout_start" ||
+        (e.depth === null && e.referrer_host === "")),
+  )
+  .refine(
     (e) => e.kind !== "cart_add" || /^\/urunler\/[a-zA-Z0-9_-]+$/.test(e.path),
   )
   .refine((e) =>
@@ -47,6 +54,7 @@ export type StoredAnalyticsEvent = AnalyticsEvent & { created_at: string };
 export type AnalyticsSettings = { enabled: boolean; retentionDays: number };
 export type AnalyticsReport = {
   funnel?: FunnelReport;
+  purchase?: PurchaseReport;
   totals: {
     sessions: number;
     pageviews: number;
@@ -110,7 +118,9 @@ export function summarizeAnalytics(
       );
   const average = (values: number[]) =>
     values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-  const pages = [...new Set(rows.map((e) => e.path))]
+  const pages = [
+    ...new Set(rows.filter((e) => analyticsPath(e.path)).map((e) => e.path)),
+  ]
     .map((path) => {
       const p = rows.filter((e) => e.path === path);
       return {
@@ -155,6 +165,7 @@ export function summarizeAnalytics(
   };
   return {
     funnel: summarizeFunnel(rows),
+    purchase: summarizePurchase(rows),
     totals: {
       sessions: new Set(views.map((e) => e.session_id)).size,
       pageviews: views.length,

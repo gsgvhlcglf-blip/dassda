@@ -188,6 +188,8 @@ function photoFrameHTML(binding) {
       ["overview", "Genel görünüm"],
       ["texture", "Doku detayı"],
       ["finish", "Yüzey detayı"],
+      ["installed", "Motosiklet üzerinde"],
+      ["mounting", "Bağlantı noktaları"],
     ],
     frame.role,
   )}</select></label><p>Yüklediğiniz fotoğrafın gerçek içeriğine göre seçin. Ayarlar otomatik kaydedilir.</p></div>`;

@@ -40,7 +40,7 @@ export function PreviewAnalyticsRecorder({
       if (readCookieChoice()?.analytics) appendPreviewAnalytics(event);
     });
   }, [enabled, recording, path, revision, choice]);
-  if (!enabled || !analyticsPath(path)) return null;
+  if (!enabled || (!analyticsPath(path) && path !== "/odeme")) return null;
   return (
     <aside
       className="analytics-test-banner"
@@ -49,7 +49,9 @@ export function PreviewAnalyticsRecorder({
     >
       <p>
         {recording
-          ? "Test kaydı açık · Tıklamalar ve kaydırma bu tarayıcıya kaydediliyor."
+          ? path === "/odeme"
+            ? "Test kaydı açık · Yalnızca ödeme adımı sayılır; form bilgileri kaydedilmez."
+            : "Test kaydı açık · Tıklamalar ve kaydırma bu tarayıcıya kaydediliyor."
           : "Yalnızca bu tarayıcı için test kaydı. Gerçek ziyaretçi verisi değildir."}
       </p>
       {!choice?.analytics && (

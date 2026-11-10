@@ -1,5 +1,19 @@
 // Stable keys for editable storefront copy. Keep existing keys when changing default wording.
 export const siteTextDefaults: Record<string, string> = {
+  "copy.product.selectedbike": "SEÇTİĞİNİZ MOTOSİKLET",
+  "copy.product.fits": "Seçiminizle uyumlu",
+  "copy.product.nofit": "Bu ürün seçtiğiniz motosiklet ve yılla uyumlu değil.",
+  "copy.product.changebike": "Motosikleti değiştir →",
+  "copy.product.checkfit": "Motosiklet uyumluluğunu kontrol et →",
+  "copy.product.quickbuy": "Hızlı satın alma",
+  "copy.product.pieces": "adet",
+  "copy.product.expand": "Yakından incele",
+  "copy.product.photos": "Ürün fotoğrafları",
+  "copy.product.close": "Fotoğrafı kapat",
+  "copy.product.previous": "Önceki fotoğraf",
+  "copy.product.next": "Sonraki fotoğraf",
+  "copy.product.zoomin": "Fotoğrafı büyüt",
+  "copy.product.zoomout": "Fotoğrafı küçült",
   "copy.guest.title": "Siparişlerim",
   "copy.guest.loading": "Siparişler yükleniyor…",
   "copy.guest.intro":

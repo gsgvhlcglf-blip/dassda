@@ -169,7 +169,9 @@ export function validateDesign(value) {
       !Number.isFinite(frame.y) ||
       frame.y < 0 ||
       frame.y > 100 ||
-      !["overview", "texture", "finish"].includes(frame.role)
+      !["overview", "texture", "finish", "installed", "mounting"].includes(
+        frame.role,
+      )
     )
       throw Error("Fotoğraf kadrajı geçersiz.");
     result.photoFrames[key] = {

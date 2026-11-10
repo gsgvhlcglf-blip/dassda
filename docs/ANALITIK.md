@@ -47,3 +47,17 @@ Son komut geçici, izole bir SQLite veritabanı ve rastgele test kimlik bilgiler
 Akış: **Marka seçimi ekranı → Marka seçildi → Model seçildi → Uyumlu ürünler → Ürün incelendi → Başarıyla sepete eklendi**. Sayaçlar bu adımları sırayla tamamlayan sekme oturumlarını gösterir. Mobil, tablet ve masaüstü filtresi oturumun akışa başladığı ekran ölçüsüne göre çalışır. Bir aşamaya dönüp tekrar tıklamak oturum sayısını şişirmez. Ürüne doğrudan girenler ayrı toplam olarak gösterilir; zorunlu motosiklet seçimi hunisine dahil edilmez.
 
 Her adımın bir önceki adımdan geçiş oranı ve o adıma henüz ulaşmayan oturum sayısı görünür. “Ulaşmadı” sayısı kesin vazgeçme sebebi değildir: dönem sonunda ziyaretine devam edenler ve farklı bir gezinme yolu kullananlar da buna dahildir. Sepete ekleme ödeme veya satış değildir. Hesap, sepet ve ödeme sayfalarının izlenmeme kuralı korunur; yeni olay yalnızca genel ürün sayfasındaki başarılı sepete ekleme işlemidir. Form değerleri ve ürün miktarları olaya eklenmez.
+
+## Üründen ödemeye
+
+018_purchase_analytics.sql, mevcut 001–017 kurulumuna eklenir. Onaylı anonim
+oturumlar için ürün → sepete ekleme → ödeme formu açma sırası ve cihaz oranları
+gösterilir; doğrudan ürün girişleri dahildir. /odeme yalnızca checkout_start
+olayına izin verir: x/y/depth null, referrer boş, sorgu ve form alanı yoktur.
+Isı haritası ve analyticsPath için /odeme hâlâ kapalıdır. İzin, DNT/GPC, kapalı
+varsayılan ve saklama süreleri korunur.
+
+Gerçek sipariş sayısı ve doğrulanmış tahsilat, dönem içinde oluşmuş siparişlerden
+ayrı hesaplanır; demo/test hariçtir. İzinli oturum sayısı ile tüm siparişler aynı
+kitle değildir; ziyaretçiden satışa oranı diye birbirine bölünmez. Anonim oturum
+kimliği müşteri e-postası veya adresiyle birleştirilmez.

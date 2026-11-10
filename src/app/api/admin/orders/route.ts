@@ -1,3 +1,5 @@
+import { after } from "next/server";
+import { dispatchOrderNotices } from "@/server/order-notifications";
 import { NextResponse } from "next/server";
 import { getRole, sameOrigin } from "@/lib/auth";
 import { repository } from "@/server/persistence";
@@ -43,6 +45,13 @@ export async function POST(req: Request) {
     const order = await (
       await repository("orders")
     ).shareTracking(input.id, input.shipment);
+    after(async () => {
+      try {
+        await dispatchOrderNotices();
+      } catch {
+        /* Shipment is saved even when delivery is unavailable. */
+      }
+    });
     return NextResponse.json(
       { order },
       { headers: { "Cache-Control": "private, no-store" } },
